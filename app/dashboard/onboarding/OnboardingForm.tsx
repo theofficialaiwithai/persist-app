@@ -75,7 +75,7 @@ export default function OnboardingForm() {
               <SelectTrigger className="border-[#E5E7EB]">
                 <SelectValue placeholder="Select your platform" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-[#E5E7EB] shadow-lg z-50">
                 <SelectItem value="teachable">Teachable</SelectItem>
                 <SelectItem value="kajabi">Kajabi</SelectItem>
                 <SelectItem value="thinkific">Thinkific</SelectItem>
@@ -132,7 +132,7 @@ export default function OnboardingForm() {
               <SelectTrigger className="border-[#E5E7EB]">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-white border border-[#E5E7EB] shadow-lg z-50">
                 <SelectItem value="encouraging">Encouraging</SelectItem>
                 <SelectItem value="professional">Professional</SelectItem>
                 <SelectItem value="urgent">Urgent</SelectItem>
