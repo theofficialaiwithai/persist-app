@@ -1,5 +1,5 @@
 import {
-  pgTable, text, integer, boolean, timestamp, jsonb, uuid, numeric, date
+  pgTable, text, integer, boolean, timestamp, jsonb, uuid, numeric, date, uniqueIndex
 } from 'drizzle-orm/pg-core'
 
 export const creators = pgTable('creators', {
@@ -27,7 +27,11 @@ export const courses = pgTable('courses', {
   platformCourseId: text('platform_course_id'),
   active:           boolean('active').notNull().default(true),
   createdAt:        timestamp('created_at').notNull().defaultNow(),
-})
+}, (t) => ({
+  // Enables upsert by (creatorId, platformCourseId) in the webhook receiver
+  creatorPlatformCourseUniq: uniqueIndex('courses_creator_platform_course_idx')
+    .on(t.creatorId, t.platformCourseId),
+}))
 
 export const students = pgTable('students', {
   id:                      uuid('id').primaryKey().defaultRandom(),
@@ -44,7 +48,10 @@ export const students = pgTable('students', {
   status:                  text('status').notNull().default('active'),
   avgDaysBetweenSessions:  numeric('avg_days_between_sessions', { precision: 5, scale: 2 }),
   createdAt:               timestamp('created_at').notNull().defaultNow(),
-})
+}, (t) => ({
+  // Enables upsert by (courseId, email) in the webhook receiver
+  courseEmailUniq: uniqueIndex('students_course_email_idx').on(t.courseId, t.email),
+}))
 
 export const progressEvents = pgTable('progress_events', {
   id:           uuid('id').primaryKey().defaultRandom(),
