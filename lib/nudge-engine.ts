@@ -77,7 +77,7 @@ export async function getStudentsNeedingNudge(
 
   if (candidateStudents.length === 0) return []
 
-  const inactivityThresholdDays = 0 // TODO: restore to Math.max(3, creator.minDaysBetweenNudges * 1.5)
+  const inactivityThresholdDays = Math.max(3, creator.minDaysBetweenNudges * 1.5)
   const now = new Date()
   const nudgeCutoff = new Date(now)
   nudgeCutoff.setDate(nudgeCutoff.getDate() - creator.minDaysBetweenNudges)
