@@ -1,13 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
 
 export function LandingNav() {
   const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 12)
+    const onScroll = () => setScrolled(window.scrollY > 8)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -15,47 +14,42 @@ export function LandingNav() {
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/90 backdrop-blur-md border-b border-[#E5E7EB] shadow-sm'
-          : 'bg-transparent'
-      }`}
+        scrolled ? 'shadow-sm' : ''
+      } bg-[#F7F4EE]/90 backdrop-blur-sm border-b border-[#E8E4DC]`}
     >
       <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <span className="text-xl font-bold text-indigo-600 tracking-tight select-none">
+        <a href="/" className="text-xl font-bold text-[#111827] tracking-tight select-none hover:opacity-80 transition-opacity">
           Persist
-        </span>
+        </a>
 
         {/* Centre links */}
         <div className="hidden md:flex items-center gap-8">
-          <a
-            href="#how-it-works"
-            className="text-sm text-[#6B7280] hover:text-[#111827] transition-colors"
-          >
+          <a href="#how-it-works" className="text-sm text-[#6B7280] hover:text-[#111827] transition-colors">
             How it works
           </a>
-          <a
-            href="#pricing"
-            className="text-sm text-[#6B7280] hover:text-[#111827] transition-colors"
-          >
+          <a href="#features" className="text-sm text-[#6B7280] hover:text-[#111827] transition-colors">
+            Features
+          </a>
+          <a href="#pricing" className="text-sm text-[#6B7280] hover:text-[#111827] transition-colors">
             Pricing
           </a>
         </div>
 
         {/* Right CTAs */}
-        <div className="flex items-center gap-3">
-          <Link
+        <div className="flex items-center gap-4">
+          <a
             href="/sign-in"
-            className="text-sm text-[#6B7280] hover:text-[#111827] transition-colors px-2 py-1"
+            className="text-sm text-[#6B7280] hover:text-[#111827] transition-colors px-1"
           >
             Sign in
-          </Link>
-          <Link
+          </a>
+          <a
             href="/sign-up"
-            className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+            className="bg-[#111827] text-white text-sm px-4 py-2 rounded-lg font-medium hover:bg-[#1f2937] transition-colors"
           >
             Start free →
-          </Link>
+          </a>
         </div>
       </nav>
     </header>
