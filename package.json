@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "test:webhook": "npx tsx scripts/test-webhook.ts"
+    "test:webhook": "npx tsx scripts/test-webhook.ts",
+    "test:cron": "curl -H 'Authorization: Bearer '\"$CRON_SECRET\"'' http://localhost:3000/api/cron/process-nudges"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.99.0",

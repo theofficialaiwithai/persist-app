@@ -1,101 +1,67 @@
-import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { creators } from '@/db/schema'
-import {
-  getStudentsNeedingNudge,
-  generateNudgeEmail,
-  generateNudgeSubject,
-  recordNudge,
-} from '@/lib/nudge-engine'
+import { getStudentsNeedingNudge, generateNudgeEmail, generateNudgeSubject, recordNudge } from '@/lib/nudge-engine'
 import { sendNudgeEmail } from '@/lib/email'
 
-type NudgeResult = {
-  creatorId: string
-  studentId: string
-  success:   boolean
-  error?:    string
-}
-
-export async function GET(req: NextRequest) {
-  // ── Auth: verify Vercel Cron secret ─────────────────────────────────────────
-  const authHeader = req.headers.get('authorization')
-  const cronSecret = process.env.CRON_SECRET
-
-  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+export async function GET(request: Request) {
+  // 1. Verify CRON_SECRET
+  const authHeader = request.headers.get('authorization')
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  // ── Fetch all creators ───────────────────────────────────────────────────────
+  // 2. Fetch all creators
   const allCreators = await db.select().from(creators)
 
-  let processed = 0
-  let sent = 0
-  let failed = 0
-  const results: NudgeResult[] = []
+  const results: {
+    creatorId: string
+    studentId?: string
+    success: boolean
+    error?: string
+  }[] = []
 
+  // 3. For each creator, find eligible students and send nudges
   for (const creator of allCreators) {
-    let eligible
     try {
-      eligible = await getStudentsNeedingNudge(creator.id)
-    } catch (err) {
-      console.error(`[cron] eligibility check failed for creator ${creator.id}:`, err)
-      continue
-    }
+      const eligible = await getStudentsNeedingNudge(creator.id)
 
-    for (const { student, course, creator: creatorRecord, daysSinceActivity } of eligible) {
-      processed++
-
-      try {
-        const pct = Number(student.progressPct)
-
-        const [emailBody, subject] = await Promise.all([
-          generateNudgeEmail({ student, course, creator: creatorRecord, daysSinceActivity }),
-          Promise.resolve(
-            generateNudgeSubject(student.name ?? student.email, course.name, pct)
-          ),
-        ])
-
-        const nudge = await recordNudge({
-          studentId: student.id,
-          subject,
-          emailBody,
-        })
-
-        const result = await sendNudgeEmail({
-          toEmail:   student.email,
-          toName:    student.name ?? student.email,
-          fromName:  creatorRecord.senderName,
-          fromEmail: creatorRecord.senderEmail,
-          subject,
-          emailBody,
-          nudgeId:   nudge.id,
-        })
-
-        if (result.success) {
-          sent++
-          results.push({ creatorId: creator.id, studentId: student.id, success: true })
-        } else {
-          failed++
+      for (const { student, course, daysSinceActivity } of eligible) {
+        try {
+          const emailBody = await generateNudgeEmail({ student, course, creator, daysSinceActivity })
+          const subject = generateNudgeSubject(student.name, course.name, student.progressPct ?? 45)
+          const nudge = await recordNudge({
+            studentId: student.id,
+            emailBody,
+            subject,
+          })
+          const result = await sendNudgeEmail({
+            toEmail:   student.email,
+            toName:    student.name,
+            fromName:  creator.senderName || 'Your Instructor',
+            fromEmail: creator.senderEmail || '',
+            subject,
+            emailBody,
+            nudgeId:   nudge.id,
+          })
           results.push({
             creatorId: creator.id,
             studentId: student.id,
-            success:   false,
-            error:     result.error,
+            success:   result.success,
+            error:     result.success ? undefined : result.error,
           })
+        } catch (err) {
+          results.push({ creatorId: creator.id, studentId: student.id, success: false, error: String(err) })
         }
-      } catch (err) {
-        failed++
-        results.push({
-          creatorId: creator.id,
-          studentId: student.id,
-          success:   false,
-          error:     err instanceof Error ? err.message : 'Unknown error',
-        })
       }
+    } catch (err) {
+      results.push({ creatorId: creator.id, success: false, error: String(err) })
     }
   }
 
-  console.log(`[cron/process-nudges] processed=${processed} sent=${sent} failed=${failed}`)
+  const sent   = results.filter(r => r.success).length
+  const failed = results.filter(r => !r.success).length
 
-  return NextResponse.json({ processed, sent, failed, results })
+  console.log(`[cron/process-nudges] processed=${allCreators.length} sent=${sent} failed=${failed}`)
+
+  return Response.json({ processed: allCreators.length, sent, failed, results })
 }
