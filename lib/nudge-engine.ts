@@ -77,7 +77,7 @@ export async function getStudentsNeedingNudge(
 
   if (candidateStudents.length === 0) return []
 
-  const inactivityThresholdDays = Math.max(3, creator.minDaysBetweenNudges * 1.5)
+  const inactivityThresholdDays = 0 // TODO: restore to Math.max(3, creator.minDaysBetweenNudges * 1.5)
   const now = new Date()
   const nudgeCutoff = new Date(now)
   nudgeCutoff.setDate(nudgeCutoff.getDate() - creator.minDaysBetweenNudges)
@@ -185,10 +185,11 @@ export async function generateNudgeEmail(params: {
 // ── 4. Record a nudge in the database ───────────────────────────────────────
 
 export async function recordNudge(params: {
-  studentId:     string
-  subject:       string
-  emailBody:     string
+  studentId:      string
+  subject:        string
+  emailBody:      string
   triggerReason?: string
+  nudgeType?:     string
 }) {
   const [nudge] = await db
     .insert(nudges)
@@ -197,10 +198,55 @@ export async function recordNudge(params: {
       subject:       params.subject,
       body:          params.emailBody,
       triggerReason: params.triggerReason ?? 'auto:inactivity',
+      nudgeType:     params.nudgeType     ?? 'nudge',
       status:        'pending',
       sentAt:        new Date(),
     })
     .returning()
 
   return nudge
+}
+
+// ── 5. Daily learning recap email ────────────────────────────────────────────
+
+/**
+ * Generates a short warm recap celebrating today's progress.
+ * Fired from the webhook handler when a student makes 5+% progress
+ * and it's their first event of the calendar day.
+ */
+export async function generateRecapEmail(params: {
+  student:     Student
+  course:      Course
+  creator:     Creator
+  progressPct: number
+}): Promise<string> {
+  const { student, course, creator, progressPct } = params
+
+  const systemPrompt =
+    'You are a helpful assistant for online course creators. ' +
+    'Write short, warm daily learning recaps celebrating student progress. ' +
+    'Keep it under 100 words, celebratory but not cheesy, always encouraging.'
+
+  const userPrompt =
+    `Write a short daily learning recap for a student who just made progress.\n\n` +
+    `Student: ${student.name}\n` +
+    `Course: ${course.name}\n` +
+    `Current progress: ${progressPct}%\n` +
+    `The email is from: ${creator.senderName}\n\n` +
+    `Write only the email body (no subject line, no salutation). ` +
+    `Under 100 words. Celebrate what they did today. ` +
+    `Sign off from ${creator.senderName}.`
+
+  const message = await anthropic.messages.create({
+    model:      'claude-haiku-4-5',
+    max_tokens: 200,
+    messages:   [{ role: 'user', content: userPrompt }],
+    system:     systemPrompt,
+  })
+
+  const block = message.content[0]
+  if (block.type !== 'text') {
+    throw new Error('Unexpected Anthropic response type: ' + block.type)
+  }
+  return block.text
 }

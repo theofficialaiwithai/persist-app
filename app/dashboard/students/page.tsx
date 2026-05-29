@@ -65,6 +65,7 @@ export default async function StudentsPage() {
         courseName:   courseMap.get(s.courseId) ?? 'Unknown Course',
         status:       getStatus(s.progressPct, daysInactive),
         daysInactive,
+        streakDays:   s.streakDays,
       }
     })
   }

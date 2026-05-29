@@ -21,6 +21,7 @@ export type StudentRowData = {
   courseName:   string
   status:       'at-risk' | 'on-track' | 'completed' | 'new'
   daysInactive: number
+  streakDays:   number
 }
 
 export type CourseOption = { id: string; name: string }
@@ -168,7 +169,14 @@ export function StudentsTable({ rows, courses }: Props) {
                               {getInitials(student.name)}
                             </div>
                             <div className="min-w-0">
-                              <p className="font-medium text-[#111827] truncate">{student.name}</p>
+                              <div className="flex items-center gap-1.5">
+                                <p className="font-medium text-[#111827] truncate">{student.name}</p>
+                                {student.streakDays >= 3 && (
+                                  <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-orange-50 text-orange-600 shrink-0">
+                                    🔥 {student.streakDays}d
+                                  </span>
+                                )}
+                              </div>
                               <p className="text-xs text-[#6B7280] truncate">{student.email}</p>
                             </div>
                           </div>

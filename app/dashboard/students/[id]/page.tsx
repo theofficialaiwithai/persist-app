@@ -269,6 +269,17 @@ export default async function StudentDetailPage({
                   {daysInactive === 999 ? '—' : `${daysInactive}d`}
                 </span>
               </div>
+
+              {/* Learning Streak */}
+              <div className="flex justify-between items-center py-3">
+                <span className="text-sm text-[#6B7280]">🔥 Learning Streak</span>
+                <span className={cn(
+                  'text-sm font-semibold',
+                  student.streakDays >= 7 ? 'text-orange-600' : 'text-[#111827]'
+                )}>
+                  {student.streakDays > 0 ? `${student.streakDays} days` : '—'}
+                </span>
+              </div>
             </div>
           </div>
 

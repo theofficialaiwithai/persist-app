@@ -47,6 +47,7 @@ export const students = pgTable('students', {
   lastLessonCompleted:    text('last_lesson_completed'),
   nextLessonTitle:        text('next_lesson_title'),
   avgDaysBetweenSessions: integer('avg_days_between_sessions'),
+  streakDays:             integer('streak_days').notNull().default(0),
   createdAt:              timestamp('created_at').notNull().defaultNow(),
 }, (t) => ({
   // Enables upsert by (courseId, email) in the webhook receiver
@@ -70,6 +71,7 @@ export const nudges = pgTable('nudges', {
   subject:         text('subject').notNull(),
   body:            text('body').notNull(),
   triggerReason:   text('trigger_reason').notNull(),
+  nudgeType:       text('nudge_type').notNull().default('nudge'),
   status:          text('status').notNull().default('pending'),
   sentAt:          timestamp('sent_at'),
   openedAt:        timestamp('opened_at'),

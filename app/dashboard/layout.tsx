@@ -6,6 +6,7 @@ import { creators } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { SignOutButton } from '@clerk/nextjs'
 import { SidebarNav } from '@/components/dashboard/SidebarNav'
+import { SetupBanner } from '@/components/dashboard/SetupBanner'
 import { Toaster } from 'sonner'
 
 export default async function DashboardLayout({
@@ -23,8 +24,13 @@ export default async function DashboardLayout({
     where: eq(creators.userId, userId),
   })
 
-  // Redirect to onboarding if setup incomplete, but not if already there
-  if (!creator?.senderEmail && !pathname.includes('/dashboard/onboarding')) {
+  // Redirect to onboarding if setup incomplete.
+  // Allow /settings so users can complete setup there too.
+  if (
+    !creator?.senderEmail &&
+    !pathname.includes('/dashboard/onboarding') &&
+    !pathname.includes('/dashboard/settings')
+  ) {
     redirect('/dashboard/onboarding')
   }
 
@@ -55,7 +61,10 @@ export default async function DashboardLayout({
       </aside>
 
       {/* ── Main content ────────────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-auto">{children}</main>
+      <div className="flex-1 overflow-auto flex flex-col">
+        {!creator?.senderEmail && <SetupBanner />}
+        <main className="flex-1">{children}</main>
+      </div>
 
       <Toaster richColors position="top-right" />
     </div>
