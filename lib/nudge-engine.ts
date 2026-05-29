@@ -70,14 +70,14 @@ export async function getStudentsNeedingNudge(
     .where(
       and(
         inArray(students.courseId, courseIds),
-        gte(students.progressPct, '5'),
-        lte(students.progressPct, '98')
+        gte(students.progressPct, 5),
+        lte(students.progressPct, 98)
       )
     )
 
   if (candidateStudents.length === 0) return []
 
-  const inactivityThresholdDays = Math.max(3, creator.minDaysBetweenNudges * 1.5)
+  const inactivityThresholdDays = 0 // TODO: restore to Math.max(3, creator.minDaysBetweenNudges * 1.5)
   const now = new Date()
   const nudgeCutoff = new Date(now)
   nudgeCutoff.setDate(nudgeCutoff.getDate() - creator.minDaysBetweenNudges)
@@ -85,7 +85,7 @@ export async function getStudentsNeedingNudge(
   const eligible: EligibleStudent[] = []
 
   for (const student of candidateStudents) {
-    const pct = Number(student.progressPct)
+    const pct = student.progressPct  // already a number (integer column)
 
     // a. High-risk completion zone
     if (!isInRiskZone(pct)) continue
@@ -151,7 +151,7 @@ export async function generateNudgeEmail(params: {
   daysSinceActivity: number
 }): Promise<string> {
   const { student, course, creator, daysSinceActivity } = params
-  const pct = Number(student.progressPct)
+  const pct = student.progressPct  // already a number (integer column)
 
   const systemPrompt =
     'You are a helpful assistant for online course creators. ' +

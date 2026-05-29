@@ -45,10 +45,10 @@ export async function POST(request: Request) {
       ? Math.floor((Date.now() - new Date(student.lastActiveAt).getTime()) / (1000 * 60 * 60 * 24))
       : 7
 
-    const pct = Number(student.progressPct) || 45
+    const pct = student.progressPct || 45  // integer column, no conversion needed
 
     const emailBody = await generateNudgeEmail({ student, course, creator, daysSinceActivity })
-    const subject = generateNudgeSubject(student.name ?? student.email, course.name, pct)
+    const subject = generateNudgeSubject(student.name, course.name, pct)
 
     const nudge = await recordNudge({
       studentId: student.id,
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
 
     const result = await sendNudgeEmail({
       toEmail:   student.email,
-      toName:    student.name ?? student.email,
+      toName:    student.name,
       fromName:  creator.senderName || 'Your Instructor',
       fromEmail: creator.senderEmail || 'noreply@example.com',
       subject,

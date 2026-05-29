@@ -93,15 +93,15 @@ export async function POST(req: NextRequest) {
         email: studentEmail,
         name: studentName,
         lastActiveAt: eventDate,
-        progressPct: completionPercent.toFixed(2),
-        enrolledAt: eventType === 'course_enrolled' ? eventDate : undefined,
+        progressPct: Math.round(completionPercent),  // integer column
+        enrolledAt: eventType === 'course_enrolled' ? eventDate : new Date(),
       })
       .onConflictDoUpdate({
         target: [students.courseId, students.email],
         set: {
           name: studentName,
           lastActiveAt: eventDate,
-          progressPct: completionPercent.toFixed(2),
+          progressPct: Math.round(completionPercent),  // integer column
         },
       })
       .returning()
