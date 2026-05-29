@@ -14,6 +14,11 @@
   --error: #EF4444;
   --border: #E5E7EB;
   --font-body: 'Inter', sans-serif;
+
+  /* Lovable / shadcn semantic tokens */
+  --background: #F7F8FA;
+  --foreground: #111827;
+  --muted-foreground: #6B7280;
 }
 
 body {

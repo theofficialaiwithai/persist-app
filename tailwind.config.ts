@@ -11,6 +11,8 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        border: "var(--border)",
+        "muted-foreground": "var(--muted-foreground)",
         persist: {
           bg: '#F7F8FA',
           surface: '#FFFFFF',
