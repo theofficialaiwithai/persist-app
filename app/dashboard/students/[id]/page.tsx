@@ -4,7 +4,7 @@ import { db } from '@/db'
 import { creators, courses, students, nudges } from '@/db/schema'
 import { eq, desc } from 'drizzle-orm'
 import Link from 'next/link'
-import { Progress } from '@/components/ui/progress'
+import { CourseProgressCard } from '@/components/dashboard/CourseProgressCard'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
 import { NudgeAccordion } from '@/components/dashboard/NudgeAccordion'
 import type { NudgeItem } from '@/components/dashboard/NudgeAccordion'
@@ -131,30 +131,16 @@ export default async function StudentDetailPage({
         {/* ── LEFT COLUMN (2/3) ─────────────────────────────────────────── */}
         <div className="col-span-2 space-y-6">
 
-          {/* ── Card 1: Course Progress ────────────────────────────────── */}
+          {/* ── Card 1: Animated Course Progress ──────────────────────── */}
+          <CourseProgressCard
+            courseName={course.name}
+            progressPct={student.progressPct ?? 0}
+            enrolledLabel={`Enrolled ${formatDate(student.enrolledAt)}`}
+          />
+
+          {/* ── Card 2: Stats row ──────────────────────────────────────── */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-[#111827] mb-4">Course Progress</h2>
-
-            <p className="text-base font-medium text-[#111827] mb-3">{course.name}</p>
-
-            {/* Progress bar with right-aligned percentage */}
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-[#6B7280]">Completion</span>
-                <span className="text-sm font-semibold text-[#111827]">
-                  {student.progressPct}%
-                </span>
-              </div>
-              <div className="h-3 rounded-full bg-[#F7F8FA] overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-indigo-600 transition-all duration-300"
-                  style={{ width: `${Math.min(100, Math.max(0, student.progressPct))}%` }}
-                />
-              </div>
-            </div>
-
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-[#E5E7EB]">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <p className="text-xs text-[#6B7280] uppercase tracking-wide">
                   Lessons Completed
@@ -175,9 +161,13 @@ export default async function StudentDetailPage({
                 <p className="text-xs text-[#6B7280] uppercase tracking-wide">
                   Last Lesson
                 </p>
-                <p className="mt-1 text-sm font-semibold text-[#111827] truncate" title={student.lastLessonCompleted ?? undefined}>
+                <p
+                  className="mt-1 text-sm font-semibold text-[#111827] truncate"
+                  title={student.lastLessonCompleted ?? undefined}
+                >
                   {student.lastLessonCompleted
-                    ? student.lastLessonCompleted.slice(0, 30) + (student.lastLessonCompleted.length > 30 ? '…' : '')
+                    ? student.lastLessonCompleted.slice(0, 30) +
+                      (student.lastLessonCompleted.length > 30 ? '…' : '')
                     : '—'}
                 </p>
               </div>

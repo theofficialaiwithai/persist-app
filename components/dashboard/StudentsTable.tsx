@@ -4,7 +4,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Search } from 'lucide-react'
-import { Progress } from '@/components/ui/progress'
+import { AnimatedProgressBar } from '@/components/ui/animated-progress-bar'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
 import { cn } from '@/lib/utils'
 
@@ -187,14 +187,15 @@ export function StudentsTable({ rows, courses }: Props) {
                           <p className="text-[#374151] truncate max-w-[180px]">{student.courseName}</p>
                         </td>
 
-                        {/* Progress — bar + percentage side by side */}
+                        {/* Progress — animated bar + percentage */}
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-3 w-36">
-                            <div className="flex-1">
-                              <Progress value={student.progressPct} />
-                            </div>
-                            <span className="text-xs font-medium text-[#6B7280] shrink-0 w-8 text-right">
-                              {student.progressPct}%
+                          <div className="flex items-center gap-2">
+                            <AnimatedProgressBar
+                              value={student.progressPct ?? 0}
+                              className="w-28"
+                            />
+                            <span className="text-sm text-[#6B7280] whitespace-nowrap">
+                              {student.progressPct ?? 0}%
                             </span>
                           </div>
                         </td>
