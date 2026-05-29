@@ -244,6 +244,33 @@ function PricingFeature({
   )
 }
 
+// ── Smooth scroll helper ──────────────────────────────────────────────────────
+
+function smoothScrollTo(elementId: string) {
+  const element = document.getElementById(elementId)
+  if (!element) return
+  const targetPosition = element.getBoundingClientRect().top + window.scrollY - 80
+  const startPosition = window.scrollY
+  const distance = targetPosition - startPosition
+  const duration = 1200 // ms — tweak for speed
+  let startTime: number | null = null
+
+  const animation = (currentTime: number) => {
+    if (startTime === null) startTime = currentTime
+    const timeElapsed = currentTime - startTime
+    const progress = Math.min(timeElapsed / duration, 1)
+    // Cubic ease-in-out
+    const ease =
+      progress < 0.5
+        ? 4 * progress * progress * progress
+        : 1 - Math.pow(-2 * progress + 2, 3) / 2
+    window.scrollTo(0, startPosition + distance * ease)
+    if (timeElapsed < duration) requestAnimationFrame(animation)
+  }
+
+  requestAnimationFrame(animation)
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function LandingPage() {
@@ -295,10 +322,7 @@ export default function LandingPage() {
               Start for free →
             </button>
             <button
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-              }}
+              onClick={() => smoothScrollTo('how-it-works')}
               className="border-2 border-[#E8E4DC] px-7 py-3.5 rounded-xl text-base font-medium text-[#111827] hover:border-[#111827] transition-colors"
             >
               See how it works
