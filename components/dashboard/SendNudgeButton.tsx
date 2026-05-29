@@ -4,13 +4,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 interface Props {
   studentId:   string
   studentName: string
+  className?:  string
 }
 
-export function SendNudgeButton({ studentId, studentName }: Props) {
+export function SendNudgeButton({ studentId, studentName, className }: Props) {
   const [loading, setLoading] = useState(false)
   const router = useRouter()
 
@@ -37,7 +39,10 @@ export function SendNudgeButton({ studentId, studentName }: Props) {
     <button
       onClick={handleSend}
       disabled={loading}
-      className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
+      className={cn(
+        'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap',
+        className
+      )}
     >
       {loading && <Loader2 className="w-3 h-3 animate-spin" />}
       Send Nudge
