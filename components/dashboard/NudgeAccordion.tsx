@@ -12,12 +12,13 @@ export type NudgeItem = {
   body:      string
   status:    string
   sentAt:    string | null  // ISO string
-  createdAt: string         // ISO string
+  createdAt: string | null  // ISO string
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-function formatDate(iso: string): string {
+function formatDate(iso: string | null): string {
+  if (!iso) return '—'
   return new Date(iso).toLocaleDateString('en-US', {
     month: 'short', day: 'numeric', year: 'numeric',
   })

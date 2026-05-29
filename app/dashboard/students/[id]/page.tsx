@@ -81,8 +81,8 @@ export default async function StudentDetailPage({
     subject:   n.subject,
     body:      n.body,
     status:    n.status,
-    sentAt:    n.sentAt?.toISOString() ?? null,
-    createdAt: n.createdAt.toISOString(),
+    sentAt:    n.sentAt    ? n.sentAt.toISOString()    : null,
+    createdAt: n.createdAt ? n.createdAt.toISOString() : null,
   }))
 
   // ── Derived values ────────────────────────────────────────────────────────

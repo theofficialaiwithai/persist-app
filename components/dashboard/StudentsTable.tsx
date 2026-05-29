@@ -16,7 +16,7 @@ export type StudentRowData = {
   email:        string
   progressPct:  number
   lastActiveAt: string | null   // ISO string (dates serialised server-side)
-  enrolledAt:   string          // ISO string
+  enrolledAt:   string | null   // ISO string
   courseId:     string
   courseName:   string
   status:       'at-risk' | 'on-track' | 'completed' | 'new'
