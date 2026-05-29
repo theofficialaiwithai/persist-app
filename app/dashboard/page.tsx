@@ -1,8 +1,8 @@
-import { auth } from '@clerk/nextjs/server'
+import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/db'
 import { creators, courses, students, nudges } from '@/db/schema'
-import { eq, inArray, and, gte, lte, lt, isNotNull, sql, desc, asc } from 'drizzle-orm'
+import { eq, inArray, and, gte, lte, sql, desc, asc } from 'drizzle-orm'
 import { Users, BookOpen, Mail } from 'lucide-react'
 import { Progress } from '@/components/ui/progress'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
@@ -37,8 +37,15 @@ export default async function DashboardPage() {
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
+  // ── Clerk user (for welcome name) ─────────────────────────────────────────
+  const clerkUser = await currentUser()
+  const displayName =
+    clerkUser?.firstName ||
+    clerkUser?.emailAddresses[0]?.emailAddress.split('@')[0] ||
+    ''
+
   // ── Defaults ──────────────────────────────────────────────────────────────
-  let creatorFirstName = ''
+  let creatorFirstName = displayName
   let totalStudents    = 0
   let activeCourses    = 0
   let nudgesThisMonth  = 0
@@ -73,7 +80,7 @@ export default async function DashboardPage() {
     })
     if (!creator) redirect('/dashboard/onboarding')
 
-    creatorFirstName = (creator.name ?? '').split(' ')[0]
+    // displayName already set from Clerk above; keep creatorFirstName as-is
 
     // ── 2. Courses ───────────────────────────────────────────────────────────
     const creatorCourses = await db
@@ -131,18 +138,16 @@ export default async function DashboardPage() {
         })
       }
 
-      // ── 6. At-risk students ──────────────────────────────────────────────
-      const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000)
-
+      // ── 6. At-risk students (all active students, 5–98%) ────────────────
+      //    No inactivity threshold here — the cron handles that logic.
+      //    Dashboard just shows students with incomplete progress.
       const atRisk = await db
         .select()
         .from(students)
         .where(and(
           inArray(students.courseId, courseIds),
-          gte(students.progressPct, 20),
-          lte(students.progressPct, 95),
-          isNotNull(students.lastActiveAt),
-          lt(students.lastActiveAt, fiveDaysAgo),
+          gte(students.progressPct, 5),
+          lte(students.progressPct, 98),
         ))
         .orderBy(asc(students.lastActiveAt))
         .limit(10)
