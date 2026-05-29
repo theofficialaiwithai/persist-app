@@ -14,6 +14,8 @@ export async function sendNudgeEmail(params: {
   emailBody: string
   nudgeId: string
 }) {
+  console.log('Sending email to:', params.toEmail, 'from:', 'onboarding@resend.dev')
+
   const { toEmail, toName, fromName, fromEmail, subject, emailBody, nudgeId } = params
 
   try {
@@ -27,8 +29,8 @@ export async function sendNudgeEmail(params: {
 
     const { data, error } = await resend.emails.send({
       from: 'Persist <onboarding@resend.dev>',
-      replyTo: `${fromName} <${fromEmail}>`,
-      to: toEmail,
+      replyTo: params.fromEmail ? `${params.fromName} <${params.fromEmail}>` : undefined,
+      to: params.toEmail,
       subject,
       html,
     })
