@@ -11,6 +11,7 @@ import {
 import { sendNudgeEmail } from '@/lib/email'
 
 export async function POST(req: Request) {
+  // ── Auth ─────────────────────────────────────────────────────────────────────
   const { userId } = await auth()
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -23,40 +24,38 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Missing studentId' }, { status: 400 })
   }
 
-  // ── Fetch creator ────────────────────────────────────────────────────────────
-  const creator = await db.query.creators.findFirst({
-    where: eq(creators.userId, userId),
-  })
-  if (!creator) {
-    return NextResponse.json({ error: 'Creator not found' }, { status: 404 })
-  }
-
-  // ── Fetch student ────────────────────────────────────────────────────────────
-  const student = await db.query.students.findFirst({
-    where: eq(students.id, studentId),
-  })
-  if (!student) {
-    return NextResponse.json({ error: 'Student not found' }, { status: 404 })
-  }
-
-  // ── Fetch course + ownership check ───────────────────────────────────────────
-  const course = await db.query.courses.findFirst({
-    where: eq(courses.id, student.courseId),
-  })
-  if (!course) {
-    return NextResponse.json({ error: 'Course not found' }, { status: 404 })
-  }
-  if (course.creatorId !== creator.id) {
-    return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
-  }
-
-  // ── Generate email content ───────────────────────────────────────────────────
-  const pct = Number(student.progressPct)
-  const daysSinceActivity = student.lastActiveAt
-    ? Math.floor((Date.now() - student.lastActiveAt.getTime()) / (1000 * 60 * 60 * 24))
-    : 0
-
   try {
+    // ── 1. Creator lookup — userId is Clerk text, creators.userId is text ────────
+    const creator = await db.query.creators.findFirst({
+      where: eq(creators.userId, userId),
+    })
+    if (!creator) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
+    // ── 2. Student lookup — studentId must be a UUID string ───────────────────────
+    const student = await db.query.students.findFirst({
+      where: eq(students.id, studentId),
+    })
+    if (!student) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
+    // ── 3. Course lookup + ownership check (UUID-to-UUID comparison) ─────────────
+    //    student.courseId (uuid) → courses.id (uuid) → course.creatorId (uuid) === creator.id (uuid)
+    const course = await db.query.courses.findFirst({
+      where: eq(courses.id, student.courseId),
+    })
+    if (!course || course.creatorId !== creator.id) {
+      return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    }
+
+    // ── 4. Generate email content ────────────────────────────────────────────────
+    const pct = Number(student.progressPct)
+    const daysSinceActivity = student.lastActiveAt
+      ? Math.floor((Date.now() - student.lastActiveAt.getTime()) / (1000 * 60 * 60 * 24))
+      : 0
+
     const [emailBody, subject] = await Promise.all([
       generateNudgeEmail({ student, course, creator, daysSinceActivity }),
       Promise.resolve(
@@ -64,7 +63,7 @@ export async function POST(req: Request) {
       ),
     ])
 
-    // ── Record + send ──────────────────────────────────────────────────────────
+    // ── 5. Record nudge then send ────────────────────────────────────────────────
     const nudge = await recordNudge({ studentId: student.id, subject, emailBody })
 
     const result = await sendNudgeEmail({

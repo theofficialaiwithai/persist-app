@@ -18,7 +18,7 @@ export async function sendNudgeEmail(params: {
   emailBody: string
   nudgeId:   string
 }): Promise<SendResult> {
-  const { toEmail, subject, emailBody, nudgeId } = params
+  const { toEmail, fromName, fromEmail, subject, emailBody, nudgeId } = params
 
   const html = `
 <div style="font-family: Inter, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #111827; line-height: 1.6;">
@@ -29,8 +29,8 @@ export async function sendNudgeEmail(params: {
 
   try {
     const { data, error } = await resend.emails.send({
-      // Resend's shared test sender — no domain verification required
-      from:    'Persist <onboarding@resend.dev>',
+      from:    'Persist <onboarding@resend.dev>', // shared test sender, no domain verification needed
+      replyTo: `${fromName} <${fromEmail}>`,      // creator's address for student replies
       to:      toEmail,
       subject,
       html,
