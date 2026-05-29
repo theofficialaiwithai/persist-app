@@ -4,8 +4,8 @@ import { headers } from 'next/headers'
 import { db } from '@/db'
 import { creators } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { DashboardNav } from '@/components/dashboard/DashboardNav'
-import { UserMenu } from '@/components/dashboard/UserMenu'
+import { SignOutButton } from '@clerk/nextjs'
+import { SidebarNav } from '@/components/dashboard/SidebarNav'
 import { Toaster } from 'sonner'
 
 export default async function DashboardLayout({
@@ -29,25 +29,33 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-[#F7F8FA]">
-      {/* ── Top nav ────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#E5E7EB]">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          {/* Left: logo + nav links */}
-          <div className="flex items-center">
-            <span className="text-base font-semibold text-indigo-600 tracking-tight">
-              Persist
-            </span>
-            <DashboardNav />
-          </div>
+    <div className="flex h-screen bg-[#F7F8FA]">
 
-          {/* Right: user avatar + sign out */}
-          <UserMenu />
+      {/* ── Sidebar ────────────────────────────────────────────────────────── */}
+      <aside className="w-60 shrink-0 bg-white border-r border-[#E5E7EB] flex flex-col">
+
+        {/* Logo */}
+        <div className="px-6 py-5 border-b border-[#E5E7EB]">
+          <span className="text-xl font-bold text-indigo-600 tracking-tight">
+            Persist
+          </span>
         </div>
-      </header>
 
-      {/* ── Page content ───────────────────────────────────────────────────── */}
-      <main className="max-w-7xl mx-auto px-6 py-8">{children}</main>
+        {/* Nav links */}
+        <SidebarNav />
+
+        {/* Sign out */}
+        <div className="p-3 border-t border-[#E5E7EB]">
+          <SignOutButton>
+            <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#6B7280] hover:bg-[#F7F8FA] hover:text-[#111827] transition-colors">
+              Sign out
+            </button>
+          </SignOutButton>
+        </div>
+      </aside>
+
+      {/* ── Main content ────────────────────────────────────────────────────── */}
+      <main className="flex-1 overflow-auto">{children}</main>
 
       <Toaster richColors position="top-right" />
     </div>
