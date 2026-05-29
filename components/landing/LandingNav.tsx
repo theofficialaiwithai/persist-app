@@ -38,18 +38,18 @@ export function LandingNav() {
 
         {/* Right CTAs */}
         <div className="flex items-center gap-4">
-          <a
-            href="/sign-in"
+          <button
+            onClick={() => { window.location.href = '/sign-in' }}
             className="text-sm text-[#6B7280] hover:text-[#111827] transition-colors px-1"
           >
             Sign in
-          </a>
-          <a
-            href="/sign-up"
+          </button>
+          <button
+            onClick={() => { window.location.href = '/sign-up' }}
             className="bg-[#111827] text-white text-sm px-4 py-2 rounded-lg font-medium hover:bg-[#1f2937] transition-colors"
           >
             Start free →
-          </a>
+          </button>
         </div>
       </nav>
     </header>

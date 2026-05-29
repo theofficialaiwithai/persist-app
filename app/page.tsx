@@ -1,3 +1,5 @@
+'use client'
+
 import { Zap, Brain, Mail, Check } from 'lucide-react'
 import { LandingNav } from '@/components/landing/LandingNav'
 
@@ -30,7 +32,7 @@ function SectionHeading({
 function HeroEmailCard() {
   return (
     <div className="mt-16 max-w-lg mx-auto animate-fade-up delay-400">
-      <div className="bg-white rounded-2xl shadow-2xl border border-[#E8E4DC] p-6">
+      <div className="bg-white rounded-2xl shadow-2xl border border-[#E8E4DC] p-6 text-left">
 
         {/* Chrome bar */}
         <div className="flex items-center gap-2 mb-4">
@@ -286,18 +288,21 @@ export default function LandingPage() {
 
           {/* CTAs */}
           <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4 animate-fade-up delay-300">
-            <a
-              href="/sign-up"
-              className="bg-[#111827] text-white px-7 py-3.5 rounded-xl text-base font-semibold hover:bg-[#1f2937] transition-colors inline-block"
+            <button
+              onClick={() => { window.location.href = '/sign-up' }}
+              className="bg-[#111827] text-white px-7 py-3.5 rounded-xl text-base font-semibold hover:bg-[#1f2937] transition-colors"
             >
               Start for free →
-            </a>
-            <a
-              href="#how-it-works"
-              className="border-2 border-[#E8E4DC] px-7 py-3.5 rounded-xl text-base font-medium text-[#111827] hover:border-[#111827] transition-colors inline-block"
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault()
+                document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }}
+              className="border-2 border-[#E8E4DC] px-7 py-3.5 rounded-xl text-base font-medium text-[#111827] hover:border-[#111827] transition-colors"
             >
               See how it works
-            </a>
+            </button>
           </div>
 
           {/* Trust signals */}
@@ -530,12 +535,12 @@ export default function LandingPage() {
                 <PricingFeature>Learning streak tracking 🔥</PricingFeature>
                 <PricingFeature>Webhook integration (any platform)</PricingFeature>
               </ul>
-              <a
-                href="/sign-up"
-                className="mt-8 block text-center py-3 rounded-xl border-2 border-[#111827] text-[#111827] font-semibold text-sm hover:bg-[#111827] hover:text-white transition-all duration-200"
+              <button
+                onClick={() => { window.location.href = '/sign-up' }}
+                className="mt-8 w-full py-3 rounded-xl border-2 border-[#111827] text-[#111827] font-semibold text-sm hover:bg-[#111827] hover:text-white transition-all duration-200"
               >
                 Get started →
-              </a>
+              </button>
             </div>
 
             {/* Pro */}
@@ -562,12 +567,12 @@ export default function LandingPage() {
                 <PricingFeature light>Advanced nudge tone controls</PricingFeature>
                 <PricingFeature light>Priority email support</PricingFeature>
               </ul>
-              <a
-                href="/sign-up"
-                className="mt-8 block text-center py-3 rounded-xl bg-white text-[#111827] font-semibold text-sm hover:bg-[#F7F4EE] transition-colors"
+              <button
+                onClick={() => { window.location.href = '/sign-up' }}
+                className="mt-8 w-full py-3 rounded-xl bg-white text-[#111827] font-semibold text-sm hover:bg-[#F7F4EE] transition-colors"
               >
                 Get started →
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -583,12 +588,12 @@ export default function LandingPage() {
             Your next cohort deserves better.
           </h2>
           <p className="text-xl text-[#9CA3AF] mt-3">Set up in 5 minutes.</p>
-          <a
-            href="/sign-up"
-            className="mt-8 inline-block bg-white text-[#111827] px-8 py-4 rounded-xl font-semibold text-base hover:bg-[#F7F4EE] transition-colors"
+          <button
+            onClick={() => { window.location.href = '/sign-up' }}
+            className="mt-8 bg-white text-[#111827] px-8 py-4 rounded-xl font-semibold text-base hover:bg-[#F7F4EE] transition-colors"
           >
             Start for free →
-          </a>
+          </button>
           <p className="mt-4 text-sm text-[#6B7280]">
             No credit card required &middot; Cancel anytime
           </p>
