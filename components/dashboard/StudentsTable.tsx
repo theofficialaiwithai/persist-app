@@ -15,7 +15,7 @@ export type StudentRowData = {
   name:         string
   email:        string
   progressPct:  number
-  lastActiveAt: string | null   // ISO string (dates serialised server-side)
+  lastActiveAt: string | null   // ISO string (serialised server-side)
   enrolledAt:   string | null   // ISO string
   courseId:     string
   courseName:   string
@@ -32,18 +32,19 @@ function getInitials(name: string) {
 }
 
 function formatLastActive(isoString: string | null): { text: string; cls: string } {
-  if (!isoString) return { text: 'Never', cls: 'text-gray-400' }
+  if (!isoString) return { text: 'Never', cls: 'text-[#6B7280]' }
   const days = Math.floor((Date.now() - new Date(isoString).getTime()) / 86400000)
   const text = days === 0 ? 'Today' : days === 1 ? 'Yesterday' : `${days} days ago`
-  const cls  = days >= 7 ? 'text-red-600' : days >= 3 ? 'text-amber-600' : 'text-green-600'
+  // green = today/yesterday, amber = 2-6 days, red = 7+
+  const cls  = days >= 7 ? 'text-red-600' : days >= 2 ? 'text-amber-600' : 'text-green-600'
   return { text, cls }
 }
 
 const STATUS_CONFIG = {
-  'at-risk':   { label: 'At Risk',   cls: 'bg-red-50 text-red-700'       },
+  'at-risk':   { label: 'At Risk',   cls: 'bg-red-50 text-red-600'         },
   'on-track':  { label: 'On Track',  cls: 'bg-emerald-50 text-emerald-700' },
-  'completed': { label: 'Completed', cls: 'bg-indigo-50 text-indigo-700'  },
-  'new':       { label: 'New',       cls: 'bg-gray-100 text-gray-600'     },
+  'completed': { label: 'Completed', cls: 'bg-indigo-50 text-indigo-700'   },
+  'new':       { label: 'New',       cls: 'bg-gray-100 text-gray-600'      },
 } as const
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -70,16 +71,17 @@ export function StudentsTable({ rows, courses }: Props) {
     })
   }, [rows, search, courseFilter, statusFilter])
 
-  const inputCls = 'h-9 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+  const inputCls =
+    'h-9 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] ' +
+    'placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
 
   return (
     <div className="space-y-4">
 
-      {/* ── Filter bar ───────────────────────────────────────────────────────── */}
+      {/* ── Filter bar ────────────────────────────────────────────────────── */}
       <div className="flex flex-wrap gap-3">
-        {/* Search */}
         <div className="relative flex-1 min-w-[200px] max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
           <input
             type="text"
             placeholder="Search by name or email…"
@@ -89,7 +91,6 @@ export function StudentsTable({ rows, courses }: Props) {
           />
         </div>
 
-        {/* Course filter */}
         <select
           value={courseFilter}
           onChange={e => setCourseFilter(e.target.value)}
@@ -101,7 +102,6 @@ export function StudentsTable({ rows, courses }: Props) {
           ))}
         </select>
 
-        {/* Status filter */}
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
@@ -115,25 +115,26 @@ export function StudentsTable({ rows, courses }: Props) {
         </select>
       </div>
 
-      {/* ── Table card ───────────────────────────────────────────────────────── */}
+      {/* ── Table card ────────────────────────────────────────────────────── */}
       <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm overflow-hidden">
         {rows.length === 0 ? (
-          /* Original empty — no students at all */
           <div className="py-16 text-center">
-            <p className="text-sm font-medium text-gray-700">No students yet</p>
-            <p className="text-sm text-muted-foreground mt-1">
+            <p className="text-sm font-medium text-[#111827]">No students yet</p>
+            <p className="text-sm text-[#6B7280] mt-1">
               Share your webhook URL to start tracking progress.
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
+
+              {/* ── Header ────────────────────────────────────────────────── */}
               <thead>
-                <tr className="border-b border-[#E5E7EB] bg-gray-50/60">
+                <tr className="bg-[#F7F8FA] border-b border-[#E5E7EB]">
                   {['Student', 'Course', 'Progress', 'Last Active', 'Status', 'Actions'].map(h => (
                     <th
                       key={h}
-                      className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wide whitespace-nowrap"
+                      className="px-6 py-3 text-left text-xs font-medium text-[#6B7280] uppercase tracking-wide whitespace-nowrap"
                     >
                       {h}
                     </th>
@@ -141,10 +142,11 @@ export function StudentsTable({ rows, courses }: Props) {
                 </tr>
               </thead>
 
+              {/* ── Body ──────────────────────────────────────────────────── */}
               <tbody className="divide-y divide-[#E5E7EB]">
                 {filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-sm text-muted-foreground">
+                    <td colSpan={6} className="py-12 text-center text-sm text-[#6B7280]">
                       No students match your filters.
                     </td>
                   </tr>
@@ -157,52 +159,58 @@ export function StudentsTable({ rows, courses }: Props) {
                       <tr
                         key={student.id}
                         onClick={() => router.push(`/dashboard/students/${student.id}`)}
-                        className="cursor-pointer hover:bg-gray-50/50 transition-colors"
+                        className="cursor-pointer hover:bg-[#F7F8FA] transition-colors"
                       >
-                        {/* Student */}
-                        <td className="px-4 py-3">
+                        {/* Student — avatar + name + email */}
+                        <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-medium shrink-0 select-none">
+                            <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 text-sm font-medium flex items-center justify-center shrink-0 select-none">
                               {getInitials(student.name)}
                             </div>
                             <div className="min-w-0">
-                              <p className="font-medium text-gray-900 truncate">{student.name}</p>
-                              <p className="text-xs text-muted-foreground truncate">{student.email}</p>
+                              <p className="font-medium text-[#111827] truncate">{student.name}</p>
+                              <p className="text-xs text-[#6B7280] truncate">{student.email}</p>
                             </div>
                           </div>
                         </td>
 
                         {/* Course */}
-                        <td className="px-4 py-3">
-                          <p className="text-gray-700 truncate max-w-[160px]">{student.courseName}</p>
+                        <td className="px-6 py-4">
+                          <p className="text-[#374151] truncate max-w-[180px]">{student.courseName}</p>
                         </td>
 
-                        {/* Progress */}
-                        <td className="px-4 py-3">
-                          <div className="flex flex-col gap-1 w-28">
-                            <span className="text-xs text-muted-foreground">{student.progressPct}%</span>
-                            <Progress value={student.progressPct} />
+                        {/* Progress — bar + percentage side by side */}
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-3 w-36">
+                            <div className="flex-1">
+                              <Progress value={student.progressPct} />
+                            </div>
+                            <span className="text-xs font-medium text-[#6B7280] shrink-0 w-8 text-right">
+                              {student.progressPct}%
+                            </span>
                           </div>
                         </td>
 
                         {/* Last Active */}
-                        <td className="px-4 py-3 whitespace-nowrap">
-                          <span className={cn('text-sm', lastActiveCls)}>{lastActiveText}</span>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={cn('text-sm font-medium', lastActiveCls)}>
+                            {lastActiveText}
+                          </span>
                         </td>
 
-                        {/* Status */}
-                        <td className="px-4 py-3">
+                        {/* Status badge */}
+                        <td className="px-6 py-4">
                           <span className={cn(
-                            'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap',
+                            'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap',
                             statusCls
                           )}>
                             {statusLabel}
                           </span>
                         </td>
 
-                        {/* Actions — stopPropagation so row click doesn't fire */}
+                        {/* Actions — stopPropagation prevents row navigation */}
                         <td
-                          className="px-4 py-3"
+                          className="px-6 py-4"
                           onClick={e => e.stopPropagation()}
                         >
                           <div className="flex items-center gap-2">
@@ -212,7 +220,7 @@ export function StudentsTable({ rows, courses }: Props) {
                             />
                             <Link
                               href={`/dashboard/students/${student.id}`}
-                              className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                              className="inline-flex items-center px-3 py-1.5 text-xs border border-[#E5E7EB] rounded-md text-[#111827] hover:bg-[#F7F8FA] transition-colors whitespace-nowrap"
                             >
                               View
                             </Link>

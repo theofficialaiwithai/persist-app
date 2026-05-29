@@ -27,7 +27,7 @@ function formatDate(iso: string | null): string {
 const STATUS_CLS: Record<string, string> = {
   sent:    'bg-emerald-50 text-emerald-700',
   failed:  'bg-red-50 text-red-700',
-  pending: 'bg-gray-100 text-gray-600',
+  pending: 'bg-amber-50 text-amber-700',
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -62,8 +62,10 @@ export function NudgeAccordion({ nudges }: { nudges: NudgeItem[] }) {
                 )}>
                   {nudge.status}
                 </span>
-                <span className="text-sm font-medium text-gray-900 truncate">
-                  {nudge.subject}
+                <span className="text-sm font-medium text-[#111827] truncate">
+                  {nudge.subject.length > 50
+                    ? nudge.subject.slice(0, 50) + '…'
+                    : nudge.subject}
                 </span>
               </div>
               <div className="flex items-center gap-3 shrink-0 ml-4">
@@ -81,8 +83,8 @@ export function NudgeAccordion({ nudges }: { nudges: NudgeItem[] }) {
 
             {/* ── Expanded body ─────────────────────────────────────────── */}
             {isOpen && (
-              <div className="px-4 py-4 border-t border-[#E5E7EB] bg-gray-50">
-                <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+              <div className="px-4 pb-4 border-t border-[#E5E7EB]">
+                <p className="text-sm text-[#6B7280] bg-[#F7F8FA] rounded-lg p-4 mt-2 whitespace-pre-wrap leading-relaxed">
                   {nudge.body}
                 </p>
               </div>
