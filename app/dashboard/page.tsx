@@ -39,13 +39,9 @@ export default async function DashboardPage() {
 
   // ── Clerk user (for welcome name) ─────────────────────────────────────────
   const clerkUser = await currentUser()
-  const displayName =
-    clerkUser?.firstName ||
-    clerkUser?.emailAddresses[0]?.emailAddress.split('@')[0] ||
-    ''
 
   // ── Defaults ──────────────────────────────────────────────────────────────
-  let creatorFirstName = displayName
+  let creatorFirstName = 'there'
   let totalStudents    = 0
   let activeCourses    = 0
   let nudgesThisMonth  = 0
@@ -80,7 +76,13 @@ export default async function DashboardPage() {
     })
     if (!creator) redirect('/dashboard/onboarding')
 
-    // displayName already set from Clerk above; keep creatorFirstName as-is
+    // Best-effort first name: Clerk > creator.senderName > creator.name > email prefix > 'there'
+    creatorFirstName =
+      clerkUser?.firstName ||
+      (creator.senderName ? creator.senderName.split(' ')[0] : null) ||
+      (creator.name       ? creator.name.split(' ')[0]       : null) ||
+      clerkUser?.emailAddresses[0]?.emailAddress?.split('@')[0] ||
+      'there'
 
     // ── 2. Courses ───────────────────────────────────────────────────────────
     const creatorCourses = await db
@@ -195,11 +197,9 @@ export default async function DashboardPage() {
       {/* ── Page header ────────────────────────────────────────────────────── */}
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-        {creatorFirstName && (
-          <p className="mt-1 text-sm text-muted-foreground">
-            Welcome back, {creatorFirstName}
-          </p>
-        )}
+        <p className="mt-1 text-sm text-muted-foreground">
+          Welcome back, {creatorFirstName}
+        </p>
       </div>
 
       {/* ── Stats row ─────────────────────────────────────────────────────── */}
