@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/db'
-import { creators, courses, students } from '@/db/schema'
-import { eq, inArray } from 'drizzle-orm'
+import { creators, courses, students, nudges } from '@/db/schema'
+import { eq, inArray, and, sql } from 'drizzle-orm'
 import { StudentsTable } from '@/components/dashboard/StudentsTable'
 import type { StudentRowData } from '@/components/dashboard/StudentsTable'
 
@@ -47,6 +47,25 @@ export default async function StudentsPage() {
       .from(students)
       .where(inArray(students.courseId, courseIds))
 
+    const studentIds = allStudents.map(s => s.id)
+
+    // ── Nudge counts (sent only) per student ─────────────────────────────
+    const nudgeCountRows = studentIds.length > 0
+      ? await db
+          .select({
+            studentId: nudges.studentId,
+            count: sql<number>`count(*)::int`,
+          })
+          .from(nudges)
+          .where(and(
+            inArray(nudges.studentId, studentIds),
+            eq(nudges.status, 'sent'),
+          ))
+          .groupBy(nudges.studentId)
+      : []
+
+    const nudgeCountMap = new Map(nudgeCountRows.map(r => [r.studentId, r.count]))
+
     const now = Date.now()
 
     rows = allStudents.map(s => {
@@ -66,6 +85,7 @@ export default async function StudentsPage() {
         status:       getStatus(s.progressPct, daysInactive),
         daysInactive,
         streakDays:   s.streakDays,
+        nudgesCount:  nudgeCountMap.get(s.id) ?? 0,
       }
     })
   }

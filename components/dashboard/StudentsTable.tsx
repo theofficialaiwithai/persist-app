@@ -3,9 +3,11 @@
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Search } from 'lucide-react'
+import { Search, List, LayoutGrid } from 'lucide-react'
+import { motion } from 'framer-motion'
 import { AnimatedProgressBar } from '@/components/ui/animated-progress-bar'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
+import { StudentProfileCard } from '@/components/ui/student-profile-card'
 import { cn } from '@/lib/utils'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -22,6 +24,7 @@ export type StudentRowData = {
   status:       'at-risk' | 'on-track' | 'completed' | 'new'
   daysInactive: number
   streakDays:   number
+  nudgesCount:  number
 }
 
 export type CourseOption = { id: string; name: string }
@@ -61,6 +64,7 @@ export function StudentsTable({ rows, courses }: Props) {
   const [search,       setSearch      ] = useState('')
   const [courseFilter, setCourseFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [view,         setView        ] = useState<'table' | 'grid'>('table')
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
@@ -114,22 +118,81 @@ export function StudentsTable({ rows, courses }: Props) {
           <option value="completed">Completed</option>
           <option value="new">New</option>
         </select>
+
+        {/* View toggle */}
+        <div className="ml-auto flex items-center gap-1 border border-[#E5E7EB] rounded-lg p-1 bg-white">
+          <button
+            onClick={() => setView('table')}
+            title="Table view"
+            className={cn(
+              'p-1.5 rounded-md transition-colors',
+              view === 'table' ? 'bg-indigo-600 text-white' : 'text-[#6B7280] hover:text-[#111827]',
+            )}
+          >
+            <List className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => setView('grid')}
+            title="Grid view"
+            className={cn(
+              'p-1.5 rounded-md transition-colors',
+              view === 'grid' ? 'bg-indigo-600 text-white' : 'text-[#6B7280] hover:text-[#111827]',
+            )}
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      {/* ── Table card ────────────────────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm overflow-hidden">
-        {rows.length === 0 ? (
-          <div className="py-16 text-center">
-            <p className="text-sm font-medium text-[#111827]">No students yet</p>
-            <p className="text-sm text-[#6B7280] mt-1">
-              Share your webhook URL to start tracking progress.
+      {/* ── Empty state (shared) ──────────────────────────────────────────── */}
+      {rows.length === 0 ? (
+        <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm py-16 text-center">
+          <p className="text-sm font-medium text-[#111827]">No students yet</p>
+          <p className="text-sm text-[#6B7280] mt-1">
+            Share your webhook URL to start tracking progress.
+          </p>
+        </div>
+      ) : view === 'grid' ? (
+
+        /* ── Grid view ──────────────────────────────────────────────────── */
+        <>
+          {filtered.length === 0 ? (
+            <p className="py-12 text-center text-sm text-[#6B7280]">
+              No students match your filters.
             </p>
-          </div>
-        ) : (
+          ) : (
+            <motion.div
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+              initial="initial"
+              animate="animate"
+              variants={{ animate: { transition: { staggerChildren: 0.07 } } }}
+            >
+              {filtered.map(student => (
+                <StudentProfileCard
+                  key={student.id}
+                  id={student.id}
+                  name={student.name}
+                  email={student.email}
+                  courseName={student.courseName}
+                  progressPct={student.progressPct ?? 0}
+                  status={student.status}
+                  lastActiveLabel={formatLastActive(student.lastActiveAt).text}
+                  nudgesCount={student.nudgesCount}
+                  streakDays={student.streakDays}
+                />
+              ))}
+            </motion.div>
+          )}
+        </>
+
+      ) : (
+
+        /* ── Table view ─────────────────────────────────────────────────── */
+        <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
 
-              {/* ── Header ────────────────────────────────────────────────── */}
+              {/* Header */}
               <thead>
                 <tr className="bg-[#F7F8FA] border-b border-[#E5E7EB]">
                   {['Student', 'Course', 'Progress', 'Last Active', 'Status', 'Actions'].map(h => (
@@ -143,7 +206,7 @@ export function StudentsTable({ rows, courses }: Props) {
                 </tr>
               </thead>
 
-              {/* ── Body ──────────────────────────────────────────────────── */}
+              {/* Body */}
               <tbody className="divide-y divide-[#E5E7EB]">
                 {filtered.length === 0 ? (
                   <tr>
@@ -187,13 +250,10 @@ export function StudentsTable({ rows, courses }: Props) {
                           <p className="text-[#374151] truncate max-w-[180px]">{student.courseName}</p>
                         </td>
 
-                        {/* Progress — animated bar + percentage */}
+                        {/* Progress */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <AnimatedProgressBar
-                              value={student.progressPct ?? 0}
-                              className="w-28"
-                            />
+                            <AnimatedProgressBar value={student.progressPct ?? 0} className="w-28" />
                             <span className="text-sm text-[#6B7280] whitespace-nowrap">
                               {student.progressPct ?? 0}%
                             </span>
@@ -211,22 +271,16 @@ export function StudentsTable({ rows, courses }: Props) {
                         <td className="px-6 py-4">
                           <span className={cn(
                             'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap',
-                            statusCls
+                            statusCls,
                           )}>
                             {statusLabel}
                           </span>
                         </td>
 
-                        {/* Actions — stopPropagation prevents row navigation */}
-                        <td
-                          className="px-6 py-4"
-                          onClick={e => e.stopPropagation()}
-                        >
+                        {/* Actions */}
+                        <td className="px-6 py-4" onClick={e => e.stopPropagation()}>
                           <div className="flex items-center gap-2">
-                            <SendNudgeButton
-                              studentId={student.id}
-                              studentName={student.name}
-                            />
+                            <SendNudgeButton studentId={student.id} studentName={student.name} />
                             <Link
                               href={`/dashboard/students/${student.id}`}
                               className="inline-flex items-center px-3 py-1.5 text-xs border border-[#E5E7EB] rounded-md text-[#111827] hover:bg-[#F7F8FA] transition-colors whitespace-nowrap"
@@ -242,8 +296,8 @@ export function StudentsTable({ rows, courses }: Props) {
               </tbody>
             </table>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
