@@ -55,7 +55,7 @@ export default function DashboardLayout({
         {/* Logo + collapse toggle */}
         <div
           className={cn(
-            'flex items-center h-16 px-4 border-b border-[#E5E7EB] flex-shrink-0',
+            'flex items-center h-16 px-5 border-b border-[#E5E7EB] flex-shrink-0',
             collapsed ? 'justify-center' : 'justify-between',
           )}
         >
@@ -87,7 +87,7 @@ export default function DashboardLayout({
         </div>
 
         {/* Nav links */}
-        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+        <nav className="flex-1 py-6 px-2 space-y-2 overflow-y-auto">
           {navItems.map(({ href, label, icon: Icon, exact }) => {
             const isActive = exact ? pathname === href : pathname.startsWith(href)
             return (
@@ -97,7 +97,7 @@ export default function DashboardLayout({
                 title={collapsed ? label : undefined}
                 className={cn(
                   'flex items-center rounded-lg transition-colors group',
-                  collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5',
+                  collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-3',
                   isActive
                     ? 'bg-indigo-50 text-indigo-600'
                     : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA]',

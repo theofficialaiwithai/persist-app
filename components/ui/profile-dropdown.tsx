@@ -23,6 +23,7 @@ export function ProfileDropdown({ collapsed }: { collapsed?: boolean }) {
     ? `${user.firstName} ${user.lastName || ''}`.trim()
     : user?.emailAddresses[0]?.emailAddress?.split('@')[0] || 'Creator'
   const email = user?.emailAddresses[0]?.emailAddress || ''
+  const displayName = user?.firstName || email.split('@')[0] || 'Me'
   const initials = name
     .split(' ')
     .map(n => n[0] ?? '')
@@ -51,16 +52,11 @@ export function ProfileDropdown({ collapsed }: { collapsed?: boolean }) {
           {initials}
         </div>
 
-        {/* Name + email — hidden when collapsed */}
+        {/* First name — hidden when collapsed */}
         {!collapsed && (
-          <div className="text-left flex-1 min-w-0">
-            <div className="text-sm font-medium text-[#111827] truncate leading-tight">
-              {name}
-            </div>
-            <div className="text-xs text-[#6B7280] truncate leading-tight">
-              {email}
-            </div>
-          </div>
+          <span className="text-xs text-[#6B7280] truncate flex-1 min-w-0 text-left">
+            {displayName}
+          </span>
         )}
 
         {!collapsed && (
@@ -74,9 +70,9 @@ export function ProfileDropdown({ collapsed }: { collapsed?: boolean }) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        side="right"
-        align="end"
-        sideOffset={8}
+        side="top"
+        align="start"
+        sideOffset={12}
         className="w-60 p-2 bg-white/95 backdrop-blur-sm border border-[#E5E7EB] rounded-2xl shadow-xl"
       >
         {/* User info header */}

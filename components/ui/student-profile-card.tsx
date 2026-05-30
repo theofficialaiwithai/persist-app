@@ -4,7 +4,6 @@ import * as React from "react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { AnimatedProgressBar } from "@/components/ui/animated-progress-bar"
 import { SendNudgeButton } from "@/components/dashboard/SendNudgeButton"
 
@@ -79,6 +78,7 @@ export const StudentProfileCard = React.forwardRef<HTMLDivElement, StudentProfil
     },
     ref,
   ) => {
+    const firstName = name.split(' ')[0]
     const initials = name
       .split(' ')
       .map(n => n[0] ?? '')
@@ -101,29 +101,28 @@ export const StudentProfileCard = React.forwardRef<HTMLDivElement, StudentProfil
         whileHover="hover"
       >
         {/* Coloured banner */}
-        <div className="h-28 w-full" style={{ background: gradient }} />
+        <div className="h-28 w-full block" style={{ background: gradient }} />
 
-        {/* Avatar overlapping the banner */}
-        <div className="absolute left-1/2 top-28 -translate-x-1/2 -translate-y-1/2">
-          <Avatar className="h-20 w-20 border-4 border-white shadow-md">
-            <AvatarFallback className="bg-indigo-50 text-indigo-600 text-lg font-semibold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
+        {/* Avatar — negative margin pulls it up over the banner reliably */}
+        <div className="flex justify-center -mt-10 mb-2">
+          <div className="w-20 h-20 rounded-full border-4 border-white shadow-md bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg font-semibold z-10">
+            {initials}
+          </div>
         </div>
 
         {/* Card content */}
-        <motion.div className="px-5 pb-5 pt-12" variants={contentVariants}>
+        <motion.div className="px-5 pb-5" variants={contentVariants}>
 
-          {/* Name + streak */}
+          {/* First name + streak / full name + email */}
           <motion.div className="text-center mb-1" variants={itemVariants}>
             <div className="flex items-center justify-center gap-2">
-              <h2 className="text-lg font-semibold text-[#111827]">{name}</h2>
+              <h2 className="text-lg font-semibold text-[#111827]">{firstName}</h2>
               {streakDays >= 3 && (
                 <span className="text-sm font-medium text-orange-500">🔥 {streakDays}d</span>
               )}
             </div>
-            <p className="text-sm text-[#6B7280] truncate">{email}</p>
+            <p className="text-xs text-[#6B7280]">{name}</p>
+            <p className="text-xs text-[#9CA3AF]">{email}</p>
           </motion.div>
 
           {/* Course */}
