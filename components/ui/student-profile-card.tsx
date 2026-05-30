@@ -78,7 +78,6 @@ export const StudentProfileCard = React.forwardRef<HTMLDivElement, StudentProfil
     },
     ref,
   ) => {
-    const firstName = name.split(' ')[0]
     const initials = name
       .split(' ')
       .map(n => n[0] ?? '')
@@ -113,16 +112,14 @@ export const StudentProfileCard = React.forwardRef<HTMLDivElement, StudentProfil
         {/* Card content */}
         <motion.div className="px-5 pb-5" variants={contentVariants}>
 
-          {/* First name + streak / full name + email */}
+          {/* Full name + streak */}
           <motion.div className="text-center mb-1" variants={itemVariants}>
             <div className="flex items-center justify-center gap-2">
-              <h2 className="text-lg font-semibold text-[#111827]">{firstName}</h2>
+              <h2 className="text-lg font-semibold text-[#111827]">{name}</h2>
               {streakDays >= 3 && (
                 <span className="text-sm font-medium text-orange-500">🔥 {streakDays}d</span>
               )}
             </div>
-            <p className="text-xs text-[#6B7280]">{name}</p>
-            <p className="text-xs text-[#9CA3AF]">{email}</p>
           </motion.div>
 
           {/* Course */}

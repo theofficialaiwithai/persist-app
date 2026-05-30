@@ -19,11 +19,11 @@ export function ProfileDropdown({ collapsed }: { collapsed?: boolean }) {
   const router = useRouter()
   const [isOpen, setIsOpen] = React.useState(false)
 
-  const name = user?.firstName
-    ? `${user.firstName} ${user.lastName || ''}`.trim()
-    : user?.emailAddresses[0]?.emailAddress?.split('@')[0] || 'Creator'
-  const email = user?.emailAddresses[0]?.emailAddress || ''
-  const displayName = user?.firstName || email.split('@')[0] || 'Me'
+  const firstName = user?.firstName || ''
+  const lastName  = user?.lastName  || ''
+  const name      = firstName ? `${firstName} ${lastName}`.trim() : 'Creator'
+  const email     = user?.emailAddresses[0]?.emailAddress || ''
+  const displayName = firstName || 'Creator'
   const initials = name
     .split(' ')
     .map(n => n[0] ?? '')
