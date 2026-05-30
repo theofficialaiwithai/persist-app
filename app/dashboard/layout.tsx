@@ -1,70 +1,146 @@
-import { auth } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
-import { headers } from 'next/headers'
-import { db } from '@/db'
-import { creators } from '@/db/schema'
-import { eq } from 'drizzle-orm'
-import { SignOutButton } from '@clerk/nextjs'
-import { SidebarNav } from '@/components/dashboard/SidebarNav'
-import { SetupBanner } from '@/components/dashboard/SetupBanner'
+'use client'
+
+import { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import {
+  LayoutDashboard,
+  Users,
+  Settings,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { ProfileDropdown } from '@/components/ui/profile-dropdown'
 import { Toaster } from 'sonner'
 
-export default async function DashboardLayout({
+const navItems = [
+  { href: '/dashboard',          label: 'Dashboard', icon: LayoutDashboard, exact: true  },
+  { href: '/dashboard/students', label: 'Students',  icon: Users,           exact: false },
+  { href: '/dashboard/settings', label: 'Settings',  icon: Settings,        exact: false },
+]
+
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { userId } = await auth()
-  if (!userId) redirect('/sign-in')
+  const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState(false)
 
-  const headersList = await headers()
-  const pathname = headersList.get('x-pathname') ?? ''
+  // Rehydrate collapse state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebar-collapsed')
+    if (saved === 'true') setCollapsed(true)
+  }, [])
 
-  const creator = await db.query.creators.findFirst({
-    where: eq(creators.userId, userId),
-  })
-
-  // Redirect to onboarding if setup incomplete.
-  // Allow /settings so users can complete setup there too.
-  if (
-    !creator?.senderEmail &&
-    !pathname.includes('/dashboard/onboarding') &&
-    !pathname.includes('/dashboard/settings')
-  ) {
-    redirect('/dashboard/onboarding')
+  const toggleCollapsed = () => {
+    setCollapsed(prev => {
+      localStorage.setItem('sidebar-collapsed', String(!prev))
+      return !prev
+    })
   }
 
   return (
-    <div className="flex h-screen bg-[#F7F8FA]">
+    <div className="flex h-screen bg-[#F7F8FA] overflow-hidden">
 
-      {/* ── Sidebar ────────────────────────────────────────────────────────── */}
-      <aside className="w-60 shrink-0 bg-white border-r border-[#E5E7EB] flex flex-col">
+      {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
+      <motion.aside
+        animate={{ width: collapsed ? 72 : 240 }}
+        transition={{ duration: 0.25, ease: 'easeInOut' }}
+        className="flex flex-col bg-white border-r border-[#E5E7EB] flex-shrink-0 overflow-hidden relative"
+      >
 
-        {/* Logo */}
-        <div className="px-6 py-5 border-b border-[#E5E7EB]">
-          <span className="text-xl font-bold text-indigo-600 tracking-tight">
-            Persist
-          </span>
+        {/* Logo + collapse toggle */}
+        <div
+          className={cn(
+            'flex items-center h-16 px-4 border-b border-[#E5E7EB] flex-shrink-0',
+            collapsed ? 'justify-center' : 'justify-between',
+          )}
+        >
+          <AnimatePresence mode="wait">
+            {!collapsed && (
+              <motion.span
+                key="logo"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="font-bold text-indigo-600 text-lg"
+              >
+                Persist
+              </motion.span>
+            )}
+          </AnimatePresence>
+
+          <button
+            onClick={toggleCollapsed}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA] transition-colors flex-shrink-0"
+            title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {collapsed
+              ? <ChevronRight className="w-4 h-4" />
+              : <ChevronLeft  className="w-4 h-4" />
+            }
+          </button>
         </div>
 
         {/* Nav links */}
-        <SidebarNav />
+        <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
+          {navItems.map(({ href, label, icon: Icon, exact }) => {
+            const isActive = exact ? pathname === href : pathname.startsWith(href)
+            return (
+              <Link
+                key={href}
+                href={href}
+                title={collapsed ? label : undefined}
+                className={cn(
+                  'flex items-center rounded-lg transition-colors group',
+                  collapsed ? 'justify-center px-2 py-2.5' : 'gap-3 px-3 py-2.5',
+                  isActive
+                    ? 'bg-indigo-50 text-indigo-600'
+                    : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA]',
+                )}
+              >
+                <Icon
+                  className={cn(
+                    'w-5 h-5 flex-shrink-0',
+                    isActive && 'text-indigo-600',
+                  )}
+                />
+                <AnimatePresence mode="wait">
+                  {!collapsed && (
+                    <motion.span
+                      key="label"
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: 'auto' }}
+                      exit={{ opacity: 0, width: 0 }}
+                      transition={{ duration: 0.15 }}
+                      className={cn(
+                        'text-sm font-medium whitespace-nowrap overflow-hidden',
+                        isActive ? 'text-indigo-600' : '',
+                      )}
+                    >
+                      {label}
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </Link>
+            )
+          })}
+        </nav>
 
-        {/* Sign out */}
-        <div className="p-3 border-t border-[#E5E7EB]">
-          <SignOutButton>
-            <button className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-[#6B7280] hover:bg-[#F7F8FA] hover:text-[#111827] transition-colors">
-              Sign out
-            </button>
-          </SignOutButton>
+        {/* Profile dropdown at bottom */}
+        <div className="p-2 border-t border-[#E5E7EB]">
+          <ProfileDropdown collapsed={collapsed} />
         </div>
-      </aside>
+      </motion.aside>
 
       {/* ── Main content ────────────────────────────────────────────────────── */}
-      <div className="flex-1 overflow-auto flex flex-col">
-        {!creator?.senderEmail && <SetupBanner />}
-        <main className="flex-1">{children}</main>
-      </div>
+      <main className="flex-1 overflow-y-auto">
+        {children}
+      </main>
 
       <Toaster richColors position="top-right" />
     </div>
