@@ -11,9 +11,11 @@ import {
   ChevronLeft,
   ChevronRight,
   UserCircle,
+  Search,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ProfileDropdown } from '@/components/ui/profile-dropdown'
+import { CommandPalette, type PaletteStudent } from '@/components/ui/command-palette'
 import { Toaster } from 'sonner'
 
 // ── Types passed from the server layout ──────────────────────────────────────
@@ -29,6 +31,7 @@ interface LayoutClientProps {
   creator: SidebarCreator
   totalStudents: number
   activeCourses: number
+  students: PaletteStudent[]
   children: React.ReactNode
 }
 
@@ -43,7 +46,7 @@ const navItems = [
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function LayoutClient({ creator, totalStudents, activeCourses, children }: LayoutClientProps) {
+export function LayoutClient({ creator, totalStudents, activeCourses, students, children }: LayoutClientProps) {
   const pathname = usePathname()
   const router   = useRouter()
   const [collapsed, setCollapsed] = useState(false)
@@ -166,6 +169,29 @@ export function LayoutClient({ creator, totalStudents, activeCourses, children }
           )}
         </AnimatePresence>
 
+        {/* ── Search trigger ──────────────────────────────────────────────── */}
+        <div className={cn('px-2 mt-2 mb-1', collapsed && 'flex justify-center')}>
+          <button
+            onClick={() => window.dispatchEvent(new Event('persist:open-command'))}
+            title="Search (⌘K)"
+            className={cn(
+              'flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-[#9CA3AF]',
+              'hover:bg-white hover:border-indigo-200 hover:text-[#6B7280] transition-all text-sm',
+              collapsed ? 'w-10 h-10 justify-center p-0' : 'w-full px-3 py-2',
+            )}
+          >
+            <Search className="w-4 h-4 flex-shrink-0" />
+            {!collapsed && (
+              <>
+                <span className="flex-1 text-left text-xs">Search...</span>
+                <kbd className="bg-white border border-[#E5E7EB] px-1.5 py-0.5 rounded text-[10px] font-mono text-[#9CA3AF]">
+                  ⌘K
+                </kbd>
+              </>
+            )}
+          </button>
+        </div>
+
         {/* Nav links */}
         <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto">
           {navItems.map(({ href, label, icon: Icon, exact }) => {
@@ -218,6 +244,9 @@ export function LayoutClient({ creator, totalStudents, activeCourses, children }
       </main>
 
       <Toaster richColors position="top-right" />
+
+      {/* ── Command Palette — renders as a portal overlay ──────────────────── */}
+      <CommandPalette students={students} />
     </div>
   )
 }

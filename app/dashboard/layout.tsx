@@ -2,7 +2,7 @@ import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/db'
 import { creators, courses, students } from '@/db/schema'
-import { eq, inArray, sql } from 'drizzle-orm'
+import { eq, inArray, sql, desc } from 'drizzle-orm'
 import { LayoutClient } from '@/app/dashboard/LayoutClient'
 
 export default async function DashboardLayout({
@@ -37,6 +37,23 @@ export default async function DashboardLayout({
     totalStudents = row?.count ?? 0
   }
 
+  // Top 20 students for the command palette search
+  const paletteStudents = courseIds.length > 0
+    ? await db
+        .select({
+          id:          students.id,
+          name:        students.name,
+          email:       students.email,
+          progressPct: students.progressPct,
+          courseName:  courses.name,
+        })
+        .from(students)
+        .innerJoin(courses, eq(students.courseId, courses.id))
+        .where(inArray(students.courseId, courseIds))
+        .orderBy(desc(students.lastActiveAt))
+        .limit(20)
+    : []
+
   return (
     <LayoutClient
       creator={{
@@ -47,6 +64,7 @@ export default async function DashboardLayout({
       }}
       totalStudents={totalStudents}
       activeCourses={activeCourses}
+      students={paletteStudents}
     >
       {children}
     </LayoutClient>
