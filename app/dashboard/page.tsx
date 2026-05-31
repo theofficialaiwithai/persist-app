@@ -10,6 +10,8 @@ import type {
   RecentNudgeData,
   NewStarterData,
 } from '@/components/dashboard/BentoGrid'
+import { DashboardClient } from '@/app/dashboard/DashboardClient'
+import type { RecentlyCompletedData } from '@/app/dashboard/DashboardClient'
 
 // ── Page ─────────────────────────────────────────────────────────────────────
 
@@ -30,10 +32,11 @@ export default async function DashboardPage() {
   let completionPct       = 0
   let mostActiveCourse    = ''
 
-  let atRiskRows:      AtRiskRowData[]    = []
-  let streakLeaders:   StreakLeaderData[] = []
-  let recentNudgeRows: RecentNudgeData[]  = []
-  let newStarters:     NewStarterData[]   = []
+  let atRiskRows:          AtRiskRowData[]          = []
+  let streakLeaders:       StreakLeaderData[]        = []
+  let recentNudgeRows:     RecentNudgeData[]         = []
+  let newStarters:         NewStarterData[]          = []
+  let recentlyCompleted:   RecentlyCompletedData | null = null
 
   try {
     // ── 1. Creator ───────────────────────────────────────────────────────────
@@ -61,7 +64,28 @@ export default async function DashboardPage() {
     const courseMap = new Map(creatorCourses.map(c => [c.id, c.name]))
 
     if (courseIds.length > 0) {
-      // ── 3. Student count + IDs ───────────────────────────────────────────
+      // ── 3a. Recently completed student (for celebration modal) ────────────
+      //    progressPct ≥ 98 AND lastActiveAt within the last 24 hours
+      const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+      const completedRows = await db
+        .select({
+          id:         students.id,
+          name:       students.name,
+          courseName: courses.name,
+        })
+        .from(students)
+        .innerJoin(courses, eq(students.courseId, courses.id))
+        .where(and(
+          inArray(students.courseId, courseIds),
+          gte(students.progressPct, 98),
+          gte(students.lastActiveAt, oneDayAgo),
+        ))
+        .orderBy(desc(students.lastActiveAt))
+        .limit(1)
+
+      recentlyCompleted = completedRows[0] ?? null
+
+      // ── 3b. Student count + IDs ──────────────────────────────────────────
       const allStudents = await db
         .select({
           id:       students.id,
@@ -238,6 +262,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6">
+      <DashboardClient recentlyCompleted={recentlyCompleted}>
       <BentoGrid
         creatorFirstName={creatorFirstName}
         totalStudents={totalStudents}
@@ -253,6 +278,7 @@ export default async function DashboardPage() {
         completionPct={completionPct}
         mostActiveCourse={mostActiveCourse}
       />
+      </DashboardClient>
     </div>
   )
 }
