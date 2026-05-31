@@ -8,6 +8,7 @@ import type {
   AtRiskRowData,
   StreakLeaderData,
   RecentNudgeData,
+  NewStarterData,
 } from '@/components/dashboard/BentoGrid'
 
 // ── Page ─────────────────────────────────────────────────────────────────────
@@ -32,6 +33,7 @@ export default async function DashboardPage() {
   let atRiskRows:      AtRiskRowData[]    = []
   let streakLeaders:   StreakLeaderData[] = []
   let recentNudgeRows: RecentNudgeData[]  = []
+  let newStarters:     NewStarterData[]   = []
 
   try {
     // ── 1. Creator ───────────────────────────────────────────────────────────
@@ -183,7 +185,30 @@ export default async function DashboardPage() {
             : 0,
         }))
 
-        // ── 11. Streak leaders (top 5 with streak > 0) ────────────────────
+        // ── 11. New starters (progressPct < 10, enrolled in last 7 days) ──
+        const newStarterRows = await db
+          .select({
+            id:        students.id,
+            name:      students.name,
+            courseId:  students.courseId,
+            enrolledAt: students.enrolledAt,
+          })
+          .from(students)
+          .where(and(
+            inArray(students.courseId, courseIds),
+            lt(students.progressPct, 10),
+            gte(students.enrolledAt, sevenDaysAgo),
+          ))
+          .orderBy(desc(students.enrolledAt))
+
+        newStarters = newStarterRows.map(s => ({
+          id:         s.id,
+          name:       s.name,
+          courseName: courseMap.get(s.courseId) ?? 'Unknown Course',
+          enrolledAt: s.enrolledAt.toISOString(),
+        }))
+
+        // ── 12. Streak leaders (top 5 with streak > 0) ────────────────────
         const topStreakers = await db
           .select({
             id:        students.id,
@@ -223,6 +248,7 @@ export default async function DashboardPage() {
         atRiskRows={atRiskRows}
         streakLeaders={streakLeaders}
         recentNudgeRows={recentNudgeRows}
+        newStarters={newStarters}
         avgProgressPct={avgProgressPct}
         completionPct={completionPct}
         mostActiveCourse={mostActiveCourse}
