@@ -108,7 +108,6 @@ export default async function StudentDetailPage({
       <div className="flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-[#111827]">{student.name}</h1>
-          <p className="mt-1 text-sm text-[#6B7280]">{student.email}</p>
         </div>
         <div className="flex items-center gap-3">
           <span className={cn(

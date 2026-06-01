@@ -208,7 +208,7 @@ export function CommandPalette({ students = [] }: CommandPaletteProps) {
                             <CommandItem
                               key={student.id}
                               onSelect={() => navigate(`/dashboard/students/${student.id}`)}
-                              value={`${student.name} ${student.email} ${student.courseName}`}
+                              value={`${student.name} ${student.courseName}`}
                               className="rounded-lg! px-3! py-2.5! data-selected:bg-[#E8F4F0]! data-selected:text-[#003533]!"
                             >
                               <div className="w-6 h-6 rounded-full bg-[#E8F4F0] text-[#004643] text-[10px] font-semibold flex items-center justify-center flex-shrink-0">

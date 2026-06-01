@@ -141,7 +141,7 @@ export function StudentsTable({ rows, courses, webhookUrl }: Props) {
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
     return rows.filter(r => {
-      const matchSearch = !q || r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q)
+      const matchSearch = !q || r.name.toLowerCase().includes(q)
       const matchCourse = !courseFilter || r.courseId === courseFilter
       const matchStatus = !statusFilter || r.status === statusFilter
       return matchSearch && matchCourse && matchStatus
@@ -161,7 +161,7 @@ export function StudentsTable({ rows, courses, webhookUrl }: Props) {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF] pointer-events-none" />
           <input
             type="text"
-            placeholder="Search by name or email…"
+            placeholder="Search by name…"
             value={search}
             onChange={e => setSearch(e.target.value)}
             className={cn(inputCls, 'pl-9 w-full')}
@@ -307,7 +307,6 @@ export function StudentsTable({ rows, courses, webhookUrl }: Props) {
                                   </span>
                                 )}
                               </div>
-                              <p className="text-xs text-[#6B7280] truncate">{student.email}</p>
                             </div>
                           </div>
                         </td>
