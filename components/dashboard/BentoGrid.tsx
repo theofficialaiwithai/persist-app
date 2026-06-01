@@ -1,9 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Users, BookOpen, Mail, AlertTriangle } from 'lucide-react'
+import { Users, BookOpen, Mail, AlertTriangle, BookPlus } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
+import { AddCourseButton, DiscoverCourseButton } from '@/app/dashboard/components/CourseActions'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -269,8 +270,8 @@ export function BentoGrid({
 
       {/* ── ROW 3+: NEEDS ATTENTION (col-span-3) + STREAK LEADERS (col-span-1) */}
 
-      {/* Needs Attention */}
-      <Card className="col-span-1 sm:col-span-2 md:col-span-3">
+      {/* Needs Attention — spans 2 rows so Course Actions + Streak Leaders stack beside it */}
+      <Card className="col-span-1 sm:col-span-2 md:col-span-3 md:row-span-2">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
           <h2 className="text-base font-semibold text-[#111827]">Needs Attention</h2>
           {atRiskRows.length > 0 && (
@@ -321,6 +322,23 @@ export function BentoGrid({
             ))}
           </div>
         )}
+      </Card>
+
+      {/* Course Actions — right column, above Streak Leaders */}
+      <Card className="col-span-1 sm:col-span-2 md:col-span-1">
+        <div className="p-5 h-full flex flex-col">
+          <div className="flex items-center gap-2 mb-1">
+            <BookPlus className="w-4 h-4 text-indigo-600" />
+            <h3 className="text-sm font-semibold text-[#111827]">Add a Course</h3>
+          </div>
+          <p className="text-xs text-[#9CA3AF] mb-4 leading-relaxed">
+            Track a new course or discover what to learn next.
+          </p>
+          <div className="flex flex-col gap-2 mt-auto">
+            <AddCourseButton />
+            <DiscoverCourseButton />
+          </div>
+        </div>
       </Card>
 
       {/* Streak Leaders */}

@@ -1,0 +1,161 @@
+'use client'
+
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { Plus, Sparkles, X } from 'lucide-react'
+import { showToast } from '@/lib/toast'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog'
+
+// ── Add Course Button + Modal ────────────────────────────────────────────────
+
+export function AddCourseButton() {
+  const router     = useRouter()
+  const [open,       setOpen      ] = useState(false)
+  const [courseName, setCourseName] = useState('')
+  const [externalId, setExternalId] = useState('')
+  const [isLoading,  setIsLoading ] = useState(false)
+
+  const handleAddCourse = async () => {
+    if (!courseName.trim() || isLoading) return
+    setIsLoading(true)
+    try {
+      const res = await fetch('/api/courses/create', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ courseName, externalId }),
+      })
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error ?? 'Failed to add course')
+      }
+      showToast.saved('Course added!')
+      setOpen(false)
+      setCourseName('')
+      setExternalId('')
+      router.refresh()
+    } catch (err) {
+      showToast.error(err instanceof Error ? err.message : 'Failed to add course')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors">
+        <Plus className="w-4 h-4" />
+        Add a new course
+      </DialogTrigger>
+
+      <DialogContent className="rounded-2xl max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Add a course to track</DialogTitle>
+          <DialogDescription>
+            Persist will monitor student progress on this course automatically once your
+            webhook is connected.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="flex flex-col gap-4 py-2">
+          {/* Course name */}
+          <div>
+            <label className="text-sm font-medium text-[#111827]">Course name</label>
+            <Input
+              placeholder="e.g. Build AI Products with Claude"
+              value={courseName}
+              onChange={e => setCourseName(e.target.value)}
+              className="mt-1.5"
+              onKeyDown={e => e.key === 'Enter' && handleAddCourse()}
+            />
+          </div>
+
+          {/* External ID */}
+          <div>
+            <label className="text-sm font-medium text-[#111827]">
+              External course ID{' '}
+              <span className="text-[#9CA3AF] font-normal">(optional)</span>
+            </label>
+            <Input
+              placeholder="e.g. course_123 from your platform"
+              value={externalId}
+              onChange={e => setExternalId(e.target.value)}
+              className="mt-1.5"
+            />
+            <p className="text-xs text-[#9CA3AF] mt-1">
+              Used to match webhook events to this course.
+            </p>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            onClick={handleAddCourse}
+            disabled={!courseName.trim() || isLoading}
+          >
+            {isLoading ? 'Adding...' : 'Add course'}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+// ── Discover Course Button + SkillPath Modal ─────────────────────────────────
+
+export function DiscoverCourseButton() {
+  const [discoverOpen, setDiscoverOpen] = useState(false)
+
+  return (
+    <>
+      <button
+        onClick={() => setDiscoverOpen(true)}
+        className="w-full flex items-center justify-center gap-2 border border-[#E5E7EB] text-[#111827] px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#F7F8FA] transition-colors"
+      >
+        <Sparkles className="w-4 h-4 text-indigo-500" />
+        Discover your next course
+      </button>
+
+      {discoverOpen && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[85vh] flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+              <div>
+                <h2 className="font-semibold text-[#111827]">Discover Your Next Course</h2>
+                <p className="text-xs text-[#6B7280]">Powered by SkillPath</p>
+              </div>
+              <button
+                onClick={() => setDiscoverOpen(false)}
+                className="w-8 h-8 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#6B7280] hover:bg-[#E5E7EB] transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* SkillPath iframe */}
+            <iframe
+              src="https://skillpath-hazel.vercel.app/"
+              className="flex-1 w-full"
+              title="SkillPath — Discover your next course"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope"
+            />
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
