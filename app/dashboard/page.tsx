@@ -25,6 +25,7 @@ export default async function DashboardPage() {
 
   // ── Defaults (rendered even if creator not found yet) ─────────────────────
   let creatorFirstName    = 'there'
+  let creatorId           = ''
   let totalStudents       = 0
   let activeCourses       = 0
   let nudgesThisMonth     = 0
@@ -54,6 +55,8 @@ export default async function DashboardPage() {
       where: eq(creators.userId, userId),
     })
     if (!creator) redirect('/dashboard/onboarding')
+
+    creatorId = creator.id
 
     // Best-effort first name: Clerk → senderName → creator.name → email prefix
     creatorFirstName =
@@ -327,6 +330,7 @@ export default async function DashboardPage() {
       <DashboardClient recentlyCompleted={recentlyCompleted}>
       <BentoGrid
         creatorFirstName={creatorFirstName}
+        creatorId={creatorId}
         totalStudents={totalStudents}
         activeCourses={activeCourses}
         nudgesThisMonth={nudgesThisMonth}

@@ -9,6 +9,7 @@ import {
 import { cn } from '@/lib/utils'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
 import { AddCourseButton, DiscoverCourseButton } from '@/app/dashboard/components/CourseActions'
+import { InsightsCard } from '@/app/dashboard/components/InsightsCard'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -36,6 +37,7 @@ export interface GettingStartedData {
 
 export interface BentoGridProps {
   creatorFirstName:    string
+  creatorId:           string
   totalStudents:       number
   activeCourses:       number
   nudgesThisMonth:     number
@@ -368,7 +370,7 @@ function QuickStatsContent({ avgProgressPct, completionPct, mostActiveCourse }: 
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function BentoGrid({
-  creatorFirstName, totalStudents, activeCourses, nudgesThisMonth, atRiskCount,
+  creatorFirstName, creatorId, totalStudents, activeCourses, nudgesThisMonth, atRiskCount,
   newStudentsThisWeek, atRiskRows, streakLeaders, recentNudgeRows, newStarters,
   avgProgressPct, completionPct, mostActiveCourse, upcomingSprints, gettingStarted,
 }: BentoGridProps) {
@@ -422,6 +424,14 @@ export function BentoGrid({
           trendPositive={atRiskCount === 0}
         />
       </Card>
+
+      {/* ── AI Insights — full width, between stats and main content ────────── */}
+      <motion.div
+        variants={itemVariants}
+        className="col-span-1 sm:col-span-2 lg:col-span-4"
+      >
+        <InsightsCard creatorId={creatorId} />
+      </motion.div>
 
       {/* ── ROW 3+: Left main (col-span-3) — animated container ─────────────── */}
       <motion.div
