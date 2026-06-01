@@ -243,7 +243,33 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
         {children}
       </main>
 
-      <Toaster richColors position="top-right" />
+      <Toaster
+        position="bottom-right"
+        offset={24}
+        gap={12}
+        expand
+        toastOptions={{
+          unstyled: true,
+          classNames: {
+            toast:
+              'flex items-start gap-3 w-full max-w-sm bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl shadow-black/10 p-4 relative',
+            title:       'text-sm font-semibold text-[#111827]',
+            description: 'text-xs text-[#6B7280] mt-0.5 leading-relaxed',
+            actionButton:
+              'text-xs font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg mt-2 transition-colors',
+            cancelButton:
+              'text-xs font-medium text-[#6B7280] hover:text-[#111827] transition-colors',
+            closeButton:
+              'absolute top-3 right-3 w-5 h-5 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#9CA3AF] hover:bg-[#E5E7EB] hover:text-[#6B7280] transition-colors',
+            success: 'border-l-4 border-l-emerald-500',
+            error:   'border-l-4 border-l-red-500',
+            warning: 'border-l-4 border-l-amber-500',
+            info:    'border-l-4 border-l-indigo-500',
+            icon:    'mt-0.5 flex-shrink-0',
+          },
+          duration: 4000,
+        }}
+      />
 
       {/* ── Command Palette — renders as a portal overlay ──────────────────── */}
       <CommandPalette students={students} />

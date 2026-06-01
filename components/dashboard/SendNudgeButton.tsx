@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { toast } from 'sonner'
+import { showToast } from '@/lib/toast'
 import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -26,10 +26,10 @@ export function SendNudgeButton({ studentId, studentName, className }: Props) {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Failed to send nudge')
-      toast.success(`Nudge sent to ${studentName}!`)
+      showToast.nudgeSent(studentName)
       router.refresh()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to send nudge')
+      showToast.nudgeFailed(studentName)
     } finally {
       setLoading(false)
     }

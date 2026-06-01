@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { toast } from 'sonner'
+import { showToast } from '@/lib/toast'
 import { Copy, Eye, EyeOff, Loader2, X, FlaskConical } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -93,9 +93,9 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
   const copy = async (text: string, label: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      toast.success(`${label} copied to clipboard`)
+      showToast.copied(`${label} copied`)
     } catch {
-      toast.error('Failed to copy — please copy manually')
+      showToast.error('Failed to copy — please copy manually')
     }
   }
 
@@ -108,9 +108,9 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
         body:    JSON.stringify({ senderName, senderEmail, coursePlatform }),
       })
       if (!res.ok) throw new Error('Save failed')
-      toast.success('Email identity saved')
+      showToast.saved('Email identity saved')
     } catch {
-      toast.error('Failed to save — please try again')
+      showToast.error('Failed to save — please try again')
     } finally {
       setIdentitySaving(false)
     }
@@ -125,9 +125,9 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
         body:    JSON.stringify({ nudgeTone, minDaysBetweenNudges: Number(minDaysBetweenNudges), blackoutWeekends }),
       })
       if (!res.ok) throw new Error('Save failed')
-      toast.success('Nudge preferences saved')
+      showToast.saved('Nudge preferences saved')
     } catch {
-      toast.error('Failed to save — please try again')
+      showToast.error('Failed to save — please try again')
     } finally {
       setPrefsSaving(false)
     }
@@ -164,9 +164,9 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
       setMinDaysBetweenNudges(5)
       setBlackoutWeekends(false)
       setResetConfirm(false)
-      toast.success('Settings reset to defaults')
+      showToast.saved('Settings reset to defaults')
     } catch {
-      toast.error('Reset failed — please try again')
+      showToast.error('Reset failed — please try again')
     } finally {
       setResetLoading(false)
     }

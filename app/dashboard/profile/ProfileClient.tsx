@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Camera, Pencil, Check, X, ArrowRight, ImageIcon } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
+import { showToast } from '@/lib/toast'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -184,10 +184,10 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
     setBannerImageUrl(url)
     try {
       await patchProfile({ bannerImageUrl: url })
-      toast.success('Banner updated')
+      showToast.saved('Banner updated')
     } catch {
       setBannerImageUrl(creator.bannerImageUrl)
-      toast.error('Failed to update banner')
+      showToast.error('Failed to update banner')
     }
   }
 
@@ -196,10 +196,10 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
     setProfileImageUrl(url)
     try {
       await patchProfile({ profileImageUrl: url })
-      toast.success('Profile photo updated')
+      showToast.saved('Profile photo updated')
     } catch {
       setProfileImageUrl(creator.profileImageUrl)
-      toast.error('Failed to update photo')
+      showToast.error('Failed to update photo')
     }
   }
 
@@ -209,10 +209,10 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
     setEditingBio(false)
     try {
       await patchProfile({ bio: saved })
-      toast.success('Bio saved')
+      showToast.saved('Bio saved')
     } catch {
       setBio(bio)
-      toast.error('Failed to save bio')
+      showToast.error('Failed to save bio')
     }
   }
 
@@ -222,9 +222,9 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
     setEditingName(false)
     try {
       await patchProfile({ senderName: saved })
-      toast.success('Name updated')
+      showToast.saved('Name updated')
     } catch {
-      toast.error('Failed to update name')
+      showToast.error('Failed to update name')
     }
   }
 
