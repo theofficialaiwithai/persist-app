@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Command,
-  CommandDialog,
   CommandEmpty,
   CommandGroup,
   CommandInput,
@@ -44,15 +44,21 @@ interface CommandPaletteProps {
 
 export function CommandPalette({ students = [] }: CommandPaletteProps) {
   const [open, setOpen] = useState(false)
-  const router  = useRouter()
+  const router      = useRouter()
   const { signOut } = useClerk()
 
-  // ── Keyboard shortcut: Cmd+K / Ctrl+K ──────────────────────────────────────
+  // ── Keyboard shortcuts ──────────────────────────────────────────────────────
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Cmd+K / Ctrl+K: toggle
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault()
         setOpen(prev => !prev)
+        return
+      }
+      // Escape: close
+      if (e.key === 'Escape') {
+        setOpen(false)
       }
     }
     window.addEventListener('keydown', handleKeyDown)
@@ -72,166 +78,200 @@ export function CommandPalette({ students = [] }: CommandPaletteProps) {
   }
 
   return (
-    <CommandDialog
-      open={open}
-      onOpenChange={(o) => setOpen(o)}
-      className="sm:max-w-lg! p-0! gap-0! overflow-hidden! top-[30%]! translate-y-0!"
-    >
-      {/* cmdk context wrapper */}
-      <Command className="rounded-none! bg-white!">
-
-        {/* Search input */}
-        <div className="border-b border-[#E5E7EB] px-1">
-          <CommandInput
-            placeholder="Search students, navigate, or take action..."
-            className="text-[#111827]! h-12!"
+    <AnimatePresence mode="wait">
+      {open && (
+        // ── Outer container — occupies the full viewport ─────────────────────
+        <motion.div
+          key="palette-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.15 }}
+          className="fixed inset-0 z-50"
+        >
+          {/* Backdrop — click here to close ─────────────────────────────────── */}
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setOpen(false)}
           />
-        </div>
 
-        {/* Results list */}
-        <CommandList className="max-h-[380px]! py-1">
+          {/* Centering wrapper — also closes on outside-click ──────────────── */}
+          <div
+            className="absolute inset-0 flex items-start justify-center pt-[18vh] px-4"
+            onClick={() => setOpen(false)}
+          >
+            {/* Panel — stopPropagation so clicks inside don't close ───────── */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96, y: -12 }}
+              animate={{ opacity: 1, scale: 1,    y: 0    }}
+              exit={{    opacity: 0, scale: 0.96, y: -12  }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-lg bg-white rounded-2xl border border-[#E5E7EB] shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* cmdk context ───────────────────────────────────────────────── */}
+              <Command className="rounded-none! bg-white! p-0!" shouldFilter>
 
-          <CommandEmpty>
-            <div className="text-center py-8">
-              <Search className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
-              <p className="text-sm text-[#6B7280]">No results found</p>
-            </div>
-          </CommandEmpty>
+                {/* Search input */}
+                <div className="border-b border-[#E5E7EB]">
+                  <CommandInput
+                    placeholder="Search students, navigate, or take action..."
+                    className="h-14! text-base!"
+                  />
+                </div>
 
-          {/* ── Navigate ───────────────────────────────────────────────────── */}
-          <CommandGroup heading="Navigate">
-            <CommandItem
-              onSelect={() => navigate('/dashboard')}
-              className="rounded-lg! mx-1! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
-            >
-              <LayoutDashboard className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-              <span className="flex-1">Dashboard</span>
-              <CommandShortcut>⌘D</CommandShortcut>
-            </CommandItem>
-            <CommandItem
-              onSelect={() => navigate('/dashboard/students')}
-              className="rounded-lg! mx-1! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
-            >
-              <Users className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-              <span className="flex-1">Students</span>
-              <CommandShortcut>⌘S</CommandShortcut>
-            </CommandItem>
-            <CommandItem
-              onSelect={() => navigate('/dashboard/profile')}
-              className="rounded-lg! mx-1! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
-            >
-              <UserCircle className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-              <span className="flex-1">My Profile</span>
-            </CommandItem>
-            <CommandItem
-              onSelect={() => navigate('/dashboard/settings')}
-              className="rounded-lg! mx-1! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
-            >
-              <Settings className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-              <span className="flex-1">Settings</span>
-              <CommandShortcut>⌘,</CommandShortcut>
-            </CommandItem>
-          </CommandGroup>
+                {/* Results list */}
+                <CommandList className="max-h-80! overflow-y-auto! py-2! px-2!">
 
-          <CommandSeparator className="my-1!" />
+                  <CommandEmpty>
+                    <div className="text-center py-8">
+                      <Search className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
+                      <p className="text-sm text-[#6B7280]">No results found</p>
+                    </div>
+                  </CommandEmpty>
 
-          {/* ── Quick Actions ──────────────────────────────────────────────── */}
-          <CommandGroup heading="Quick Actions">
-            <CommandItem
-              onSelect={() => navigate('/dashboard/students')}
-              className="rounded-lg! mx-1! px-3! py-2.5! data-selected:bg-emerald-50! data-selected:text-emerald-700!"
-            >
-              <Send className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-              <span className="flex-1">Send a nudge...</span>
-            </CommandItem>
-            <CommandItem
-              onSelect={() => navigate('/dashboard/settings#webhook')}
-              className="rounded-lg! mx-1! px-3! py-2.5! data-selected:bg-amber-50! data-selected:text-amber-700!"
-            >
-              <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
-              <span className="flex-1">Copy webhook URL</span>
-            </CommandItem>
-            <CommandItem
-              onSelect={() => navigate('/dashboard/settings')}
-              className="rounded-lg! mx-1! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
-            >
-              <BookOpen className="w-4 h-4 text-indigo-500 flex-shrink-0" />
-              <span className="flex-1">View webhook setup guide</span>
-            </CommandItem>
-          </CommandGroup>
-
-          {/* ── Students ───────────────────────────────────────────────────── */}
-          {students.length > 0 && (
-            <>
-              <CommandSeparator className="my-1!" />
-              <CommandGroup heading="Students">
-                {students.slice(0, 8).map(student => {
-                  const initials = student.name
-                    .split(' ')
-                    .map(n => n[0] ?? '')
-                    .join('')
-                    .toUpperCase()
-                    .slice(0, 2)
-                  return (
+                  {/* ── Navigate ─────────────────────────────────────────────── */}
+                  <CommandGroup heading="Navigate">
                     <CommandItem
-                      key={student.id}
-                      onSelect={() => navigate(`/dashboard/students/${student.id}`)}
-                      value={`${student.name} ${student.email} ${student.courseName}`}
-                      className="rounded-lg! mx-1! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                      onSelect={() => navigate('/dashboard')}
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
                     >
-                      {/* Avatar */}
-                      <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-semibold flex items-center justify-center flex-shrink-0">
-                        {initials}
-                      </div>
-                      <div className="flex-1 min-w-0 flex items-baseline gap-2">
-                        <span className="font-medium text-[#111827] truncate">{student.name}</span>
-                        <span className="text-xs text-[#9CA3AF] truncate">{student.courseName}</span>
-                      </div>
-                      <span className="text-xs text-[#9CA3AF] flex-shrink-0">
-                        {student.progressPct}%
-                      </span>
+                      <LayoutDashboard className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <span className="flex-1">Dashboard</span>
+                      <CommandShortcut>⌘D</CommandShortcut>
                     </CommandItem>
-                  )
-                })}
-              </CommandGroup>
-            </>
-          )}
+                    <CommandItem
+                      onSelect={() => navigate('/dashboard/students')}
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                    >
+                      <Users className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <span className="flex-1">Students</span>
+                      <CommandShortcut>⌘S</CommandShortcut>
+                    </CommandItem>
+                    <CommandItem
+                      onSelect={() => navigate('/dashboard/profile')}
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                    >
+                      <UserCircle className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <span className="flex-1">My Profile</span>
+                    </CommandItem>
+                    <CommandItem
+                      onSelect={() => navigate('/dashboard/settings')}
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                    >
+                      <Settings className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <span className="flex-1">Settings</span>
+                      <CommandShortcut>⌘,</CommandShortcut>
+                    </CommandItem>
+                  </CommandGroup>
 
-          <CommandSeparator className="my-1!" />
+                  <CommandSeparator />
 
-          {/* ── Account ────────────────────────────────────────────────────── */}
-          <CommandGroup heading="Account">
-            <CommandItem
-              onSelect={() => signOut({ redirectUrl: '/' })}
-              className="rounded-lg! mx-1! px-3! py-2.5! text-red-600! data-selected:bg-red-50! data-selected:text-red-700!"
-            >
-              <LogOut className="w-4 h-4 text-red-500 flex-shrink-0" />
-              <span className="flex-1">Sign out</span>
-            </CommandItem>
-          </CommandGroup>
+                  {/* ── Quick Actions ─────────────────────────────────────────── */}
+                  <CommandGroup heading="Quick Actions">
+                    <CommandItem
+                      onSelect={() => navigate('/dashboard/students')}
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-emerald-50! data-selected:text-emerald-700!"
+                    >
+                      <Send className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                      <span className="flex-1">Send a nudge...</span>
+                    </CommandItem>
+                    <CommandItem
+                      onSelect={() => navigate('/dashboard/settings#webhook')}
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-amber-50! data-selected:text-amber-700!"
+                    >
+                      <Zap className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                      <span className="flex-1">Copy webhook URL</span>
+                    </CommandItem>
+                    <CommandItem
+                      onSelect={() => navigate('/dashboard/settings')}
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                    >
+                      <BookOpen className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <span className="flex-1">View webhook setup guide</span>
+                    </CommandItem>
+                  </CommandGroup>
 
-        </CommandList>
-      </Command>
+                  {/* ── Students ─────────────────────────────────────────────── */}
+                  {students.length > 0 && (
+                    <>
+                      <CommandSeparator />
+                      <CommandGroup heading="Students">
+                        {students.slice(0, 8).map(student => {
+                          const sts = student.name
+                            .split(' ')
+                            .map(n => n[0] ?? '')
+                            .join('')
+                            .toUpperCase()
+                            .slice(0, 2)
+                          return (
+                            <CommandItem
+                              key={student.id}
+                              onSelect={() => navigate(`/dashboard/students/${student.id}`)}
+                              value={`${student.name} ${student.email} ${student.courseName}`}
+                              className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                            >
+                              <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-semibold flex items-center justify-center flex-shrink-0">
+                                {sts}
+                              </div>
+                              <div className="flex-1 min-w-0 flex items-baseline gap-2">
+                                <span className="font-medium text-[#111827] truncate">
+                                  {student.name}
+                                </span>
+                                <span className="text-xs text-[#9CA3AF] truncate">
+                                  {student.courseName}
+                                </span>
+                              </div>
+                              <span className="text-xs text-[#9CA3AF] flex-shrink-0">
+                                {student.progressPct}%
+                              </span>
+                            </CommandItem>
+                          )
+                        })}
+                      </CommandGroup>
+                    </>
+                  )}
 
-      {/* ── Footer hint bar ──────────────────────────────────────────────────── */}
-      <div className="border-t border-[#E5E7EB] px-4 py-2.5 flex items-center gap-4 text-xs text-[#9CA3AF] bg-[#FAFAFA]">
-        <span>
-          <kbd className="bg-white border border-[#E5E7EB] px-1.5 py-0.5 rounded text-[10px] font-mono">↑↓</kbd>{' '}
-          navigate
-        </span>
-        <span>
-          <kbd className="bg-white border border-[#E5E7EB] px-1.5 py-0.5 rounded text-[10px] font-mono">↵</kbd>{' '}
-          select
-        </span>
-        <span>
-          <kbd className="bg-white border border-[#E5E7EB] px-1.5 py-0.5 rounded text-[10px] font-mono">esc</kbd>{' '}
-          close
-        </span>
-        <span className="ml-auto">
-          <kbd className="bg-white border border-[#E5E7EB] px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>{' '}
-          open
-        </span>
-      </div>
-    </CommandDialog>
+                  <CommandSeparator />
+
+                  {/* ── Account ──────────────────────────────────────────────── */}
+                  <CommandGroup heading="Account">
+                    <CommandItem
+                      onSelect={() => signOut({ redirectUrl: '/' })}
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-red-50! data-selected:text-red-700!"
+                    >
+                      <LogOut className="w-4 h-4 text-red-500 flex-shrink-0" />
+                      <span className="flex-1 text-red-600">Sign out</span>
+                    </CommandItem>
+                  </CommandGroup>
+
+                </CommandList>
+              </Command>
+
+              {/* Footer hint bar ─────────────────────────────────────────────── */}
+              <div className="border-t border-[#E5E7EB] px-4 py-2.5 flex items-center gap-4 text-xs text-[#9CA3AF] bg-[#FAFAFA]">
+                <span>
+                  <kbd className="bg-[#F3F4F6] px-1.5 py-0.5 rounded text-[10px] font-mono">↑↓</kbd>{' '}
+                  navigate
+                </span>
+                <span>
+                  <kbd className="bg-[#F3F4F6] px-1.5 py-0.5 rounded text-[10px] font-mono">↵</kbd>{' '}
+                  select
+                </span>
+                <span>
+                  <kbd className="bg-[#F3F4F6] px-1.5 py-0.5 rounded text-[10px] font-mono">esc</kbd>{' '}
+                  close
+                </span>
+                <span className="ml-auto">
+                  <kbd className="bg-[#F3F4F6] px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>{' '}
+                  open
+                </span>
+              </div>
+
+            </motion.div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

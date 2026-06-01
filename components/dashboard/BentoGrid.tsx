@@ -58,19 +58,19 @@ export interface BentoGridProps {
 // ── Animation variants ────────────────────────────────────────────────────────
 
 const containerVariants = {
-  hidden:   { opacity: 0 },
-  visible:  {
+  hidden:  { opacity: 0 },
+  visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.05 },
+    transition: { staggerChildren: 0.07, delayChildren: 0.05 },
   },
 }
 
 const itemVariants = {
-  hidden:   { opacity: 0, y: 20 },
-  visible:  {
+  hidden:  { opacity: 0, y: 16 },
+  visible: {
     opacity: 1,
     y: 0,
-    transition: { type: 'spring' as const, stiffness: 90, damping: 14 },
+    transition: { type: 'spring' as const, stiffness: 100, damping: 16 },
   },
 }
 
@@ -114,7 +114,7 @@ function Card({
     <motion.div
       variants={itemVariants}
       className={cn(
-        'rounded-2xl border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow overflow-hidden',
+        'rounded-2xl border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow overflow-hidden bg-white',
         className,
       )}
     >
@@ -123,7 +123,7 @@ function Card({
   )
 }
 
-// ── Mini stat for the small stat cells ────────────────────────────────────────
+// ── Mini stat for the small single-cell cards ─────────────────────────────────
 
 function MiniStat({
   label,
@@ -141,7 +141,7 @@ function MiniStat({
   amber?: boolean
 }) {
   return (
-    <div className="flex flex-col justify-between h-full p-5">
+    <div className="flex flex-col justify-between h-full p-5 min-h-[140px]">
       <div className={cn(
         'inline-flex items-center justify-center w-9 h-9 rounded-xl',
         amber ? 'bg-amber-100' : 'bg-indigo-50',
@@ -154,7 +154,7 @@ function MiniStat({
         {trend && (
           <p className={cn(
             'text-xs font-medium mt-0.5',
-            trendPositive ? 'text-emerald-600' : 'text-red-600',
+            trendPositive ? 'text-emerald-600' : 'text-red-500',
           )}>
             {trend}
           </p>
@@ -165,6 +165,16 @@ function MiniStat({
 }
 
 // ── BentoGrid ────────────────────────────────────────────────────────────────
+//
+// Layout (md = 4-column, col-span only — no col-start / row-start):
+//   Row 1  │ Welcome banner                              col-span-4
+//   Row 2  │ Total Students │ Courses │ Nudges │ At Risk  col-span-1 each
+//   Row 3+ │ Needs Attention ×3       │ Streak Leaders   col-span-3 / col-span-1
+//   Row 4  │ New Starters                                col-span-4
+//   Row 5  │ Recent Nudges ×3         │ Quick Stats      col-span-3 / col-span-1
+//
+// Grid auto-placement handles row assignment automatically.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export function BentoGrid({
   creatorFirstName,
@@ -186,30 +196,25 @@ export function BentoGrid({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      // ── Grid ──────────────────────────────────────────────────────────────
-      // mobile: 1 col stacked
-      // sm:     2 col auto-placed
-      // md:     4 col with explicit row+col placement (true bento)
-      // auto-rows: each track is at least 140px, grows to content
       className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 auto-rows-[minmax(140px,auto)] gap-4"
     >
 
-      {/* ── 1. WELCOME ── col 1-2, row 1 ────────────────────────────────── */}
-      <Card className="sm:col-span-2 md:col-start-1 md:col-span-2 md:row-start-1 bg-indigo-600 border-indigo-500 text-white">
-        <div className="h-full flex flex-col justify-between p-6">
+      {/* ── ROW 1: WELCOME — full width ─────────────────────────────────────── */}
+      <Card className="col-span-1 sm:col-span-2 md:col-span-4 bg-indigo-600 border-indigo-500 text-white">
+        <div className="h-full flex flex-col justify-between p-6 min-h-[120px]">
           <div>
             <p className="text-xs font-medium text-indigo-200 uppercase tracking-wide">
               {todayLabel()}
             </p>
-            <h1 className="mt-2 text-2xl font-bold leading-snug">
+            <h1 className="mt-1.5 text-xl font-bold leading-snug">
               Welcome back, {creatorFirstName} 👋
             </h1>
-            <p className="mt-1 text-sm text-indigo-200">
+            <p className="mt-0.5 text-sm text-indigo-200">
               Here's how your students are doing today
             </p>
           </div>
           {atRiskCount > 0 && (
-            <div className="inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-1.5 w-fit">
+            <div className="mt-3 inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-1.5 w-fit">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-300 shrink-0" />
               <span className="text-xs font-medium text-white/90">
                 {atRiskCount} student{atRiskCount !== 1 ? 's' : ''} need
@@ -220,8 +225,52 @@ export function BentoGrid({
         </div>
       </Card>
 
-      {/* ── 2. NEEDS ATTENTION ── col 1-2, rows 2-4 (TALL anchor) ────────── */}
-      <Card className="sm:col-span-2 md:col-start-1 md:col-span-2 md:row-start-2 md:row-span-3 bg-white">
+      {/* ── ROW 2: STAT CARDS — 4 × col-span-1 ─────────────────────────────── */}
+
+      {/* Total Students */}
+      <Card>
+        <MiniStat
+          label="Total Students"
+          value={totalStudents}
+          icon={<Users className="w-4 h-4 text-indigo-600" />}
+          trend={newStudentsThisWeek > 0 ? `+${newStudentsThisWeek} this week` : undefined}
+        />
+      </Card>
+
+      {/* Active Courses */}
+      <Card>
+        <MiniStat
+          label="Active Courses"
+          value={activeCourses}
+          icon={<BookOpen className="w-4 h-4 text-indigo-600" />}
+        />
+      </Card>
+
+      {/* Nudges This Month */}
+      <Card>
+        <MiniStat
+          label="Nudges This Month"
+          value={nudgesThisMonth}
+          icon={<Mail className="w-4 h-4 text-indigo-600" />}
+        />
+      </Card>
+
+      {/* At Risk Today */}
+      <Card className={atRiskCount > 0 ? 'bg-amber-50 border-amber-200' : ''}>
+        <MiniStat
+          label="At Risk Today"
+          value={atRiskCount}
+          icon={<AlertTriangle className={cn('w-4 h-4', atRiskCount > 0 ? 'text-amber-600' : 'text-indigo-600')} />}
+          amber={atRiskCount > 0}
+          trend={atRiskCount > 0 ? 'needs attention' : 'all on track'}
+          trendPositive={atRiskCount === 0}
+        />
+      </Card>
+
+      {/* ── ROW 3+: NEEDS ATTENTION (col-span-3) + STREAK LEADERS (col-span-1) */}
+
+      {/* Needs Attention */}
+      <Card className="col-span-1 sm:col-span-2 md:col-span-3">
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
           <h2 className="text-base font-semibold text-[#111827]">Needs Attention</h2>
           {atRiskRows.length > 0 && (
@@ -231,7 +280,7 @@ export function BentoGrid({
           )}
         </div>
         {atRiskRows.length === 0 ? (
-          <div className="flex flex-col items-center justify-center text-center py-16">
+          <div className="flex flex-col items-center justify-center text-center py-12">
             <p className="text-2xl">🎉</p>
             <p className="mt-2 text-sm font-medium text-[#111827]">All students are on track</p>
             <p className="text-xs text-[#6B7280] mt-0.5">No one needs a nudge right now</p>
@@ -274,8 +323,8 @@ export function BentoGrid({
         )}
       </Card>
 
-      {/* ── 3. STREAK LEADERS ── cols 3-4, rows 1-2 (TALL right anchor) ──── */}
-      <Card className="sm:col-span-2 md:col-start-3 md:col-span-2 md:row-start-1 md:row-span-2 bg-white">
+      {/* Streak Leaders */}
+      <Card className="col-span-1 sm:col-span-2 md:col-span-1">
         <div className="p-6 h-full flex flex-col">
           <h2 className="text-base font-semibold text-[#111827] mb-4">🔥 Streak Leaders</h2>
           {streakLeaders.length === 0 ? (
@@ -283,11 +332,11 @@ export function BentoGrid({
               <p className="text-sm text-[#6B7280] text-center">No active streaks yet</p>
             </div>
           ) : (
-            <div className="space-y-4 flex-1">
+            <div className="space-y-3 flex-1">
               {streakLeaders.map((s, i) => (
                 <div key={s.id} className="flex items-center gap-3">
                   <div className={cn(
-                    'w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 select-none',
+                    'w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold shrink-0 select-none',
                     i === 0 ? 'bg-amber-100 text-amber-700' : 'bg-indigo-50 text-indigo-600',
                   )}>
                     {initials(s.name)}
@@ -301,19 +350,12 @@ export function BentoGrid({
                     </p>
                     <p className="text-xs text-[#9CA3AF] truncate">{s.courseName}</p>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    {i === 0 && (
-                      <span className="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-medium">
-                        #1
-                      </span>
-                    )}
-                    <span className={cn(
-                      'text-sm font-bold',
-                      i === 0 ? 'text-amber-600' : 'text-orange-500',
-                    )}>
-                      🔥 {s.streakDays}d
-                    </span>
-                  </div>
+                  <span className={cn(
+                    'text-sm font-bold shrink-0',
+                    i === 0 ? 'text-amber-600' : 'text-orange-500',
+                  )}>
+                    🔥 {s.streakDays}d
+                  </span>
                 </div>
               ))}
             </div>
@@ -321,51 +363,8 @@ export function BentoGrid({
         </div>
       </Card>
 
-      {/* ── 4. AT RISK TODAY ── col 3, row 3 ─────────────────────────────── */}
-      <Card className={cn(
-        'md:col-start-3 md:row-start-3',
-        atRiskCount > 0 ? 'bg-amber-50 border-amber-200' : 'bg-white',
-      )}>
-        <MiniStat
-          label="At Risk Today"
-          value={atRiskCount}
-          icon={<AlertTriangle className={cn('w-4 h-4', atRiskCount > 0 ? 'text-amber-600' : 'text-indigo-600')} />}
-          amber={atRiskCount > 0}
-          trend={atRiskCount > 0 ? 'needs attention' : 'all on track'}
-          trendPositive={atRiskCount === 0}
-        />
-      </Card>
-
-      {/* ── 5. TOTAL STUDENTS ── col 4, row 3 ────────────────────────────── */}
-      <Card className="md:col-start-4 md:row-start-3 bg-white">
-        <MiniStat
-          label="Total Students"
-          value={totalStudents}
-          icon={<Users className="w-4 h-4 text-indigo-600" />}
-          trend={newStudentsThisWeek > 0 ? `+${newStudentsThisWeek} this week` : undefined}
-        />
-      </Card>
-
-      {/* ── 6. NUDGES THIS MONTH ── col 3, row 4 ─────────────────────────── */}
-      <Card className="md:col-start-3 md:row-start-4 bg-white">
-        <MiniStat
-          label="Nudges This Month"
-          value={nudgesThisMonth}
-          icon={<Mail className="w-4 h-4 text-indigo-600" />}
-        />
-      </Card>
-
-      {/* ── 7. ACTIVE COURSES ── col 4, row 4 ────────────────────────────── */}
-      <Card className="md:col-start-4 md:row-start-4 bg-white">
-        <MiniStat
-          label="Active Courses"
-          value={activeCourses}
-          icon={<BookOpen className="w-4 h-4 text-indigo-600" />}
-        />
-      </Card>
-
-      {/* ── 8. NEW STARTERS ── cols 1-4, row 5 (full-width band) ─────────── */}
-      <Card className="sm:col-span-2 md:col-span-4 md:row-start-5 bg-white">
+      {/* ── ROW 4: NEW STARTERS — full width ────────────────────────────────── */}
+      <Card className="col-span-1 sm:col-span-2 md:col-span-4">
         <div className="px-6 pt-5 pb-2 border-b border-[#E5E7EB]">
           <h2 className="text-base font-semibold text-[#111827]">🌱 Just Getting Started</h2>
           <p className="text-xs text-[#6B7280] mt-0.5">Students who enrolled in the last 7 days</p>
@@ -402,8 +401,10 @@ export function BentoGrid({
         )}
       </Card>
 
-      {/* ── 9. RECENT NUDGES ── cols 1-3, row 6 ──────────────────────────── */}
-      <Card className="sm:col-span-2 md:col-start-1 md:col-span-3 md:row-start-6 bg-white">
+      {/* ── ROW 5: RECENT NUDGES (col-span-3) + QUICK STATS (col-span-1) ───── */}
+
+      {/* Recent Nudges */}
+      <Card className="col-span-1 sm:col-span-2 md:col-span-3">
         <div className="px-6 py-4 border-b border-[#E5E7EB]">
           <h2 className="text-base font-semibold text-[#111827]">Recent Nudges</h2>
         </div>
@@ -436,8 +437,8 @@ export function BentoGrid({
         )}
       </Card>
 
-      {/* ── 10. QUICK STATS ── col 4, row 6 ──────────────────────────────── */}
-      <Card className="md:col-start-4 md:row-start-6 bg-white">
+      {/* Quick Stats */}
+      <Card className="col-span-1 md:col-span-1">
         <div className="p-6 h-full flex flex-col justify-between">
           <h2 className="text-sm font-semibold text-[#111827] mb-4">Quick Stats</h2>
           <div className="space-y-4 flex-1">
