@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { CompletionCelebration } from '@/components/ui/completion-celebration'
+import { WelcomeDialog } from '@/app/dashboard/components/WelcomeDialog'
 
 export interface RecentlyCompletedData {
   id: string
@@ -10,11 +11,12 @@ export interface RecentlyCompletedData {
 }
 
 interface DashboardClientProps {
+  creatorId:         string
   recentlyCompleted: RecentlyCompletedData | null
-  children: React.ReactNode
+  children:          React.ReactNode
 }
 
-export function DashboardClient({ recentlyCompleted, children }: DashboardClientProps) {
+export function DashboardClient({ creatorId, recentlyCompleted, children }: DashboardClientProps) {
   const key = recentlyCompleted ? `celebration-shown-${recentlyCompleted.id}` : null
   const [showCelebration, setShowCelebration] = useState(false)
 
@@ -35,6 +37,7 @@ export function DashboardClient({ recentlyCompleted, children }: DashboardClient
   return (
     <>
       {children}
+      <WelcomeDialog creatorId={creatorId} />
       {showCelebration && recentlyCompleted && (
         <CompletionCelebration
           studentName={recentlyCompleted.name}

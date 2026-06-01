@@ -353,7 +353,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="p-6">
-      <DashboardClient recentlyCompleted={recentlyCompleted}>
+      <DashboardClient creatorId={creatorId} recentlyCompleted={recentlyCompleted}>
       <BentoGrid
         creatorFirstName={creatorFirstName}
         creatorId={creatorId}
