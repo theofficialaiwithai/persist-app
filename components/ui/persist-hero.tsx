@@ -288,27 +288,18 @@ export function PersistHero() {
               <span>✓ Teachable, Kajabi &amp; more</span>
             </div>
 
-            {/* Demo credentials box */}
-            <div className="mt-8 p-4 bg-white/5 backdrop-blur rounded-2xl border border-white/20 inline-block w-full max-w-sm">
-              <p className="text-white/60 text-xs uppercase tracking-widest mb-3 font-semibold text-center">
-                Or explore with demo credentials
+            <div className="mt-6 p-5 bg-white/10 backdrop-blur rounded-2xl border border-white/20 max-w-md mx-auto">
+              <p className="text-white font-semibold text-sm text-center mb-1">Try Persist free</p>
+              <p className="text-white/60 text-xs text-center mb-4">Sign up in 30 seconds — no credit card required</p>
+              <button
+                onClick={() => window.location.href='/sign-up'}
+                className="w-full bg-[#E4572E] hover:bg-[#CC4A23] text-white py-3 rounded-xl font-semibold text-sm transition-colors shadow-lg shadow-[#E4572E]/25"
+              >
+                Create your free account →
+              </button>
+              <p className="text-white/40 text-xs text-center mt-3">
+                Course creator or independent learner — you're welcome here
               </p>
-              <div className="flex items-center gap-3 flex-wrap justify-center">
-                <div className="bg-white/10 rounded-xl px-4 py-2 text-sm">
-                  <span className="text-white/50 text-xs block">Email</span>
-                  <p className="text-white font-mono font-medium">demo@persist.app</p>
-                </div>
-                <div className="bg-white/10 rounded-xl px-4 py-2 text-sm">
-                  <span className="text-white/50 text-xs block">Password</span>
-                  <p className="text-white font-mono font-medium">PersistDemo2026!</p>
-                </div>
-                <button
-                  onClick={() => { window.location.href = '/sign-in' }}
-                  className="bg-[#E4572E] hover:bg-[#CC4A23] text-white px-5 py-2 rounded-xl text-sm font-semibold transition-colors"
-                >
-                  Try demo →
-                </button>
-              </div>
             </div>
 
             {/* Mobile-only CTA (the circular badge is desktop-only) */}
