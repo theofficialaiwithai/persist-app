@@ -20,6 +20,7 @@ import {
 import { cn } from '@/lib/utils'
 import { ProfileDropdown } from '@/components/ui/profile-dropdown'
 import { CommandPalette, type PaletteStudent } from '@/components/ui/command-palette'
+import { NotificationBell } from '@/app/dashboard/components/NotificationBell'
 import { Toaster } from 'sonner'
 
 // ── Types passed from the server layout ──────────────────────────────────────
@@ -235,6 +236,7 @@ export function LayoutClient({ creator, userType, totalStudents, activeCourses, 
               </motion.span>
             )}
           </AnimatePresence>
+          {!collapsed && <NotificationBell collapsed={collapsed} />}
           <button
             onClick={toggleCollapsed}
             className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA] transition-colors flex-shrink-0"

@@ -34,6 +34,8 @@ export default async function DashboardPage() {
   let avgProgressPct      = 0
   let completionPct       = 0
   let mostActiveCourse    = ''
+  let healthScore         = 0
+  let healthGrade         = 'D'
 
   let atRiskRows:          AtRiskRowData[]          = []
   let streakLeaders:       StreakLeaderData[]        = []
@@ -168,6 +170,29 @@ export default async function DashboardPage() {
         completionPct = totalStudents > 0
           ? Math.round((completedCount / totalStudents) * 100)
           : 0
+
+        // ── Health Score ─────────────────────────────────────────────────────
+        // completionRate, activeRate, streakScore, nudgeResponseRate
+        const [activeCountRow] = await db
+          .select({ count: sql<number>`count(*) filter (where ${students.lastActiveAt} >= ${sevenDaysAgo})::int` })
+          .from(students)
+          .where(inArray(students.courseId, courseIds))
+        const activeRate = totalStudents > 0
+          ? Math.round(((activeCountRow?.count ?? 0) / totalStudents) * 100)
+          : 0
+
+        const [streakAvgRow] = await db
+          .select({ avg: sql<number>`avg(${students.streakDays})::float` })
+          .from(students)
+          .where(inArray(students.courseId, courseIds))
+        const avgStreakCapped = Math.min(streakAvgRow?.avg ?? 0, 30)
+        const streakScore = Math.round((avgStreakCapped / 30) * 100)
+
+        const nudgeResponseRate = nudgesThisMonth > 0 ? 50 : 50 // default 50 until we track responses
+        healthScore = Math.min(100, Math.round(
+          (completionPct * 0.3) + (activeRate * 0.35) + (streakScore * 0.2) + (nudgeResponseRate * 0.15)
+        ))
+        healthGrade = healthScore >= 80 ? 'A' : healthScore >= 65 ? 'B' : healthScore >= 50 ? 'C' : 'D'
 
         // ── 8. Most active course (latest lastActiveAt) ────────────────────
         const [mostActive] = await db
@@ -346,6 +371,8 @@ export default async function DashboardPage() {
         mostActiveCourse={mostActiveCourse}
         upcomingSprints={upcomingSprints}
         gettingStarted={gettingStarted}
+        healthScore={healthScore}
+        healthGrade={healthGrade}
       />
       </DashboardClient>
     </div>

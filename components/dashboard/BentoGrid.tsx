@@ -52,6 +52,8 @@ export interface BentoGridProps {
   mostActiveCourse:    string
   upcomingSprints:     UpcomingSprintData[]
   gettingStarted:      GettingStartedData
+  healthScore:         number
+  healthGrade:         string
 }
 
 // ── Animation variants ────────────────────────────────────────────────────────
@@ -134,6 +136,53 @@ function MiniStat({
             {trend}
           </p>
         )}
+      </div>
+    </div>
+  )
+}
+
+// ── Retention Health Score card ───────────────────────────────────────────────
+
+const GRADE_CONFIG: Record<string, { bg: string; text: string; barColor: string }> = {
+  A: { bg: 'bg-[#7FB069]/15', text: 'text-[#5A8F47]',  barColor: '#7FB069' },
+  B: { bg: 'bg-[#004643]/10', text: 'text-[#004643]',  barColor: '#004643' },
+  C: { bg: 'bg-[#E4572E]/10', text: 'text-[#E4572E]',  barColor: '#E4572E' },
+  D: { bg: 'bg-[#664147]/10', text: 'text-[#664147]',  barColor: '#664147' },
+}
+
+function HealthScoreCard({ score, grade }: { score: number; grade: string }) {
+  const cfg = GRADE_CONFIG[grade] ?? GRADE_CONFIG['D']
+  return (
+    <div className="flex flex-col justify-between h-full p-5 min-h-[130px]">
+      <div className="flex items-start justify-between">
+        <p className="text-[10px] font-semibold text-[#6B7C7B] uppercase tracking-widest">
+          Retention Health
+        </p>
+        <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-bold', cfg.bg, cfg.text)}>
+          {grade}
+        </span>
+      </div>
+
+      <div>
+        <div className="flex items-end gap-1.5 mt-1">
+          <span className="text-5xl font-black text-[#1A2E2D] leading-none">{score}</span>
+          <span className="text-xl text-[#6B7C7B] mb-1">/100</span>
+        </div>
+
+        {/* Mini progress arc — CSS semicircle gauge */}
+        <div className="relative w-16 h-8 overflow-hidden mt-3">
+          {/* Track half-circle */}
+          <div className="absolute w-16 h-16 rounded-full border-4 border-[#E2EDEC] top-0" />
+          {/* Filled arc — rotated border */}
+          <div
+            className="absolute w-16 h-16 rounded-full border-4 border-transparent top-0"
+            style={{
+              borderTopColor: cfg.barColor,
+              transform: `rotate(${Math.round(score * 1.8)}deg)`,
+              transformOrigin: '50% 50%',
+            }}
+          />
+        </div>
       </div>
     </div>
   )
@@ -373,6 +422,7 @@ export function BentoGrid({
   creatorFirstName, creatorId, totalStudents, activeCourses, nudgesThisMonth, atRiskCount,
   newStudentsThisWeek, atRiskRows, streakLeaders, recentNudgeRows, newStarters,
   avgProgressPct, completionPct, mostActiveCourse, upcomingSprints, gettingStarted,
+  healthScore, healthGrade,
 }: BentoGridProps) {
   return (
     <motion.section
@@ -415,14 +465,8 @@ export function BentoGrid({
       <Card>
         <MiniStat label="Nudges This Month" value={nudgesThisMonth} icon={<Mail className="w-4 h-4 text-[#004643]" />} />
       </Card>
-      <Card className={atRiskCount > 0 ? 'bg-amber-50 border-amber-200' : ''}>
-        <MiniStat
-          label="At Risk Today" value={atRiskCount}
-          icon={<AlertTriangle className={cn('w-4 h-4', atRiskCount > 0 ? 'text-amber-600' : 'text-[#004643]')} />}
-          amber={atRiskCount > 0}
-          trend={atRiskCount > 0 ? 'needs attention' : 'all on track'}
-          trendPositive={atRiskCount === 0}
-        />
+      <Card>
+        <HealthScoreCard score={healthScore} grade={healthGrade} />
       </Card>
 
       {/* ── AI Insights — full width, between stats and main content ────────── */}
