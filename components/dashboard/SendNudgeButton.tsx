@@ -1,10 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { showToast } from '@/lib/toast'
-import { Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { NudgePreviewModal } from '@/components/dashboard/NudgePreviewModal'
 
 interface Props {
   studentId:   string
@@ -13,39 +11,27 @@ interface Props {
 }
 
 export function SendNudgeButton({ studentId, studentName, className }: Props) {
-  const [loading, setLoading] = useState(false)
-  const router = useRouter()
-
-  const handleSend = async () => {
-    setLoading(true)
-    try {
-      const res = await fetch('/api/nudge/send', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ studentId }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error ?? 'Failed to send nudge')
-      showToast.nudgeSent(studentName)
-      router.refresh()
-    } catch (err) {
-      showToast.nudgeFailed(studentName)
-    } finally {
-      setLoading(false)
-    }
-  }
+  const [showModal, setShowModal] = useState(false)
 
   return (
-    <button
-      onClick={handleSend}
-      disabled={loading}
-      className={cn(
-        'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#E4572E] hover:bg-[#CC4A23] rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap',
-        className
+    <>
+      <button
+        onClick={() => setShowModal(true)}
+        className={cn(
+          'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#E4572E] hover:bg-[#CC4A23] rounded-md transition-colors whitespace-nowrap',
+          className
+        )}
+      >
+        Send Nudge
+      </button>
+
+      {showModal && (
+        <NudgePreviewModal
+          studentId={studentId}
+          studentName={studentName}
+          onClose={() => setShowModal(false)}
+        />
       )}
-    >
-      {loading && <Loader2 className="w-3 h-3 animate-spin" />}
-      Send Nudge
-    </button>
+    </>
   )
 }

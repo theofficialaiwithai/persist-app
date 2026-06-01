@@ -149,14 +149,21 @@ export async function generateNudgeEmail(params: {
   course:            Course
   creator:           Creator
   daysSinceActivity: number
+  toneExamples?:     string[]   // past sent bodies for style matching
 }): Promise<string> {
-  const { student, course, creator, daysSinceActivity } = params
+  const { student, course, creator, daysSinceActivity, toneExamples } = params
   const pct = student.progressPct  // already a number (integer column)
+
+  const examplesBlock = toneExamples && toneExamples.length > 0
+    ? '\n\nIMPORTANT — match the creator\'s writing style closely. Here are examples of their previous nudges:\n\n' +
+      toneExamples.map((ex, i) => `--- Example ${i + 1} ---\n${ex}`).join('\n\n')
+    : ''
 
   const systemPrompt =
     'You are a helpful assistant for online course creators. ' +
     'Write warm, personalized re-engagement emails to help students complete their courses. ' +
-    'Keep emails concise (under 150 words), never guilt-trip, always encouraging.'
+    'Keep emails concise (under 150 words), never guilt-trip, always encouraging.' +
+    examplesBlock
 
   const userPrompt =
     `Write a re-engagement email for a student who enrolled in '${course.name}'.\n\n` +

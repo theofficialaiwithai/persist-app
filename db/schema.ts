@@ -24,6 +24,7 @@ export const creators = pgTable('creators', {
   userType:              text('user_type').notNull().default('creator'),        // 'creator' | 'learner'
   nudgeTriggerType:      text('nudge_trigger_type').notNull().default('inactivity'), // 'inactivity' | 'frequency' | 'milestones'
   nudgeMilestones:       text('nudge_milestones').notNull().default('25,50,75,90'),  // comma-separated pct values
+  nudgeToneExamples:     text('nudge_tone_examples'),                                // JSON string[] of past sent bodies (max 5)
   createdAt:             timestamp('created_at').notNull().defaultNow(),
 })
 

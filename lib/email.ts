@@ -36,8 +36,13 @@ export async function sendNudgeEmail(params: {
     })
 
     if (error) {
+      console.error('[email] Resend error:', error)
       await db.update(nudges).set({ status: 'failed' }).where(eq(nudges.id, nudgeId))
-      return { success: false, error: error.message }
+      // Surface a human-readable message; Resend returns structured errors
+      const msg = (error as { message?: string; name?: string }).message
+        ?? (error as { name?: string }).name
+        ?? 'Resend rejected the email.'
+      return { success: false, error: msg }
     }
 
     await db.update(nudges).set({ status: 'sent', sentAt: new Date() }).where(eq(nudges.id, nudgeId))
