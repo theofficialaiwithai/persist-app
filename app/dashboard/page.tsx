@@ -1,7 +1,7 @@
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
 import { db } from '@/db'
-import { creators, courses, students, nudges } from '@/db/schema'
+import { creators, courses, students, nudges, learningSprints, sprintMembers } from '@/db/schema'
 import { eq, inArray, and, gte, lte, lt, gt, sql, desc, isNull, or } from 'drizzle-orm'
 import { BentoGrid } from '@/components/dashboard/BentoGrid'
 import type {
@@ -9,6 +9,8 @@ import type {
   StreakLeaderData,
   RecentNudgeData,
   NewStarterData,
+  UpcomingSprintData,
+  GettingStartedData,
 } from '@/components/dashboard/BentoGrid'
 import { DashboardClient } from '@/app/dashboard/DashboardClient'
 import type { RecentlyCompletedData } from '@/app/dashboard/DashboardClient'
@@ -37,6 +39,14 @@ export default async function DashboardPage() {
   let recentNudgeRows:     RecentNudgeData[]         = []
   let newStarters:         NewStarterData[]          = []
   let recentlyCompleted:   RecentlyCompletedData | null = null
+  let upcomingSprints:     UpcomingSprintData[]      = []
+  let gettingStarted:      GettingStartedData        = {
+    profileComplete:  false,
+    platformConnected: false,
+    studentsImported: false,
+    courseAdded:      false,
+    nudgeSent:        false,
+  }
 
   try {
     // ── 1. Creator ───────────────────────────────────────────────────────────
@@ -256,6 +266,58 @@ export default async function DashboardPage() {
         }))
       }
     }
+
+    // ── 13. Upcoming sprints (open or active, limit 3) ─────────────────────
+    const upcomingSprintRows = await db
+      .select({
+        id:        learningSprints.id,
+        title:     learningSprints.title,
+        status:    learningSprints.status,
+        startDate: learningSprints.startDate,
+        endDate:   learningSprints.endDate,
+      })
+      .from(learningSprints)
+      .where(and(
+        eq(learningSprints.creatorId, creator.id),
+        or(
+          eq(learningSprints.status, 'open'),
+          eq(learningSprints.status, 'active'),
+        ),
+      ))
+      .orderBy(learningSprints.startDate)
+      .limit(3)
+
+    if (upcomingSprintRows.length > 0) {
+      const sprintIds = upcomingSprintRows.map(s => s.id)
+      const memberCountRows = await db
+        .select({
+          sprintId: sprintMembers.sprintId,
+          count:    sql<number>`count(*)::int`,
+        })
+        .from(sprintMembers)
+        .where(inArray(sprintMembers.sprintId, sprintIds))
+        .groupBy(sprintMembers.sprintId)
+
+      const memberCountMap = new Map(memberCountRows.map(m => [m.sprintId, m.count]))
+      upcomingSprints = upcomingSprintRows.map(s => ({
+        id:          s.id,
+        title:       s.title,
+        status:      s.status,
+        memberCount: memberCountMap.get(s.id) ?? 0,
+        startDate:   s.startDate as string,
+        endDate:     s.endDate   as string,
+      }))
+    }
+
+    // ── 14. Getting Started checklist ─────────────────────────────────────
+    gettingStarted = {
+      profileComplete:   !!(creator.senderName && creator.profileImageUrl),
+      platformConnected: !!creator.coursePlatform,
+      studentsImported:  totalStudents > 0,
+      courseAdded:       activeCourses > 0,
+      nudgeSent:         nudgesThisMonth > 0,
+    }
+
   } catch (err) {
     console.error('[dashboard/page]', err)
   }
@@ -277,6 +339,8 @@ export default async function DashboardPage() {
         avgProgressPct={avgProgressPct}
         completionPct={completionPct}
         mostActiveCourse={mostActiveCourse}
+        upcomingSprints={upcomingSprints}
+        gettingStarted={gettingStarted}
       />
       </DashboardClient>
     </div>
