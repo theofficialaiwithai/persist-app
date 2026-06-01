@@ -3,7 +3,10 @@ import { db } from '@/db'
 import { nudges } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Placeholder prevents `new Resend(undefined)` from throwing during Turbopack's
+// "Collecting page data" build phase (same pattern as the neon() fix in db/index.ts).
+// At request time RESEND_API_KEY is always injected by Vercel.
+const resend = new Resend(process.env.RESEND_API_KEY ?? 're_build_placeholder')
 
 export async function sendNudgeEmail(params: {
   toEmail: string
