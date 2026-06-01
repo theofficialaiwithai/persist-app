@@ -13,9 +13,10 @@ export default async function OnboardingPage() {
     where: eq(creators.userId, userId),
   })
 
-  // If creator exists and has already completed onboarding, skip to dashboard.
-  // We check both senderEmail (new wizard) and coursePlatform (belt-and-suspenders).
-  if (creator?.senderEmail || creator?.coursePlatform) {
+  // Completion signal: senderName is set by the wizard on save.
+  // We cannot use senderEmail (may still be '' after webhook upsert in conflict path)
+  // or coursePlatform (defaults to 'other' in the schema, so always truthy).
+  if (creator?.senderName) {
     redirect('/dashboard')
   }
 

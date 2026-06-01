@@ -34,6 +34,10 @@ export async function PATCH(req: Request) {
     .onConflictDoUpdate({
       target: creators.userId,
       set: {
+        // senderEmail must be written here too — the Clerk webhook creates the row
+        // without it (uses the schema default ''), so the conflict path (most common)
+        // would leave it as '' and break the completion check.
+        senderEmail:          clerkEmail,
         senderName:           senderName?.trim() || clerkName,
         coursePlatform:       coursePlatform      || 'other',
         nudgeTone:            nudgeTone           || 'encouraging',

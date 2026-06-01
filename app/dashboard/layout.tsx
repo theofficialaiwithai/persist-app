@@ -13,11 +13,19 @@ export default async function DashboardLayout({
   const { userId } = await auth()
   if (!userId) redirect('/sign-in')
 
-  // Fetch creator — redirect to onboarding if missing
+  // Fetch creator.
+  // IMPORTANT: do NOT redirect to /dashboard/onboarding here — that route is
+  // nested inside this same layout, so a redirect would loop infinitely.
+  // The onboarding page handles its own auth/redirect logic.
   const creator = await db.query.creators.findFirst({
     where: eq(creators.userId, userId),
   })
-  if (!creator) redirect('/dashboard/onboarding')
+
+  // No creator yet (webhook hasn't fired) OR onboarding not finished:
+  // render children bare so the onboarding page can display itself.
+  if (!creator?.senderName) {
+    return <>{children}</>
+  }
 
   // Sidebar stats: active courses + student count
   const creatorCourses = await db
