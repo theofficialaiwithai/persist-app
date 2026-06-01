@@ -16,7 +16,7 @@ export type EligibleStudent = {
 }
 
 // ── Singleton Anthropic client ───────────────────────────────────────────────
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? 'sk-build-placeholder' })
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

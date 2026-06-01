@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import Anthropic from '@anthropic-ai/sdk'
 
-const client = new Anthropic()
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? 'sk-build-placeholder' })
 
 // Strip HTML tags + collapse whitespace → plain text for Claude
 function htmlToText(html: string): string {

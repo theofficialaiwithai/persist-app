@@ -201,6 +201,12 @@ export default async function StudentDetailPage({
                   {formatDate(student.enrolledAt)}
                 </span>
               </div>
+              <div className="flex justify-between items-center py-3">
+                <span className="text-sm text-[#6B7280]">Email</span>
+                <span className="text-sm font-medium text-[#111827] truncate max-w-[160px]" title={student.email}>
+                  {student.email}
+                </span>
+              </div>
               {student.platformStudentId && (
                 <div className="flex justify-between items-center py-3">
                   <span className="text-sm text-[#6B7280]">Platform ID</span>

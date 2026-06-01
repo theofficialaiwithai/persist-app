@@ -4,8 +4,8 @@ import { eq, inArray, and, gte, lt, lte, gt, isNull, or, desc, sql } from 'drizz
 import { Resend } from 'resend'
 import Anthropic from '@anthropic-ai/sdk'
 
-const resend  = new Resend(process.env.RESEND_API_KEY)
-const claude  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+const resend  = new Resend(process.env.RESEND_API_KEY ?? 're_build_placeholder')
+const claude  = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? 'sk-build-placeholder' })
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
 

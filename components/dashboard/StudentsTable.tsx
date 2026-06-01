@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Search, List, LayoutGrid, Copy, Check as CheckIcon } from 'lucide-react'
+import { Search, List, LayoutGrid, Copy, Check as CheckIcon, ArrowUpDown } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { AnimatedProgressBar } from '@/components/ui/animated-progress-bar'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
@@ -131,22 +131,44 @@ function StudentsEmptyState({ webhookUrl }: { webhookUrl?: string }) {
 export function StudentsTable({ rows, courses, webhookUrl }: Props) {
   const router = useRouter()
 
+  type SortOption = 'lastActive' | 'nameAsc' | 'nameDesc' | 'progress'
+
   const [search,       setSearch      ] = useState('')
   const [courseFilter, setCourseFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  const [sort,         setSort        ] = useState<SortOption>('lastActive')
   const [view, setView] = useState<'table' | 'grid'>(() =>
     typeof window !== 'undefined' && window.innerWidth < 768 ? 'grid' : 'table'
   )
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()
-    return rows.filter(r => {
+    const result = rows.filter(r => {
       const matchSearch = !q || r.name.toLowerCase().includes(q)
       const matchCourse = !courseFilter || r.courseId === courseFilter
       const matchStatus = !statusFilter || r.status === statusFilter
       return matchSearch && matchCourse && matchStatus
     })
-  }, [rows, search, courseFilter, statusFilter])
+
+    result.sort((a, b) => {
+      switch (sort) {
+        case 'nameAsc':
+          return a.name.localeCompare(b.name)
+        case 'nameDesc':
+          return b.name.localeCompare(a.name)
+        case 'progress':
+          return b.progressPct - a.progressPct
+        case 'lastActive':
+        default:
+          if (!a.lastActiveAt && !b.lastActiveAt) return 0
+          if (!a.lastActiveAt) return 1
+          if (!b.lastActiveAt) return -1
+          return new Date(b.lastActiveAt).getTime() - new Date(a.lastActiveAt).getTime()
+      }
+    })
+
+    return result
+  }, [rows, search, courseFilter, statusFilter, sort])
 
   const inputCls =
     'h-9 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] ' +
@@ -190,6 +212,21 @@ export function StudentsTable({ rows, courses, webhookUrl }: Props) {
           <option value="completed">Completed</option>
           <option value="new">New</option>
         </select>
+
+        {/* Sort */}
+        <div className="relative flex items-center">
+          <ArrowUpDown className="absolute left-2.5 w-3.5 h-3.5 text-[#9CA3AF] pointer-events-none" />
+          <select
+            value={sort}
+            onChange={e => setSort(e.target.value as SortOption)}
+            className={cn(inputCls, 'pl-8 pr-8 cursor-pointer')}
+          >
+            <option value="lastActive">Last Active</option>
+            <option value="nameAsc">Name: A → Z</option>
+            <option value="nameDesc">Name: Z → A</option>
+            <option value="progress">Progress</option>
+          </select>
+        </div>
 
         {/* View toggle */}
         <div className="ml-auto flex items-center gap-1 border border-[#E5E7EB] rounded-lg p-1 bg-white">
