@@ -147,9 +147,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
   // Local copies for optimistic UI
   const [profileImageUrl, setProfileImageUrl] = useState(creator.profileImageUrl)
   const [bannerImageUrl,  setBannerImageUrl]  = useState(creator.bannerImageUrl)
-  const [bio,             setBio]             = useState(
-    creator.bio ?? `Course creator on ${creator.coursePlatform || 'my platform'}. Helping students learn and grow.`
-  )
+  const [bio,             setBio]             = useState(creator.bio ?? '')
 
   // Dialog visibility
   const [showBannerDialog,  setShowBannerDialog]  = useState(false)
@@ -362,8 +360,15 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
               </button>
             </div>
           </div>
-        ) : (
+        ) : bio ? (
           <p className="text-sm text-[#6B7280] leading-relaxed">{bio}</p>
+        ) : (
+          <p
+            className="text-sm text-[#C4CEC9] italic leading-relaxed cursor-pointer hover:text-[#9CA3AF] transition-colors"
+            onClick={() => { setBioDraft(''); setEditingBio(true) }}
+          >
+            Tell your students a bit about yourself and your teaching philosophy...
+          </p>
         )}
       </div>
 

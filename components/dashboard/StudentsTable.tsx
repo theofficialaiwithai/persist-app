@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Search, List, LayoutGrid } from 'lucide-react'
+import { Search, List, LayoutGrid, Copy, Check as CheckIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { AnimatedProgressBar } from '@/components/ui/animated-progress-bar'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
@@ -54,11 +54,81 @@ const STATUS_CONFIG = {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface Props {
-  rows:    StudentRowData[]
-  courses: CourseOption[]
+  rows:       StudentRowData[]
+  courses:    CourseOption[]
+  webhookUrl?: string
 }
 
-export function StudentsTable({ rows, courses }: Props) {
+// ── Students empty state ──────────────────────────────────────────────────────
+
+function StudentsEmptyState({ webhookUrl }: { webhookUrl?: string }) {
+  const [copied, setCopied] = useState(false)
+
+  function handleCopy() {
+    const url = webhookUrl ?? window.location.origin + '/api/webhook/progress'
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm py-20 flex flex-col items-center text-center px-8">
+      {/* Graduation-cap person SVG */}
+      <svg width="80" height="88" viewBox="0 0 80 88" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-6">
+        {/* Mortarboard */}
+        <polygon points="40,4 68,18 40,32 12,18" fill="#004643" opacity="0.9" />
+        {/* Cap top square */}
+        <rect x="34" y="2" width="12" height="4" rx="1" fill="#004643" />
+        {/* Tassel */}
+        <line x1="68" y1="18" x2="68" y2="28" stroke="#E4572E" strokeWidth="2" strokeLinecap="round" />
+        <circle cx="68" cy="30" r="3" fill="#E4572E" />
+        {/* Head */}
+        <circle cx="40" cy="46" r="12" fill="#E8F4F0" stroke="#004643" strokeWidth="2" />
+        {/* Body */}
+        <path d="M28 72 C28 64 40 60 40 60 C40 60 52 64 52 72" stroke="#004643" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        {/* Arms */}
+        <line x1="28" y1="68" x2="18" y2="76" stroke="#004643" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="52" y1="68" x2="62" y2="76" stroke="#004643" strokeWidth="2.5" strokeLinecap="round" />
+        {/* Legs */}
+        <line x1="34" y1="72" x2="28" y2="86" stroke="#004643" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="46" y1="72" x2="52" y2="86" stroke="#004643" strokeWidth="2.5" strokeLinecap="round" />
+      </svg>
+
+      <h3 className="text-lg font-bold text-[#111827]">No students connected yet</h3>
+      <p className="text-sm text-[#6B7C7B] mt-2 max-w-xs leading-relaxed">
+        Connect your course platform to start tracking student progress and sending automated nudges.
+      </p>
+
+      <div className="flex flex-col sm:flex-row items-center gap-3 mt-8">
+        <button
+          onClick={handleCopy}
+          className={cn(
+            'inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all',
+            copied
+              ? 'bg-[#7FB069] text-white'
+              : 'bg-[#004643] hover:bg-[#003533] text-white shadow-sm',
+          )}
+        >
+          {copied
+            ? <><CheckIcon className="w-4 h-4" /> Copied!</>
+            : <><Copy className="w-4 h-4" /> Copy webhook URL</>
+          }
+        </button>
+        <Link
+          href="/dashboard/settings"
+          className="text-sm font-medium text-[#004643] hover:text-[#003533] transition-colors"
+        >
+          View setup guide →
+        </Link>
+      </div>
+    </div>
+  )
+}
+
+// ── Main table component ──────────────────────────────────────────────────────
+
+export function StudentsTable({ rows, courses, webhookUrl }: Props) {
   const router = useRouter()
 
   const [search,       setSearch      ] = useState('')
@@ -148,12 +218,7 @@ export function StudentsTable({ rows, courses }: Props) {
 
       {/* ── Empty state (shared) ──────────────────────────────────────────── */}
       {rows.length === 0 ? (
-        <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm py-16 text-center">
-          <p className="text-sm font-medium text-[#111827]">No students yet</p>
-          <p className="text-sm text-[#6B7280] mt-1">
-            Share your webhook URL to start tracking progress.
-          </p>
-        </div>
+        <StudentsEmptyState webhookUrl={webhookUrl} />
       ) : view === 'grid' ? (
 
         /* ── Grid view ──────────────────────────────────────────────────── */

@@ -261,10 +261,10 @@ export function SprintsClient({ sprints }: { sprints: SprintData[] }) {
           <h3 className="text-base font-semibold text-[#111827] mb-1">
             {tab === 'active' ? 'No active sprints' : 'No sprints yet'}
           </h3>
-          <p className="text-sm text-[#6B7280] mb-6">
+          <p className="text-sm text-[#6B7280] mb-6 max-w-xs">
             {tab === 'active'
-              ? 'Create a sprint to energise your students with a shared challenge.'
-              : 'Create your first learning sprint.'}
+              ? 'No active sprints. Create your first learning sprint to build accountability into your courses.'
+              : 'Create your first learning sprint to build accountability into your courses.'}
           </p>
           <Link
             href="/dashboard/sprints/new"

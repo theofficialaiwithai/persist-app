@@ -450,9 +450,13 @@ export function BentoGrid({
           </div>
           {atRiskRows.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center py-12">
-              <p className="text-2xl">🎉</p>
-              <p className="mt-2 text-sm font-medium text-[#111827]">All students are on track</p>
-              <p className="text-xs text-[#6B7280] mt-0.5">No one needs a nudge right now</p>
+              {/* Green checkmark SVG */}
+              <svg width="52" height="52" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg" className="mb-4">
+                <circle cx="26" cy="26" r="22" fill="#F0F7EE" stroke="#7FB069" strokeWidth="2" />
+                <path d="M16 26l7 7 13-13" stroke="#7FB069" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              <p className="text-sm font-semibold text-[#111827]">🎉 All students are on track!</p>
+              <p className="text-xs text-[#6B7280] mt-1 max-w-[220px]">No one needs a nudge right now.</p>
             </div>
           ) : (
             <div className="divide-y divide-[#E5E7EB]">
@@ -525,8 +529,11 @@ export function BentoGrid({
             <h2 className="text-base font-semibold text-[#111827]">Recent Nudges</h2>
           </div>
           {recentNudgeRows.length === 0 ? (
-            <div className="py-12 text-center">
-              <p className="text-sm text-[#6B7280]">No nudges sent yet</p>
+            <div className="py-12 text-center px-8">
+              <p className="text-sm font-medium text-[#111827]">No nudges sent yet</p>
+              <p className="text-xs text-[#6B7280] mt-1.5 leading-relaxed max-w-[280px] mx-auto">
+                Once Persist detects at-risk students, automated nudges will appear here.
+              </p>
             </div>
           ) : (
             <div className="divide-y divide-[#E5E7EB]">

@@ -92,6 +92,9 @@ export default async function StudentsPage() {
 
   const courseOptions = creatorCourses.map(c => ({ id: c.id, name: c.name }))
 
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://persist-app.vercel.app'
+  const webhookUrl = `${appUrl}/api/webhook/progress?creatorId=${creator.id}`
+
   return (
     <div className="px-4 py-6 sm:px-8 space-y-6">
       {/* ── Header ───────────────────────────────────────────────────────── */}
@@ -103,7 +106,7 @@ export default async function StudentsPage() {
       </div>
 
       {/* ── Table (client component handles search + filter) ─────────────── */}
-      <StudentsTable rows={rows} courses={courseOptions} />
+      <StudentsTable rows={rows} courses={courseOptions} webhookUrl={webhookUrl} />
     </div>
   )
 }
