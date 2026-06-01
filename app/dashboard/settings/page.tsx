@@ -18,7 +18,7 @@ export default async function SettingsPage() {
   const webhookUrl = `${baseUrl}/api/webhook/progress?creatorId=${creator.id}`
 
   return (
-    <div className="p-8 space-y-2">
+    <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-2xl mx-auto space-y-2">
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div className="mb-8">
         <h1 className="text-2xl font-semibold text-[#111827]">Settings</h1>

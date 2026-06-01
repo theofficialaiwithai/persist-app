@@ -1,7 +1,10 @@
 'use client'
 
+import { motion } from 'framer-motion'
 import { Zap, Brain, Mail, Check } from 'lucide-react'
-import { LandingNav } from '@/components/landing/LandingNav'
+import { PersistHero }    from '@/components/ui/persist-hero'
+import { MarqueeBand }    from '@/components/ui/marquee-band'
+import { SplitHeadline }  from '@/components/ui/split-headline'
 
 // ── Small reusable pieces ─────────────────────────────────────────────────────
 
@@ -24,71 +27,6 @@ function SectionHeading({
     <h2 className={`text-4xl font-bold text-[#111827] text-center mt-3 leading-tight ${className}`}>
       {children}
     </h2>
-  )
-}
-
-// ── Hero: email card mockup ───────────────────────────────────────────────────
-
-function HeroEmailCard() {
-  return (
-    <div className="mt-16 max-w-lg mx-auto animate-fade-up delay-400">
-      <div className="bg-white rounded-2xl shadow-2xl border border-[#E8E4DC] p-6 text-left">
-
-        {/* Chrome bar */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full bg-[#FF5F57]" />
-            <div className="w-2.5 h-2.5 rounded-full bg-[#FEBC2E]" />
-            <div className="w-2.5 h-2.5 rounded-full bg-[#28C840]" />
-          </div>
-          <span className="text-xs text-[#9CA3AF] ml-2">New message</span>
-        </div>
-
-        {/* Subject + sender line */}
-        <div className="flex items-start justify-between gap-3 mb-1">
-          <p className="font-semibold text-[#111827]">
-            Hey Alex — you&apos;re so close 👀
-          </p>
-          <span className="shrink-0 bg-indigo-50 text-indigo-600 text-xs px-2 py-0.5 rounded-full border border-indigo-100">
-            AI nudge
-          </span>
-        </div>
-        <p className="text-xs text-[#9CA3AF] mb-4">
-          From: Sarah K. &lt;sarah@notion4creators.com&gt;
-        </p>
-
-        {/* Body */}
-        <div className="text-sm text-[#374151] leading-relaxed space-y-3">
-          <p>
-            I noticed you haven&apos;t logged in for 9 days, and you&apos;re sitting at{' '}
-            <strong className="text-[#111827]">47% complete</strong>.
-          </p>
-          <p>
-            That&apos;s the exact spot where most people pause — right before the part
-            that changes everything.
-          </p>
-          <p>Module 6 is waiting. You&apos;ve already done the hard part.</p>
-          <p className="font-medium text-[#111827]">You&apos;ve got this. 💪</p>
-          <p className="text-[#6B7280]">— Sarah</p>
-        </div>
-
-        {/* Progress footer */}
-        <div className="bg-[#F7F4EE] rounded-lg px-4 py-3 mt-5">
-          <div className="flex justify-between items-center text-xs text-[#9CA3AF] mb-2">
-            <span>Your progress</span>
-            <span className="font-semibold text-indigo-600">47%</span>
-          </div>
-          <div className="h-1.5 bg-[#E8E4DC] rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-600 rounded-full" style={{ width: '47%' }} />
-          </div>
-        </div>
-      </div>
-
-      {/* Floating sent badge */}
-      <div className="absolute -mt-3 ml-[calc(100%-5.5rem)] -translate-y-full">
-        {/* handled below via relative wrapper */}
-      </div>
-    </div>
   )
 }
 
@@ -275,102 +213,113 @@ function smoothScrollTo(elementId: string) {
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#F7F4EE]">
-      <LandingNav />
+    <>
+      <PersistHero />
 
-      {/* ──────────────────────────────────────────────────────── HERO ── */}
-      <section className="relative pt-28 pb-20 px-6 text-center overflow-hidden bg-[#F7F4EE]">
-        {/* Organic blobs */}
-        <div
-          className="absolute -top-20 -left-20 w-96 h-96 rounded-full bg-indigo-200 blur-3xl opacity-30 pointer-events-none"
-          aria-hidden
-        />
-        <div
-          className="absolute -bottom-10 -right-10 w-80 h-80 rounded-full bg-emerald-200 blur-3xl opacity-30 pointer-events-none"
-          aria-hidden
-        />
-
-        <div className="relative z-10 max-w-6xl mx-auto">
-          {/* Pill */}
-          <div className="flex justify-center animate-fade-up">
-            <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full px-4 py-1.5 text-sm font-medium inline-block">
-              AI-powered student retention
-            </span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="text-6xl font-bold tracking-tight text-[#111827] max-w-3xl mx-auto leading-[1.05] mt-6 animate-fade-up delay-100">
-            Your students{' '}
-            <span className="text-indigo-600">won&apos;t quit.</span>
-            <br />
-            Not on your watch.
-          </h1>
-
-          {/* Sub */}
-          <p className="text-xl text-[#6B7280] max-w-2xl mx-auto mt-5 leading-relaxed animate-fade-up delay-200">
-            Persist watches every student&apos;s progress. When someone goes quiet at the 45% mark —
-            the exact moment most people give up — it sends a personalized AI nudge{' '}
-            <span className="text-[#111827] font-medium">in your voice</span>. While you sleep.
-          </p>
-
-          {/* CTAs */}
-          <div className="mt-8 flex flex-col sm:flex-row justify-center gap-4 animate-fade-up delay-300">
-            <button
-              onClick={() => { window.location.href = '/sign-up' }}
-              className="bg-[#111827] text-white px-7 py-3.5 rounded-xl text-base font-semibold hover:bg-[#1f2937] transition-colors"
-            >
-              Start for free →
-            </button>
-            <button
-              onClick={() => smoothScrollTo('how-it-works')}
-              className="border-2 border-[#E8E4DC] px-7 py-3.5 rounded-xl text-base font-medium text-[#111827] hover:border-[#111827] transition-colors"
-            >
-              See how it works
-            </button>
-          </div>
-
-          {/* Trust signals */}
-          <p className="mt-5 text-sm text-[#9CA3AF] animate-fade-in delay-400">
-            <span className="text-emerald-600">✓</span> No credit card required
-            &nbsp;&middot;&nbsp;
-            <span className="text-emerald-600">✓</span> 5-minute setup
-            &nbsp;&middot;&nbsp;
-            <span className="text-emerald-600">✓</span> Works with Teachable, Kajabi &amp; Thinkific
-          </p>
-
-          {/* Email card */}
-          <HeroEmailCard />
-        </div>
-      </section>
+      {/* Marquee band 1 — coral, left-to-right */}
+      <MarqueeBand />
 
       {/* ─────────────────────────────────────────────────── PROBLEM ── */}
       <section id="problem" className="bg-white py-24 px-6 scroll-mt-20">
         <div className="max-w-5xl mx-auto">
           <SectionLabel>The problem</SectionLabel>
-          <SectionHeading className="max-w-2xl mx-auto">
-            Most students don&apos;t finish.
-            <br />
-            You already knew that.
-          </SectionHeading>
+          <SplitHeadline
+            text="Most students don't finish. You already knew that."
+            className="text-4xl font-bold text-[#111827] text-center mt-3 leading-tight max-w-2xl mx-auto"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-14">
-            <div className="bg-[#F7F4EE] rounded-2xl p-8 text-center border border-[#E8E4DC] hover:shadow-md transition-shadow duration-200">
-              <p className="text-6xl font-bold text-red-500 leading-none">97<span className="text-4xl">%</span></p>
-              <p className="text-[#6B7280] text-sm mt-3 leading-relaxed">
-                of online course students never finish what they paid for
+            {[
+              { value: '58M', unit: '+', color: 'text-red-500',     label: 'online course creators worldwide, all facing the same completion crisis'       },
+              { value: '3',   unit: '–15%', color: 'text-amber-500',   label: 'average completion rate for online courses — the industry-wide dirty secret' },
+              { value: '2',   unit: '×', color: 'text-emerald-500', label: 'higher completion with timely, personal nudges — proven across cohorts'         },
+            ].map(({ value, unit, color, label }, i) => (
+              <motion.div
+                key={value}
+                className="bg-[#F7F4EE] rounded-2xl p-8 text-center border border-[#E8E4DC]"
+                initial={{ scale: 0.8, opacity: 0 }}
+                whileInView={{ scale: [0.8, 1.05, 1], opacity: [0, 1, 1] }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.6, ease: 'easeOut', delay: i * 0.1 }}
+              >
+                <p className={`text-6xl font-bold leading-none ${color}`}>
+                  {value}<span className="text-4xl">{unit}</span>
+                </p>
+                <p className="text-[#6B7280] text-sm mt-3 leading-relaxed">{label}</p>
+              </motion.div>
+            ))}
+          </div>
+          <p className="text-center text-xs text-[#9CA3AF] mt-4">
+            Sources: MIT OpenCourseWare, Research.com, Coursera Impact Report 2024
+          </p>
+        </div>
+      </section>
+
+      {/* ────────────────────────────────────────── WHO IS PERSIST FOR? ── */}
+      <section className="py-20 bg-[#004643] text-white">
+        <div className="max-w-5xl mx-auto px-6">
+          <p className="text-[#7FB069] text-xs font-bold tracking-widest uppercase text-center mb-3">
+            TWO PATHS. ONE MISSION.
+          </p>
+          <h2 className="text-4xl font-bold text-center mb-12">
+            Persist works for everyone who&apos;s tired of quitting
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Learner card */}
+            <div className="bg-white/10 backdrop-blur rounded-2xl p-8 border border-white/20">
+              <div className="text-3xl mb-3">🎓</div>
+              <h3 className="text-xl font-bold text-white mb-2">Independent Learners</h3>
+              <p className="text-white/70 text-sm mb-6">
+                You bought a course, started strong, then life got in the way. Persist gives you
+                a community, streaks, and accountability sprints to actually finish.
               </p>
+              <ul className="space-y-2 text-sm">
+                {[
+                  'Track your progress across courses',
+                  'Join learning sprints with others',
+                  'Get daily AI learning recaps',
+                  'Build streaks. Celebrate completions.',
+                ].map(item => (
+                  <li key={item} className="flex items-center gap-2 text-white/80">
+                    <span className="text-[#7FB069] shrink-0">✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => { window.location.href = '/sign-up' }}
+                className="mt-6 w-full bg-[#7FB069] hover:bg-[#6A9A55] text-white py-3 rounded-xl font-semibold text-sm transition-colors"
+              >
+                Start learning →
+              </button>
             </div>
-            <div className="bg-[#F7F4EE] rounded-2xl p-8 text-center border border-[#E8E4DC] hover:shadow-md transition-shadow duration-200">
-              <p className="text-6xl font-bold text-amber-500 leading-none">45<span className="text-4xl">%</span></p>
-              <p className="text-[#6B7280] text-sm mt-3 leading-relaxed">
-                is where most students go quiet — halfway through, right before the good stuff
+
+            {/* Creator card */}
+            <div className="bg-white/10 backdrop-blur rounded-2xl p-8 border border-white/20">
+              <div className="text-3xl mb-3">🚀</div>
+              <h3 className="text-xl font-bold text-white mb-2">Course Creators</h3>
+              <p className="text-white/70 text-sm mb-6">
+                Your students are dropping off at 45%. Persist connects to your course platform
+                and sends personalized AI nudges in your voice — automatically, while you sleep.
               </p>
-            </div>
-            <div className="bg-[#F7F4EE] rounded-2xl p-8 text-center border border-[#E8E4DC] hover:shadow-md transition-shadow duration-200">
-              <p className="text-6xl font-bold text-emerald-500 leading-none">2<span className="text-4xl">×</span></p>
-              <p className="text-[#6B7280] text-sm mt-3 leading-relaxed">
-                higher completion rates when students receive timely, personal encouragement
-              </p>
+              <ul className="space-y-2 text-sm">
+                {[
+                  ['Connect via Zapier in 5 minutes',   '#E4572E'],
+                  ['AI nudges written in your voice',    '#E4572E'],
+                  ['Cron job runs every 4 hours',        '#E4572E'],
+                  ['2× average completion rates',        '#E4572E'],
+                ].map(([item, color]) => (
+                  <li key={item} className="flex items-center gap-2 text-white/80">
+                    <span className="shrink-0" style={{ color }}>✓</span> {item}
+                  </li>
+                ))}
+              </ul>
+              <button
+                onClick={() => { window.location.href = '/sign-up' }}
+                className="mt-6 w-full bg-[#E4572E] hover:bg-[#CC4A23] text-white py-3 rounded-xl font-semibold text-sm transition-colors"
+              >
+                Retain your students →
+              </button>
             </div>
           </div>
         </div>
@@ -380,7 +329,10 @@ export default function LandingPage() {
       <section id="how-it-works" className="bg-[#F7F4EE] py-24 px-6 scroll-mt-20">
         <div className="max-w-5xl mx-auto">
           <SectionLabel>How it works</SectionLabel>
-          <SectionHeading>How Persist works</SectionHeading>
+          <SplitHeadline
+            text="How Persist works"
+            className="text-4xl font-bold text-[#111827] text-center mt-3 leading-tight"
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto mt-14">
             {[
@@ -490,6 +442,18 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Marquee band 2 — dark green, right-to-left (platform names) */}
+      <MarqueeBand
+        items={['TEACHABLE', 'KAJABI', 'THINKIFIC', 'PODIA', 'GUMROAD', 'ZAPIER', 'RESEND', 'CLAUDE AI', 'VERCEL']}
+        bg="#004643"
+        borderColor="#003533"
+        textColor="#7FB069"
+        diamond="◆"
+        diamondClass="opacity-40"
+        direction="right"
+        duration={25}
+      />
+
       {/* ────────────────────────────────────────────── TESTIMONIALS ── */}
       <section className="bg-[#F7F4EE] py-24 px-6">
         <div className="max-w-4xl mx-auto">
@@ -531,14 +495,78 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* ──────────────────────────────────── AUTOMATION TIMELINE ── */}
+      <section className="py-20 bg-[#FBFEF9]">
+        <div className="max-w-4xl mx-auto px-6">
+          <p className="text-[#E4572E] text-xs font-bold tracking-widest uppercase text-center mb-3">
+            THE AUTOMATION
+          </p>
+          <h2 className="text-4xl font-bold text-[#1A2E2D] text-center mb-4">
+            Set it up once. It runs forever.
+          </h2>
+          <p className="text-[#6B7C7B] text-center mb-12 max-w-xl mx-auto">
+            After a 5-minute Zapier setup, Persist runs on its own. Here&apos;s what happens
+            without you lifting a finger:
+          </p>
+
+          <div className="relative">
+            {/* Timeline spine */}
+            <div className="absolute left-6 top-0 bottom-0 w-0.5 bg-[#E2EDEC]" />
+
+            {[
+              { time: 'Student completes a lesson', icon: '📚', color: '#7FB069', desc: "Zapier sends a progress event to Persist. Your student's completion percentage updates in real time." },
+              { time: 'Every 4 hours',              icon: '⏰', color: '#E4572E', desc: "Persist's cron job scans all students. Anyone in a high-risk dropout zone (20–35%, 45–65%, 80–95%) who's been quiet gets flagged." },
+              { time: 'Nudge is generated',         icon: '🤖', color: '#004643', desc: 'Claude reads your past emails and writes a personalized re-engagement message in your exact voice. Under 150 words. Warm, not pushy.' },
+              { time: '7am next morning',           icon: '📬', color: '#7FB069', desc: 'Resend delivers the nudge from your email address. Your student sees your name in their inbox. You were asleep when it sent.' },
+              { time: 'You wake up',                icon: '☀️', color: '#E4572E', desc: "Dashboard shows 3 nudges sent overnight. One student just resumed their course. You didn't do anything." },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                className="flex gap-6 mb-8 relative pl-14"
+                initial={{ opacity: 0, x: -16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.5, ease: 'easeOut', delay: i * 0.08 }}
+              >
+                {/* Circle icon */}
+                <div
+                  className="absolute left-0 w-12 h-12 rounded-full flex items-center justify-center text-xl bg-white border-2 z-10"
+                  style={{ borderColor: item.color }}
+                >
+                  {item.icon}
+                </div>
+                {/* Card */}
+                <div className="flex-1 bg-white rounded-2xl border border-[#E2EDEC] p-5">
+                  <p className="text-xs font-bold uppercase tracking-widest mb-1" style={{ color: item.color }}>
+                    {item.time}
+                  </p>
+                  <p className="text-sm text-[#1A2E2D] leading-relaxed">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ────────────────────────────────────────────────── PRICING ── */}
       <section id="pricing" className="bg-white py-24 px-6 scroll-mt-20">
         <div className="max-w-4xl mx-auto">
           <SectionLabel>Pricing</SectionLabel>
-          <SectionHeading>Simple pricing. No surprises.</SectionHeading>
+          <SplitHeadline
+            text="Simple pricing. No surprises."
+            className="text-4xl font-bold text-[#111827] text-center mt-3 leading-tight"
+          />
           <p className="text-center text-[#6B7280] mt-4 max-w-md mx-auto">
             Pay for what you use. Cancel anytime. 14-day free trial included.
           </p>
+          {/* Scroll hint — desktop only, disappears once user interacts */}
+          <motion.div
+            animate={{ x: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="hidden md:flex items-center justify-center gap-1 mt-2 text-xs text-[#9CA3AF]"
+          >
+            Scroll to compare →
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-14 items-start">
 
@@ -546,11 +574,12 @@ export default function LandingPage() {
             <div className="bg-[#F7F4EE] rounded-2xl p-8 border border-[#E8E4DC] hover:border-[#C8C4BC] transition-colors duration-200">
               <p className="text-sm font-semibold text-[#6B7280] uppercase tracking-wide">Core</p>
               <div className="mt-4 flex items-end gap-1.5">
-                <span className="text-5xl font-bold text-[#111827]">$20</span>
+                <span className="text-5xl font-bold text-[#111827]">$29</span>
                 <span className="text-[#6B7280] mb-2">/month</span>
               </div>
+              <p className="text-xs text-emerald-600 font-medium mt-1">Less than one hour of agency time</p>
               <p className="text-sm text-[#6B7280] mt-2 mb-8">
-                Perfect for solo creators just getting started
+                Up to 50 students · Perfect for solo creators
               </p>
               <ul className="space-y-3">
                 <PricingFeature>Up to 50 active students</PricingFeature>
@@ -578,11 +607,12 @@ export default function LandingPage() {
 
               <p className="text-sm font-semibold text-indigo-400 uppercase tracking-wide">Pro</p>
               <div className="mt-4 flex items-end gap-1.5">
-                <span className="text-5xl font-bold text-white">$49</span>
+                <span className="text-5xl font-bold text-white">$59</span>
                 <span className="text-white/50 mb-2">/month</span>
               </div>
+              <p className="text-xs text-emerald-400 font-medium mt-1">Less than one copywriter day</p>
               <p className="text-sm text-white/50 mt-2 mb-8">
-                For growing creators with larger audiences
+                Up to 500 students · For growing creators
               </p>
               <ul className="space-y-3">
                 <PricingFeature light>Everything in Core</PricingFeature>
@@ -649,6 +679,6 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
-    </div>
+    </>
   )
 }

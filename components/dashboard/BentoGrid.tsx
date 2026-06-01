@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
   Users, BookOpen, Mail, AlertTriangle,
-  BookPlus, Zap, Check,
+  BookPlus, Zap, Check, ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
@@ -141,11 +141,11 @@ function MiniStat({
 
 function GettingStartedContent({ data }: { data: GettingStartedData }) {
   const items = [
-    { label: 'Set up your profile',       done: data.profileComplete   },
-    { label: 'Connect a course platform', done: data.platformConnected },
-    { label: 'Sync your first student',   done: data.studentsImported  },
-    { label: 'Add a course to track',     done: data.courseAdded       },
-    { label: 'Send your first nudge',     done: data.nudgeSent         },
+    { label: 'Set up your profile',       done: data.profileComplete,   href: '/dashboard/profile'   },
+    { label: 'Connect a course platform', done: data.platformConnected,  href: '/dashboard/settings'  },
+    { label: 'Sync your first student',   done: data.studentsImported,   href: '/dashboard/students'  },
+    { label: 'Add a course to track',     done: data.courseAdded,        href: '/dashboard'           },
+    { label: 'Send your first nudge',     done: data.nudgeSent,          href: '/dashboard/students'  },
   ]
   const done = items.filter(i => i.done).length
 
@@ -164,19 +164,36 @@ function GettingStartedContent({ data }: { data: GettingStartedData }) {
             transition={{ duration: 0.6, ease: 'easeOut' }}
           />
         </div>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {items.map(item => (
-            <div key={item.label} className="flex items-center gap-2.5">
+            <Link
+              key={item.label}
+              href={item.href}
+              className={cn(
+                'flex items-center gap-2.5 rounded-lg px-2 py-1.5 -mx-2 transition-colors group',
+                item.done
+                  ? 'hover:bg-emerald-50/60 cursor-default'
+                  : 'hover:bg-indigo-50 cursor-pointer',
+              )}
+            >
               <div className={cn(
-                'w-4 h-4 rounded-full flex items-center justify-center shrink-0',
-                item.done ? 'bg-emerald-500' : 'border-2 border-[#D1D5DB]',
+                'w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors',
+                item.done ? 'bg-emerald-500' : 'border-2 border-[#D1D5DB] group-hover:border-indigo-400',
               )}>
                 {item.done && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
               </div>
-              <span className={cn('text-xs leading-snug', item.done ? 'text-[#9CA3AF] line-through' : 'text-[#374151]')}>
+              <span className={cn(
+                'text-xs leading-snug flex-1 transition-colors',
+                item.done
+                  ? 'text-[#9CA3AF] line-through'
+                  : 'text-[#374151] group-hover:text-indigo-700',
+              )}>
                 {item.label}
               </span>
-            </div>
+              {!item.done && (
+                <ChevronRight className="w-3 h-3 text-[#D1D5DB] group-hover:text-indigo-400 transition-colors flex-shrink-0" />
+              )}
+            </Link>
           ))}
         </div>
         {done === 5 && (
@@ -360,11 +377,11 @@ export function BentoGrid({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"
+      className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
     >
 
       {/* ── ROW 1: Welcome banner — full width ──────────────────────────────── */}
-      <Card className="col-span-1 sm:col-span-2 md:col-span-4 bg-indigo-600 border-indigo-500 text-white">
+      <Card className="col-span-1 sm:col-span-2 lg:col-span-4 bg-indigo-600 border-indigo-500 text-white">
         <div className="flex flex-col justify-between p-6 min-h-[112px]">
           <div>
             <p className="text-xs font-medium text-indigo-200 uppercase tracking-wide">{todayLabel()}</p>
@@ -409,7 +426,7 @@ export function BentoGrid({
       {/* ── ROW 3+: Left main (col-span-3) — animated container ─────────────── */}
       <motion.div
         variants={itemVariants}
-        className="col-span-1 sm:col-span-2 md:col-span-3 flex flex-col gap-4"
+        className="col-span-1 sm:col-span-2 lg:col-span-3 flex flex-col gap-4"
       >
         {/* Needs Attention */}
         <InnerCard>
@@ -528,7 +545,7 @@ export function BentoGrid({
       {/* ── ROW 3+: Right sidebar (col-span-1) — animated container ─────────── */}
       <motion.div
         variants={itemVariants}
-        className="col-span-1 sm:col-span-2 md:col-span-1 flex flex-col gap-4"
+        className="col-span-1 sm:col-span-2 lg:col-span-1 flex flex-col gap-4"
       >
         <GettingStartedContent data={gettingStarted} />
         <AddCourseContent />

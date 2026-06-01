@@ -7,12 +7,14 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard,
   Users,
-  Settings,
   ChevronLeft,
   ChevronRight,
   UserCircle,
   Search,
   Zap,
+  Sparkles,
+  Menu,
+  X,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ProfileDropdown } from '@/components/ui/profile-dropdown'
@@ -39,11 +41,18 @@ interface LayoutClientProps {
 // ── Nav items ─────────────────────────────────────────────────────────────────
 
 const navItems = [
-  { href: '/dashboard/profile',  label: 'Profile',   icon: UserCircle,     exact: true  },
-  { href: '/dashboard',          label: 'Dashboard',  icon: LayoutDashboard, exact: true  },
-  { href: '/dashboard/students', label: 'Students',   icon: Users,          exact: false },
-  { href: '/dashboard/sprints',  label: 'Sprints',    icon: Zap,            exact: false },
-  { href: '/dashboard/settings', label: 'Settings',   icon: Settings,       exact: false },
+  { href: '/dashboard',          label: 'Dashboard', icon: LayoutDashboard, exact: true  },
+  { href: '/dashboard/profile',  label: 'Profile',   icon: UserCircle,      exact: true  },
+  { href: '/dashboard/students', label: 'Students',  icon: Users,           exact: false },
+  { href: '/dashboard/sprints',  label: 'Sprints',   icon: Zap,             exact: false },
+]
+
+const comingSoonItems = [
+  { label: 'Analytics Dashboard', emoji: '📊' },
+  { label: 'Email Templates',     emoji: '✉️'  },
+  { label: 'Team Collaboration',  emoji: '👥' },
+  { label: 'AI Writing Coach',    emoji: '🤖' },
+  { label: 'Payment Tracking',    emoji: '💳' },
 ]
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -51,7 +60,8 @@ const navItems = [
 export function LayoutClient({ creator, totalStudents, activeCourses, students, children }: LayoutClientProps) {
   const pathname = usePathname()
   const router   = useRouter()
-  const [collapsed, setCollapsed] = useState(false)
+  const [collapsed,   setCollapsed  ] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
 
   useEffect(() => {
     const saved = localStorage.getItem('sidebar-collapsed')
@@ -81,11 +91,120 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
   return (
     <div className="flex h-screen bg-[#F7F8FA] overflow-hidden">
 
-      {/* ── Sidebar ─────────────────────────────────────────────────────────── */}
+      {/* ── Mobile slide-over drawer ─────────────────────────────────────────── */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            key="mobile-drawer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 md:hidden"
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/50" onClick={() => setMobileOpen(false)} />
+
+            {/* Drawer panel */}
+            <motion.div
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.25, ease: 'easeInOut' }}
+              className="absolute left-0 top-0 bottom-0 w-64 bg-white flex flex-col border-r border-[#E5E7EB] overflow-y-auto"
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between h-16 px-5 border-b border-[#E5E7EB] flex-shrink-0">
+                <span className="font-bold text-indigo-600 text-lg">Persist</span>
+                <button
+                  onClick={() => setMobileOpen(false)}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA] transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Mini profile card */}
+              <div
+                className="mx-2 mt-3 mb-1 p-3 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB] cursor-pointer hover:bg-indigo-50 hover:border-indigo-200 transition-colors"
+                onClick={() => { setMobileOpen(false); router.push('/dashboard/profile') }}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 overflow-hidden">
+                    {creator.profileImageUrl
+                      ? <img src={creator.profileImageUrl} alt={firstName} className="w-full h-full object-cover" />
+                      : initials}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-[#111827] truncate">{firstName}</p>
+                    <p className="text-xs text-[#6B7280] truncate">{platformLabel}</p>
+                  </div>
+                </div>
+                <div className="mt-2 flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <span className="text-xs text-[#6B7280]">
+                    {totalStudents} student{totalStudents !== 1 ? 's' : ''} · {activeCourses} course{activeCourses !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              </div>
+
+              {/* Nav links */}
+              <nav className="flex-1 py-4 px-2 space-y-1">
+                {navItems.map(({ href, label, icon: Icon, exact }) => {
+                  const isActive = exact ? pathname === href : pathname.startsWith(href)
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={() => setMobileOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-indigo-50 text-indigo-600'
+                          : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA]'
+                      }`}
+                    >
+                      <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-indigo-600' : ''}`} />
+                      <span className={`text-sm font-medium ${isActive ? 'text-indigo-600' : ''}`}>{label}</span>
+                    </Link>
+                  )
+                })}
+              </nav>
+
+              {/* Coming Soon */}
+              <div className="mx-2 mb-2">
+                <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-3">
+                  <div className="flex items-center gap-1.5 mb-2.5">
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Coming Soon</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {comingSoonItems.map(item => (
+                      <div key={item.label} className="flex items-center gap-2">
+                        <span className="text-sm">{item.emoji}</span>
+                        <span className="text-[11px] text-[#9CA3AF] truncate">{item.label}</span>
+                        <span className="ml-auto shrink-0 text-[9px] font-semibold bg-indigo-50 text-indigo-400 border border-indigo-100 rounded-full px-1.5 py-0.5">
+                          Soon
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Profile dropdown */}
+              <div className="p-2 border-t border-[#E5E7EB]">
+                <ProfileDropdown collapsed={false} />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Desktop Sidebar ──────────────────────────────────────────────────── */}
       <motion.aside
         animate={{ width: collapsed ? 72 : 240 }}
         transition={{ duration: 0.25, ease: 'easeInOut' }}
-        className="flex flex-col bg-white border-r border-[#E5E7EB] flex-shrink-0 overflow-hidden relative"
+        className="hidden md:flex flex-col bg-white border-r border-[#E5E7EB] flex-shrink-0 overflow-hidden relative"
       >
         {/* Logo + collapse toggle */}
         <div className={cn(
@@ -234,6 +353,38 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
           })}
         </nav>
 
+        {/* Coming Soon section — only when expanded */}
+        <AnimatePresence>
+          {!collapsed && (
+            <motion.div
+              key="coming-soon"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mx-2 mb-2 overflow-hidden"
+            >
+              <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-3">
+                <div className="flex items-center gap-1.5 mb-2.5">
+                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Coming Soon</span>
+                </div>
+                <div className="space-y-1.5">
+                  {comingSoonItems.map(item => (
+                    <div key={item.label} className="flex items-center gap-2">
+                      <span className="text-sm leading-none">{item.emoji}</span>
+                      <span className="text-[11px] text-[#9CA3AF] truncate">{item.label}</span>
+                      <span className="ml-auto shrink-0 text-[9px] font-semibold bg-indigo-50 text-indigo-400 border border-indigo-100 rounded-full px-1.5 py-0.5">
+                        Soon
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Profile dropdown at bottom */}
         <div className="p-2 border-t border-[#E5E7EB]">
           <ProfileDropdown collapsed={collapsed} />
@@ -241,8 +392,21 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
       </motion.aside>
 
       {/* ── Main content ────────────────────────────────────────────────────── */}
-      <main className="flex-1 overflow-y-auto">
-        {children}
+      <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
+        {/* Mobile top bar — hamburger + logo */}
+        <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-[#E5E7EB] bg-white flex-shrink-0">
+          <span className="font-bold text-indigo-600 text-lg">Persist</span>
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] hover:bg-[#F7F8FA] transition-colors"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </div>
+        {/* Scrollable page content */}
+        <div className="flex-1 overflow-y-auto">
+          {children}
+        </div>
       </main>
 
       <Toaster

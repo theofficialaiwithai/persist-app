@@ -93,7 +93,7 @@ export default async function StudentsPage() {
   const courseOptions = creatorCourses.map(c => ({ id: c.id, name: c.name }))
 
   return (
-    <div className="p-8 space-y-6">
+    <div className="px-4 py-6 sm:px-8 space-y-6">
       {/* ── Header ───────────────────────────────────────────────────────── */}
       <div>
         <h1 className="text-2xl font-semibold text-gray-900">Students</h1>

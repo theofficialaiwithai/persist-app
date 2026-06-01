@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
-import { Zap } from 'lucide-react'
+import { Clock, Users, Zap } from 'lucide-react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -59,114 +59,161 @@ function statusBadge(status: string) {
 // ── Sprint Card ───────────────────────────────────────────────────────────────
 
 function SprintCard({ sprint }: { sprint: SprintData }) {
-  const badge      = statusBadge(sprint.status)
-  const label      = sprint.courseName || sprint.skillFocus || 'Open Sprint'
-  const daysToJoin = daysUntil(sprint.joinDeadline)
-  const daysToEnd  = daysUntil(sprint.endDate)
-  const duration   = durationDays(sprint.startDate, sprint.endDate)
-  const cap        = sprint.maxMembers ?? 20
-  const fillPct    = Math.min(100, Math.round((sprint.memberCount / cap) * 100))
+  const badge    = statusBadge(sprint.status)
+  const label    = sprint.courseName || sprint.skillFocus || 'Open Sprint'
+  const cap      = sprint.maxMembers ?? 20
+  const fillPct  = Math.min(100, Math.round((sprint.memberCount / cap) * 100))
+  const duration = durationDays(sprint.startDate, sprint.endDate)
+
+  // Live countdown — target is join deadline for open sprints, end date for active
+  const target = sprint.status === 'open' ? sprint.joinDeadline : sprint.endDate
+  const [secsLeft, setSecsLeft] = useState(() =>
+    Math.max(0, Math.floor((new Date(target + 'T23:59:59').getTime() - Date.now()) / 1000)),
+  )
+
+  useEffect(() => {
+    const ms = new Date(target + 'T23:59:59').getTime()
+    const id = setInterval(() => setSecsLeft(Math.max(0, Math.floor((ms - Date.now()) / 1000))), 1000)
+    return () => clearInterval(id)
+  }, [target])
+
+  const days  = Math.floor(secsLeft / 86400)
+  const hours = Math.floor((secsLeft % 86400) / 3600)
+  const mins  = Math.floor((secsLeft % 3600) / 60)
+  const secs  = secsLeft % 60
+  const isUrgent = (sprint.status === 'open' || sprint.status === 'active') && days < 3
+
+  // Gradient header per status
+  const headerGradient =
+    sprint.status === 'open'      ? 'from-indigo-600 via-indigo-700 to-indigo-900' :
+    sprint.status === 'active'    ? 'from-emerald-600 via-emerald-700 to-emerald-900' :
+    sprint.status === 'completed' ? 'from-slate-500 to-slate-700' :
+                                    'from-red-500 to-red-700'
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: 'spring', stiffness: 100, damping: 16 }}
-      className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm hover:shadow-md transition-shadow p-6 flex flex-col gap-4"
+      initial={{ opacity: 0, y: 24, scale: 0.97, filter: 'blur(6px)' }}
+      animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+      transition={{ type: 'spring', stiffness: 260, damping: 26 }}
+      whileHover={{ scale: 1.02, y: -5, transition: { type: 'spring', stiffness: 300, damping: 24 } }}
+      className="rounded-2xl border border-[#E5E7EB] bg-white shadow-sm overflow-hidden cursor-pointer group"
     >
-      {/* Title + status */}
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-base font-semibold text-[#111827] leading-snug">{sprint.title}</h3>
-        <span className={cn('inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border shrink-0', badge.cls)}>
-          {badge.label}
-        </span>
-      </div>
-
-      {/* Course/skill pill */}
-      <span className="inline-flex w-fit items-center gap-1.5 bg-[#F7F8FA] border border-[#E5E7EB] rounded-full px-3 py-1 text-xs text-[#6B7280]">
-        <Zap className="w-3 h-3 text-indigo-500" />
-        {label}
-      </span>
-
-      {/* Countdown */}
-      {sprint.status === 'open' && (
-        <div className="rounded-xl bg-[#F7F8FA] border border-[#E5E7EB] px-4 py-3">
-          {daysToJoin > 0 ? (
-            <>
-              <div className="flex items-baseline gap-1">
-                <span className={cn('text-3xl font-bold tabular-nums', daysToJoin < 3 ? 'text-amber-600' : 'text-[#111827]')}>
-                  {daysToJoin}
-                </span>
-                <span className={cn('text-sm font-medium', daysToJoin < 3 ? 'text-amber-600' : 'text-[#6B7280]')}>
-                  day{daysToJoin !== 1 ? 's' : ''} left to join
-                </span>
-                {daysToJoin < 3 && <span className="text-amber-500 text-sm">⚡</span>}
-              </div>
-              <p className="text-xs text-[#9CA3AF] mt-0.5">Starts {fmtDate(sprint.startDate)}</p>
-            </>
-          ) : (
-            <p className="text-sm font-medium text-[#6B7280]">Enrollment closed</p>
-          )}
-        </div>
-      )}
-
-      {sprint.status === 'active' && daysToEnd > 0 && (
-        <div className="rounded-xl bg-emerald-50 border border-emerald-200 px-4 py-3">
-          <div className="flex items-baseline gap-1">
-            <span className="text-3xl font-bold tabular-nums text-emerald-700">{daysToEnd}</span>
-            <span className="text-sm font-medium text-emerald-700">days remaining</span>
-          </div>
-          <p className="text-xs text-emerald-600 mt-0.5">Ends {fmtDate(sprint.endDate)}</p>
-        </div>
-      )}
-
-      {/* Members */}
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-medium text-[#6B7280]">
-            {sprint.memberCount} / {cap} members
+      {/* ── Gradient header ───────────────────────────────────────────────── */}
+      <div className={cn('relative bg-gradient-to-br p-5', headerGradient)}>
+        {/* Status badge */}
+        <div className="flex items-start justify-between gap-3 mb-3">
+          <span className="inline-flex items-center gap-1.5 bg-white/20 border border-white/30 rounded-full px-2.5 py-1 text-[10px] font-semibold text-white">
+            <Zap className="w-3 h-3" /> {label}
           </span>
-          {sprint.avatars.length > 0 && (
-            <div className="flex -space-x-1.5">
-              {sprint.avatars.slice(0, 5).map((ini, i) => (
-                <div
-                  key={i}
-                  className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-[9px] font-semibold flex items-center justify-center border-2 border-white"
-                >
-                  {ini}
-                </div>
-              ))}
-              {sprint.avatars.length > 5 && (
-                <div className="w-6 h-6 rounded-full bg-[#F3F4F6] text-[#6B7280] text-[9px] font-semibold flex items-center justify-center border-2 border-white">
-                  +{sprint.avatars.length - 5}
-                </div>
-              )}
+          <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border bg-white/20 text-white border-white/30">
+            {badge.label}
+          </span>
+        </div>
+
+        <h3 className="text-base font-bold text-white leading-snug">{sprint.title}</h3>
+
+        <div className="flex items-center gap-2 mt-1.5 text-[11px] text-white/70">
+          <span>{fmtDate(sprint.startDate)} → {fmtDate(sprint.endDate)}</span>
+          <span>·</span>
+          <span>{duration}d sprint</span>
+        </div>
+
+        {/* Urgent badge overlay */}
+        {isUrgent && secsLeft > 0 && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute top-4 right-4 bg-amber-400 text-amber-900 px-2.5 py-0.5 rounded-full text-[10px] font-bold"
+          >
+            ⚡ Ending soon
+          </motion.div>
+        )}
+      </div>
+
+      {/* ── Card body ─────────────────────────────────────────────────────── */}
+      <div className="p-5 space-y-4">
+
+        {/* Countdown boxes — only for open/active with time remaining */}
+        {(sprint.status === 'open' || sprint.status === 'active') && secsLeft > 0 ? (
+          <div>
+            <div className="flex items-center gap-1 text-[10px] font-medium text-[#9CA3AF] uppercase tracking-wider mb-2">
+              <Clock className="w-3 h-3" />
+              {sprint.status === 'open' ? 'Deadline to join' : 'Sprint ends in'}
             </div>
-          )}
-        </div>
-        {/* fill bar */}
-        <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
-          <div
-            className="h-full bg-indigo-500 rounded-full transition-all"
-            style={{ width: `${fillPct}%` }}
-          />
-        </div>
-      </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { value: days,  label: 'Days' },
+                { value: hours, label: 'Hrs'  },
+                { value: mins,  label: 'Min'  },
+                { value: secs,  label: 'Sec'  },
+              ].map(({ value, label: unit }, idx) => (
+                <motion.div
+                  key={unit}
+                  animate={idx === 3 ? { scale: [1, 1.1, 1], opacity: [1, 0.65, 1] } : {}}
+                  transition={idx === 3 ? { duration: 1, repeat: Infinity, ease: 'easeInOut' } : {}}
+                  className={cn(
+                    'rounded-xl p-2.5 text-center border',
+                    isUrgent
+                      ? 'bg-amber-50 border-amber-200'
+                      : 'bg-[#F7F8FA] border-[#E5E7EB]',
+                  )}
+                >
+                  <div className={cn('text-lg font-bold tabular-nums leading-none', isUrgent ? 'text-amber-600' : 'text-[#111827]')}>
+                    {value.toString().padStart(2, '0')}
+                  </div>
+                  <div className="text-[9px] text-[#9CA3AF] font-medium mt-0.5">{unit}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        ) : sprint.status === 'completed' ? (
+          <div className="text-center py-2 bg-[#F7F8FA] rounded-xl border border-[#E5E7EB]">
+            <p className="text-sm font-semibold text-[#374151]">Sprint completed 🎉</p>
+          </div>
+        ) : null}
 
-      {/* Stats row */}
-      <div className="flex items-center gap-3 text-xs text-[#9CA3AF]">
-        <span>Starts {fmtDate(sprint.startDate)}</span>
-        <span>·</span>
-        <span>Ends {fmtDate(sprint.endDate)}</span>
-        <span>·</span>
-        <span>{duration}d sprint</span>
-      </div>
+        {/* Members + fill bar */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5 text-xs font-medium text-[#6B7280]">
+              <Users className="w-3.5 h-3.5" />
+              {sprint.memberCount} / {cap} members
+            </div>
+            {sprint.avatars.length > 0 && (
+              <div className="flex -space-x-1.5">
+                {sprint.avatars.slice(0, 5).map((ini, i) => (
+                  <div
+                    key={i}
+                    className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-[9px] font-semibold flex items-center justify-center border-2 border-white"
+                  >
+                    {ini}
+                  </div>
+                ))}
+                {sprint.avatars.length > 5 && (
+                  <div className="w-6 h-6 rounded-full bg-[#F3F4F6] text-[#6B7280] text-[9px] font-semibold flex items-center justify-center border-2 border-white">
+                    +{sprint.avatars.length - 5}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+          <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-indigo-500 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${fillPct}%` }}
+              transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
+            />
+          </div>
+        </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2 pt-1 border-t border-[#F3F4F6]">
+        {/* CTA button */}
         <Link
           href={`/dashboard/sprints/${sprint.id}`}
-          className="flex-1 text-center text-sm font-medium text-indigo-600 hover:text-indigo-700 py-1.5 rounded-lg hover:bg-indigo-50 transition-colors"
+          className={cn(
+            'flex w-full items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold transition-all',
+            'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-200/60',
+          )}
         >
           View Sprint →
         </Link>

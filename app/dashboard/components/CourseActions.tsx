@@ -57,7 +57,7 @@ export function AddCourseButton() {
         Add a new course
       </DialogTrigger>
 
-      <DialogContent className="rounded-2xl max-w-sm">
+      <DialogContent className="rounded-2xl max-w-sm bg-white">
         <DialogHeader>
           <DialogTitle>Add a course to track</DialogTitle>
           <DialogDescription>

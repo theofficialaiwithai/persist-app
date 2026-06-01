@@ -64,7 +64,9 @@ export function StudentsTable({ rows, courses }: Props) {
   const [search,       setSearch      ] = useState('')
   const [courseFilter, setCourseFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
-  const [view,         setView        ] = useState<'table' | 'grid'>('table')
+  const [view, setView] = useState<'table' | 'grid'>(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768 ? 'grid' : 'table'
+  )
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase()

@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { showToast } from '@/lib/toast'
 import {
   ChevronLeft, Users, MessageSquare, Zap, Calendar,
-  Plus, Loader2, CornerDownRight, X, CheckCircle,
+  Plus, Loader2, X, CheckCircle,
 } from 'lucide-react'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -202,7 +202,9 @@ function AddMemberModal({
   )
 }
 
-// ── Forum Post ────────────────────────────────────────────────────────────────
+// ── Forum Post (EmailClientCard style) ───────────────────────────────────────
+
+const REACTIONS = ['😍', '❤️', '🔥', '⚡️', '👍']
 
 function ForumPost({
   post,
@@ -219,8 +221,7 @@ function ForumPost({
   const [replyText, setReplyText] = useState('')
   const [sending,   setSending  ] = useState(false)
   const [replies,   setReplies  ] = useState(post.replies)
-  const isEncouragement = post.content.startsWith('💪')
-  const isCreatorPost   = post.authorName.includes('(Creator)')
+  const isCreatorPost = post.authorName.includes('(Creator)')
 
   async function submitReply() {
     if (!replyText.trim()) return
@@ -249,39 +250,42 @@ function ForumPost({
   }
 
   return (
-    <div className={cn('py-4', isEncouragement && 'bg-rose-50/60 -mx-6 px-6 rounded-xl')}>
-      <div className="flex gap-3">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+      className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden"
+    >
+      {/* Header — avatar + name + timestamp */}
+      <div className="flex items-start gap-3 px-4 py-3.5 border-b border-[#F3F4F6]">
         <div className={cn(
-          'w-8 h-8 rounded-full text-xs font-semibold flex items-center justify-center shrink-0',
-          isCreatorPost ? 'bg-indigo-600 text-white' : isEncouragement ? 'bg-rose-100 text-rose-600' : 'bg-indigo-100 text-indigo-600',
+          'w-9 h-9 rounded-full text-xs font-bold flex items-center justify-center shrink-0',
+          isCreatorPost ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-600',
         )}>
           {post.authorInitials}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-baseline gap-2">
-            <span className="text-sm font-semibold text-[#111827]">{post.authorName}</span>
-            <span className="text-xs text-[#9CA3AF]">{relTime(post.createdAt)}</span>
-          </div>
-          <p className="text-sm text-[#374151] mt-1 leading-relaxed whitespace-pre-wrap">{post.content}</p>
-          <button
-            onClick={() => setShowReply(prev => !prev)}
-            className="mt-2 flex items-center gap-1 text-xs text-[#9CA3AF] hover:text-indigo-600 transition-colors"
-          >
-            <CornerDownRight className="w-3 h-3" />
-            {showReply ? 'Cancel' : `Reply${replies.length > 0 ? ` (${replies.length})` : ''}`}
-          </button>
+          <p className="text-sm font-semibold text-[#111827] leading-none">{post.authorName}</p>
+          <p className="text-xs text-[#9CA3AF] mt-0.5">{relTime(post.createdAt)}</p>
+        </div>
+      </div>
 
-          {/* Replies */}
-          {replies.length > 0 && (
-            <div className="mt-3 pl-3 border-l-2 border-[#E5E7EB] space-y-3">
-              {replies.map(r => (
-                <div key={r.id} className="flex gap-2">
-                  <div className="w-6 h-6 rounded-full bg-[#F3F4F6] text-[#6B7280] text-[10px] font-semibold flex items-center justify-center shrink-0">
-                    {r.authorInitials}
-                  </div>
-                  <div>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-xs font-semibold text-[#111827]">{r.authorName}</span>
+      {/* Body */}
+      <div className="px-4 py-3 text-sm text-[#374151] leading-relaxed whitespace-pre-wrap">
+        {post.content}
+      </div>
+
+      {/* Threaded replies */}
+      {replies.length > 0 && (
+        <div className="px-4 pb-3 space-y-2.5">
+          {replies.map(r => (
+            <div key={r.id} className="flex gap-2 pl-3 border-l-2 border-[#E5E7EB]">
+              <div className="w-6 h-6 rounded-full bg-[#F3F4F6] text-[#6B7280] text-[10px] font-semibold flex items-center justify-center shrink-0">
+                {r.authorInitials}
+              </div>
+              <div>
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-xs font-semibold text-[#111827]">{r.authorName}</span>
                       <span className="text-[10px] text-[#9CA3AF]">{relTime(r.createdAt)}</span>
                     </div>
                     <p className="text-xs text-[#374151] mt-0.5 leading-relaxed">{r.content}</p>
@@ -291,39 +295,78 @@ function ForumPost({
             </div>
           )}
 
-          {/* Reply form */}
-          <AnimatePresence>
-            {showReply && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="mt-3 overflow-hidden"
+      {/* Footer — reply input + emoji reactions */}
+      <div className="px-3 py-2.5 border-t border-[#F3F4F6] bg-[#FAFAFA]">
+        <AnimatePresence>
+          {showReply && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-2 overflow-hidden"
+            >
+              <textarea
+                autoFocus
+                value={replyText}
+                onChange={e => setReplyText(e.target.value)}
+                placeholder="Write a reply…"
+                rows={2}
+                className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-[#9CA3AF] bg-white"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <div className="flex items-center gap-2">
+          {/* Click-to-expand reply input */}
+          {!showReply && (
+            <input
+              type="text"
+              readOnly
+              onClick={() => setShowReply(true)}
+              placeholder="Type here..."
+              className="flex-1 h-8 rounded-lg border border-[#E5E7EB] px-3 text-sm bg-white text-[#9CA3AF] cursor-text focus:outline-none"
+            />
+          )}
+
+          {/* Emoji quick-react buttons */}
+          <div className="flex items-center gap-0.5">
+            {REACTIONS.map((emoji, i) => (
+              <motion.button
+                key={i}
+                whileHover={{ scale: 1.2, rotate: -5 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                onClick={() => { setShowReply(true); setReplyText(prev => prev + emoji + ' ') }}
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-base hover:bg-[#F3F4F6] transition-colors"
+                title={`React with ${emoji}`}
               >
-                <textarea
-                  autoFocus
-                  value={replyText}
-                  onChange={e => setReplyText(e.target.value)}
-                  placeholder="Write a reply…"
-                  rows={2}
-                  className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-[#9CA3AF]"
-                />
-                <div className="flex justify-end mt-2">
-                  <button
-                    onClick={submitReply}
-                    disabled={!replyText.trim() || sending}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {sending && <Loader2 className="w-3 h-3 animate-spin" />}
-                    Reply
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                {emoji}
+              </motion.button>
+            ))}
+          </div>
+
+          {showReply && (
+            <>
+              <button
+                onClick={() => { setShowReply(false); setReplyText('') }}
+                className="text-xs text-[#9CA3AF] hover:text-[#6B7280] transition-colors ml-1"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitReply}
+                disabled={!replyText.trim() || sending}
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+              >
+                {sending && <Loader2 className="w-3 h-3 animate-spin" />}
+                Reply
+              </button>
+            </>
+          )}
         </div>
       </div>
-    </div>
+    </motion.div>
   )
 }
 
@@ -476,8 +519,9 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
           </div>
 
           {/* Discussion Forum */}
-          <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
-            <div className="flex items-center gap-2 mb-5">
+          <div className="space-y-4">
+            {/* Section header */}
+            <div className="flex items-center gap-2">
               <h2 className="text-base font-semibold text-[#111827] flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-indigo-500" /> Discussion
               </h2>
@@ -486,45 +530,65 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
               </span>
             </div>
 
-            {/* New post form */}
-            <div className="mb-5 pb-5 border-b border-[#F3F4F6]">
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-indigo-600 text-white text-xs font-semibold flex items-center justify-center shrink-0">
+            {/* Compose card */}
+            <div className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden">
+              {/* Composer header */}
+              <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#F3F4F6]">
+                <div className="w-9 h-9 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
                   {creatorInitials}
                 </div>
-                <div className="flex-1">
-                  <textarea
-                    value={newPost}
-                    onChange={e => setNewPost(e.target.value)}
-                    placeholder="Share an update, question, or encouragement…"
-                    rows={3}
-                    onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submitPost() }}
-                    className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2.5 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-[#9CA3AF]"
-                  />
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-[#9CA3AF]">{creatorName} (Creator)</span>
-                    <button
-                      onClick={submitPost}
-                      disabled={!newPost.trim() || posting}
-                      className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      {posting && <Loader2 className="w-3 h-3 animate-spin" />}
-                      Post
-                    </button>
-                  </div>
+                <div>
+                  <p className="text-sm font-semibold text-[#111827] leading-none">{creatorName} (Creator)</p>
+                  <p className="text-xs text-[#9CA3AF] mt-0.5">Write a post to your cohort</p>
                 </div>
+              </div>
+              {/* Composer body */}
+              <div className="px-4 py-3">
+                <textarea
+                  value={newPost}
+                  onChange={e => setNewPost(e.target.value)}
+                  placeholder="Share an update, question, or encouragement…"
+                  rows={3}
+                  onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submitPost() }}
+                  className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2.5 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-[#9CA3AF] bg-[#FAFAFA]"
+                />
+              </div>
+              {/* Composer footer */}
+              <div className="flex items-center justify-between px-4 py-2.5 border-t border-[#F3F4F6] bg-[#FAFAFA]">
+                <div className="flex items-center gap-0.5">
+                  {REACTIONS.map((emoji, i) => (
+                    <motion.button
+                      key={i}
+                      whileHover={{ scale: 1.2, rotate: -5 }}
+                      whileTap={{ scale: 0.9 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                      onClick={() => setNewPost(prev => prev + emoji + ' ')}
+                      className="w-7 h-7 rounded-lg flex items-center justify-center text-base hover:bg-[#F3F4F6] transition-colors"
+                    >
+                      {emoji}
+                    </motion.button>
+                  ))}
+                </div>
+                <button
+                  onClick={submitPost}
+                  disabled={!newPost.trim() || posting}
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                >
+                  {posting && <Loader2 className="w-3 h-3 animate-spin" />}
+                  Post
+                </button>
               </div>
             </div>
 
             {/* Posts list */}
             {posts.length === 0 ? (
-              <div className="text-center py-8">
+              <div className="text-center py-8 rounded-xl border border-[#E5E7EB] bg-white">
                 <MessageSquare className="w-8 h-8 text-[#D1D5DB] mx-auto mb-2" />
                 <p className="text-sm text-[#6B7280]">No posts yet.</p>
                 <p className="text-xs text-[#9CA3AF]">Be the first to post an update!</p>
               </div>
             ) : (
-              <div className="divide-y divide-[#F3F4F6]">
+              <div className="space-y-3">
                 {posts.map(p => (
                   <ForumPost
                     key={p.id}
