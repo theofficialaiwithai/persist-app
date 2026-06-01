@@ -13,12 +13,13 @@ export default async function OnboardingPage() {
     where: eq(creators.userId, userId),
   })
 
-  // If onboarding is already complete (new wizard sets coursePlatform; old wizard set senderEmail)
-  if (creator?.coursePlatform || creator?.senderEmail) {
+  // If creator exists and has already completed onboarding, skip to dashboard.
+  // We check both senderEmail (new wizard) and coursePlatform (belt-and-suspenders).
+  if (creator?.senderEmail || creator?.coursePlatform) {
     redirect('/dashboard')
   }
 
-  return (
-    <OnboardingWizard initialSenderName={creator?.senderName ?? ''} />
-  )
+  // creator may be null here if the Clerk webhook hasn't fired yet — that's fine.
+  // OnboardingWizard handles null/undefined gracefully and creates the row on save.
+  return <OnboardingWizard existingName={creator?.name ?? creator?.senderName ?? ''} />
 }

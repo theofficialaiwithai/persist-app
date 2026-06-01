@@ -47,17 +47,17 @@ const EXAMPLE_PAYLOAD = `{
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface Props {
-  initialSenderName?: string
+  existingName?: string
 }
 
-export function OnboardingWizard({ initialSenderName }: Props) {
+export function OnboardingWizard({ existingName = '' }: Props) {
   const router = useRouter()
 
   // ── Step state ──────────────────────────────────────────────────────────────
   const [step, setStep] = useState(1)
 
   // Step 1
-  const [displayName,    setDisplayName   ] = useState(initialSenderName ?? '')
+  const [displayName,    setDisplayName   ] = useState(existingName)
   const [photoDialogOpen,setPhotoDialogOpen] = useState(false)
   const [photoUrl,       setPhotoUrl      ] = useState('')
   const [photoSaving,    setPhotoSaving   ] = useState(false)
