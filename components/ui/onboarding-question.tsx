@@ -45,7 +45,7 @@ export function OnboardingQuestion({
       {/* Progress bar */}
       <div className="w-full h-1.5 bg-[#F3F4F6]">
         <motion.div
-          className="h-full bg-indigo-600 rounded-full"
+          className="h-full bg-[#E4572E] rounded-full"
           initial={{ width: 0 }}
           animate={{ width: `${(step / totalSteps) * 100}%` }}
           transition={{ duration: 0.5, ease: 'easeInOut' }}
@@ -76,8 +76,8 @@ export function OnboardingQuestion({
                 className={cn(
                   'w-full flex items-center gap-4 px-5 py-4 rounded-2xl border-2 text-left transition-all duration-200',
                   isSelected(opt.value)
-                    ? 'border-indigo-600 bg-indigo-50'
-                    : 'border-[#E5E7EB] bg-white hover:border-indigo-200 hover:bg-[#F9FAFB]',
+                    ? 'border-[#004643] bg-[#004643]/5'
+                    : 'border-[#E5E7EB] bg-white hover:border-[#004643]/30 hover:bg-[#F9FAFB]',
                 )}
               >
                 <span className="text-2xl flex-shrink-0">{opt.emoji}</span>
@@ -85,7 +85,7 @@ export function OnboardingQuestion({
                   <p
                     className={cn(
                       'font-medium',
-                      isSelected(opt.value) ? 'text-indigo-700' : 'text-[#111827]',
+                      isSelected(opt.value) ? 'text-[#004643]' : 'text-[#111827]',
                     )}
                   >
                     {opt.label}
@@ -95,7 +95,7 @@ export function OnboardingQuestion({
                   )}
                 </div>
                 {isSelected(opt.value) && (
-                  <div className="w-6 h-6 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-[#E4572E] flex items-center justify-center flex-shrink-0">
                     <Check className="w-3.5 h-3.5 text-white" />
                   </div>
                 )}
@@ -115,7 +115,7 @@ export function OnboardingQuestion({
             className={cn(
               'px-6 py-3 rounded-xl font-semibold text-sm transition-all',
               canContinue
-                ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/25'
+                ? 'bg-[#E4572E] text-white hover:bg-[#CC4A23] shadow-lg shadow-[#E4572E]/25'
                 : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed',
             )}
           >

@@ -68,8 +68,8 @@ function relTime(iso: string): string {
 
 function statusInfo(status: string) {
   switch (status) {
-    case 'open':      return { label: 'Enrolling Now',  cls: 'bg-indigo-50 text-indigo-700 border-indigo-200' }
-    case 'active':    return { label: 'In Progress',    cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' }
+    case 'open':      return { label: 'Enrolling Now',  cls: 'bg-[#E8F4F0] text-[#003533] border-[#B8D9CE]' }
+    case 'active':    return { label: 'In Progress',    cls: 'bg-[#F0F7EE] text-[#5A8F47] border-[#B8D9CE]' }
     case 'completed': return { label: 'Completed',      cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]' }
     case 'cancelled': return { label: 'Cancelled',      cls: 'bg-red-50 text-red-700 border-red-200' }
     default:          return { label: status,            cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]' }
@@ -113,7 +113,7 @@ function ForumPost({
 
   const isCreator = post.authorName.includes('(Creator)')
   const avatarCls = isCreator
-    ? 'bg-indigo-600 text-white'
+    ? 'bg-[#004643] text-white'
     : isEncouragement
       ? 'bg-rose-100 text-rose-600'
       : 'bg-[#F3F4F6] text-[#6B7280]'
@@ -135,7 +135,7 @@ function ForumPost({
           {identity && (
             <button
               onClick={() => setShowReply(p => !p)}
-              className="mt-2 flex items-center gap-1 text-xs text-[#9CA3AF] hover:text-indigo-600 transition-colors"
+              className="mt-2 flex items-center gap-1 text-xs text-[#9CA3AF] hover:text-[#004643] transition-colors"
             >
               <CornerDownRight className="w-3 h-3" />
               {showReply ? 'Cancel' : replies.length > 0 ? `${replies.length} repl${replies.length === 1 ? 'y' : 'ies'}` : 'Reply'}
@@ -149,7 +149,7 @@ function ForumPost({
                 <div key={r.id} className="flex gap-2">
                   <div className={cn(
                     'w-6 h-6 rounded-full text-[10px] font-semibold flex items-center justify-center shrink-0',
-                    r.authorName.includes('(Creator)') ? 'bg-indigo-600 text-white' : 'bg-[#F3F4F6] text-[#6B7280]',
+                    r.authorName.includes('(Creator)') ? 'bg-[#004643] text-white' : 'bg-[#F3F4F6] text-[#6B7280]',
                   )}>
                     {r.authorInitials}
                   </div>
@@ -180,13 +180,13 @@ function ForumPost({
                   onChange={e => setReplyText(e.target.value)}
                   placeholder="Write a reply…"
                   rows={2}
-                  className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-[#9CA3AF]"
+                  className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#004643] resize-none placeholder:text-[#9CA3AF]"
                 />
                 <div className="flex justify-end mt-2">
                   <button
                     onClick={submitReply}
                     disabled={!replyText.trim() || sending}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#004643] hover:bg-[#003533] text-white rounded-lg transition-colors disabled:opacity-50"
                   >
                     {sending && <Loader2 className="w-3 h-3 animate-spin" />}
                     Reply
@@ -251,7 +251,7 @@ function MemberRow({
       <div className="flex items-center gap-3 py-3">
         <div className={cn(
           'w-9 h-9 rounded-full text-xs font-semibold flex items-center justify-center shrink-0',
-          isMe ? 'bg-indigo-600 text-white ring-2 ring-indigo-300' : 'bg-indigo-100 text-indigo-600',
+          isMe ? 'bg-[#004643] text-white ring-2 ring-indigo-300' : 'bg-[#D1EBE5] text-[#004643]',
         )}>
           {member.initials}
         </div>
@@ -259,12 +259,12 @@ function MemberRow({
         <div className="flex-1 min-w-0">
           <div className="flex items-baseline gap-2">
             <span className="text-sm font-medium text-[#111827]">{member.name}</span>
-            {isMe && <span className="text-[10px] font-medium text-indigo-600 bg-indigo-50 px-1.5 rounded-full">You</span>}
+            {isMe && <span className="text-[10px] font-medium text-[#004643] bg-[#E8F4F0] px-1.5 rounded-full">You</span>}
           </div>
           <div className="mt-1 flex items-center gap-2">
             <div className="flex-1 h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
               <motion.div
-                className="h-full bg-indigo-500 rounded-full"
+                className="h-full bg-[#004643] rounded-full"
                 initial={{ width: 0 }}
                 animate={{ width: `${member.progressPct}%` }}
                 transition={{ duration: 0.7, ease: 'easeOut' }}
@@ -376,8 +376,8 @@ function IdentityGate({
       className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6"
     >
       <div className="text-center mb-6">
-        <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-3">
-          <Zap className="w-6 h-6 text-indigo-500" />
+        <div className="w-12 h-12 rounded-2xl bg-[#E8F4F0] flex items-center justify-center mx-auto mb-3">
+          <Zap className="w-6 h-6 text-[#004643]" />
         </div>
         <h2 className="text-base font-semibold text-[#111827]">Join this sprint</h2>
         <p className="text-sm text-[#6B7280] mt-1">
@@ -392,7 +392,7 @@ function IdentityGate({
           onChange={e => setEmail(e.target.value)}
           placeholder="your@email.com"
           required
-          className="w-full h-11 rounded-xl border border-[#E5E7EB] px-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-[#9CA3AF]"
+          className="w-full h-11 rounded-xl border border-[#E5E7EB] px-4 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#004643] placeholder:text-[#9CA3AF]"
         />
         {error && (
           <p className="text-xs text-red-500 bg-red-50 rounded-lg px-3 py-2">{error}</p>
@@ -400,7 +400,7 @@ function IdentityGate({
         <button
           type="submit"
           disabled={joining || !email.trim()}
-          className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
+          className="w-full h-11 bg-[#004643] hover:bg-[#003533] text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-60 inline-flex items-center justify-center gap-2"
         >
           {joining ? <><Loader2 className="w-4 h-4 animate-spin" /> Joining…</> : 'Join Sprint →'}
         </button>
@@ -494,7 +494,7 @@ export function StudentSprintClient({ sprint, members: initialMembers, posts: in
         </div>
 
         <div className="flex items-center gap-1.5 mb-3">
-          <Zap className="w-3.5 h-3.5 text-indigo-500" />
+          <Zap className="w-3.5 h-3.5 text-[#004643]" />
           <span className="text-sm text-[#6B7280]">{label}</span>
           <span className="text-[#D1D5DB] mx-1">·</span>
           <span className="text-sm text-[#6B7280]">Hosted by {creatorDisplayName}</span>
@@ -508,12 +508,12 @@ export function StudentSprintClient({ sprint, members: initialMembers, posts: in
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-[#9CA3AF]">
           <span>{fmtDate(sprint.startDate)} → {fmtDate(sprint.endDate)}</span>
           {sprint.status === 'open' && daysToJoin > 0 && (
-            <span className={cn('font-medium', daysToJoin < 3 ? 'text-amber-600' : 'text-indigo-600')}>
+            <span className={cn('font-medium', daysToJoin < 3 ? 'text-amber-600' : 'text-[#004643]')}>
               {daysToJoin < 3 ? '⚡ ' : ''}Enrollment closes in {daysToJoin} day{daysToJoin !== 1 ? 's' : ''}
             </span>
           )}
           {sprint.status === 'active' && (
-            <span className="text-emerald-600 font-medium">{daysToEnd} days remaining</span>
+            <span className="text-[#6A9A55] font-medium">{daysToEnd} days remaining</span>
           )}
         </div>
 
@@ -529,8 +529,8 @@ export function StudentSprintClient({ sprint, members: initialMembers, posts: in
                     className={cn(
                       'w-6 h-6 rounded-full text-[9px] font-semibold flex items-center justify-center border-2 border-white',
                       identity?.studentId === m.studentId
-                        ? 'bg-indigo-600 text-white'
-                        : 'bg-indigo-100 text-indigo-600',
+                        ? 'bg-[#004643] text-white'
+                        : 'bg-[#D1EBE5] text-[#004643]',
                     )}
                   >
                     {m.initials}
@@ -545,7 +545,7 @@ export function StudentSprintClient({ sprint, members: initialMembers, posts: in
             )}
           </div>
           <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
-            <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${fillPct}%` }} />
+            <div className="h-full bg-[#004643] rounded-full transition-all" style={{ width: `${fillPct}%` }} />
           </div>
         </div>
       </motion.div>
@@ -557,12 +557,12 @@ export function StudentSprintClient({ sprint, members: initialMembers, posts: in
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.97 }}
-            className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex items-center gap-3"
+            className="bg-[#F0F7EE] border border-[#B8D9CE] rounded-2xl p-4 flex items-center gap-3"
           >
-            <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
+            <CheckCircle className="w-5 h-5 text-[#7FB069] shrink-0" />
             <div>
               <p className="text-sm font-semibold text-emerald-800">You're in! Welcome to the sprint, {identity?.name.split(' ')[0]} 🎉</p>
-              <p className="text-xs text-emerald-600 mt-0.5">Introduce yourself in the discussion below, and cheer on your cohort.</p>
+              <p className="text-xs text-[#6A9A55] mt-0.5">Introduce yourself in the discussion below, and cheer on your cohort.</p>
             </div>
           </motion.div>
         )}
@@ -589,7 +589,7 @@ export function StudentSprintClient({ sprint, members: initialMembers, posts: in
             className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6"
           >
             <h2 className="text-base font-semibold text-[#111827] flex items-center gap-2 mb-4">
-              <Users className="w-4 h-4 text-indigo-500" />
+              <Users className="w-4 h-4 text-[#004643]" />
               Your Cohort
               <span className="text-xs font-normal text-[#9CA3AF] ml-1">{members.length} member{members.length !== 1 ? 's' : ''}</span>
             </h2>
@@ -620,14 +620,14 @@ export function StudentSprintClient({ sprint, members: initialMembers, posts: in
             className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6"
           >
             <h2 className="text-base font-semibold text-[#111827] flex items-center gap-2 mb-5">
-              <MessageSquare className="w-4 h-4 text-indigo-500" />
+              <MessageSquare className="w-4 h-4 text-[#004643]" />
               Discussion
               <span className="text-xs font-normal text-[#9CA3AF] ml-1">{posts.length} post{posts.length !== 1 ? 's' : ''}</span>
             </h2>
 
             {/* Post composer */}
             <div className="flex gap-3 mb-5 pb-5 border-b border-[#F3F4F6]">
-              <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 text-xs font-semibold flex items-center justify-center shrink-0">
+              <div className="w-8 h-8 rounded-full bg-[#D1EBE5] text-[#004643] text-xs font-semibold flex items-center justify-center shrink-0">
                 {identity.initials}
               </div>
               <div className="flex-1">
@@ -637,14 +637,14 @@ export function StudentSprintClient({ sprint, members: initialMembers, posts: in
                   placeholder="Share an update, question, or win with your cohort…"
                   rows={3}
                   onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submitPost() }}
-                  className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2.5 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-[#9CA3AF]"
+                  className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2.5 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#004643] resize-none placeholder:text-[#9CA3AF]"
                 />
                 <div className="flex items-center justify-between mt-2">
                   <span className="text-xs text-[#9CA3AF]">Posting as {identity.name}</span>
                   <button
                     onClick={submitPost}
                     disabled={!newPost.trim() || posting}
-                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium bg-[#004643] hover:bg-[#003533] text-white rounded-lg transition-colors disabled:opacity-50"
                   >
                     {posting && <Loader2 className="w-3 h-3 animate-spin" />}
                     Post

@@ -110,7 +110,7 @@ export default async function SprintsPage() {
         </div>
         <Link
           href="/dashboard/sprints/new"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#E4572E] hover:bg-[#CC4A23] text-white text-sm font-medium rounded-xl transition-colors"
         >
           <span>+</span> Create Sprint
         </Link>

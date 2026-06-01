@@ -25,7 +25,7 @@ function formatDate(iso: string | null): string {
 }
 
 const STATUS_CLS: Record<string, string> = {
-  sent:    'bg-emerald-50 text-emerald-700',
+  sent:    'bg-[#F0F7EE] text-[#5A8F47]',
   failed:  'bg-red-50 text-red-700',
   pending: 'bg-amber-50 text-amber-700',
 }

@@ -48,8 +48,8 @@ function fmtDate(dateStr: string): string {
 
 function statusBadge(status: string) {
   switch (status) {
-    case 'open':      return { label: 'Enrolling',   cls: 'bg-indigo-50 text-indigo-700 border-indigo-200' }
-    case 'active':    return { label: 'In Progress',  cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' }
+    case 'open':      return { label: 'Enrolling',   cls: 'bg-[#004643]/10 text-[#004643] border-[#004643]/20' }
+    case 'active':    return { label: 'In Progress',  cls: 'bg-[#7FB069]/15 text-[#5A8F47] border-[#7FB069]/30' }
     case 'completed': return { label: 'Completed',    cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]' }
     case 'cancelled': return { label: 'Cancelled',    cls: 'bg-red-50 text-red-700 border-red-200' }
     default:          return { label: status,          cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]' }
@@ -85,8 +85,8 @@ function SprintCard({ sprint }: { sprint: SprintData }) {
 
   // Gradient header per status
   const headerGradient =
-    sprint.status === 'open'      ? 'from-indigo-600 via-indigo-700 to-indigo-900' :
-    sprint.status === 'active'    ? 'from-emerald-600 via-emerald-700 to-emerald-900' :
+    sprint.status === 'open'      ? 'from-[#004643] via-[#003533] to-indigo-900' :
+    sprint.status === 'active'    ? 'from-[#6A9A55] via-[#5A8F47] to-emerald-900' :
     sprint.status === 'completed' ? 'from-slate-500 to-slate-700' :
                                     'from-red-500 to-red-700'
 
@@ -184,7 +184,7 @@ function SprintCard({ sprint }: { sprint: SprintData }) {
                 {sprint.avatars.slice(0, 5).map((ini, i) => (
                   <div
                     key={i}
-                    className="w-6 h-6 rounded-full bg-indigo-100 text-indigo-600 text-[9px] font-semibold flex items-center justify-center border-2 border-white"
+                    className="w-6 h-6 rounded-full bg-[#D1EBE5] text-[#004643] text-[9px] font-semibold flex items-center justify-center border-2 border-white"
                   >
                     {ini}
                   </div>
@@ -199,7 +199,7 @@ function SprintCard({ sprint }: { sprint: SprintData }) {
           </div>
           <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
             <motion.div
-              className="h-full bg-indigo-500 rounded-full"
+              className="h-full bg-[#004643] rounded-full"
               initial={{ width: 0 }}
               animate={{ width: `${fillPct}%` }}
               transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
@@ -212,7 +212,7 @@ function SprintCard({ sprint }: { sprint: SprintData }) {
           href={`/dashboard/sprints/${sprint.id}`}
           className={cn(
             'flex w-full items-center justify-center gap-1.5 rounded-xl py-2.5 text-sm font-semibold transition-all',
-            'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm shadow-indigo-200/60',
+            'bg-[#004643] hover:bg-[#003533] text-white shadow-sm shadow-[#B8D9CE]/60',
           )}
         >
           View Sprint →
@@ -246,7 +246,7 @@ export function SprintsClient({ sprints }: { sprints: SprintData[] }) {
             )}
           >
             {t === 'active' ? 'Active Sprints' : 'All Sprints'}
-            <span className={cn('ml-1.5 text-xs', tab === t ? 'text-indigo-600' : 'text-[#9CA3AF]')}>
+            <span className={cn('ml-1.5 text-xs', tab === t ? 'text-[#004643]' : 'text-[#9CA3AF]')}>
               {t === 'active' ? active.length : sprints.length}
             </span>
           </button>
@@ -255,8 +255,8 @@ export function SprintsClient({ sprints }: { sprints: SprintData[] }) {
 
       {shown.length === 0 ? (
         <div className="text-center py-20">
-          <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mx-auto mb-4">
-            <Zap className="w-8 h-8 text-indigo-400" />
+          <div className="w-16 h-16 rounded-2xl bg-[#E8F4F0] flex items-center justify-center mx-auto mb-4">
+            <Zap className="w-8 h-8 text-[#004643]" />
           </div>
           <h3 className="text-base font-semibold text-[#111827] mb-1">
             {tab === 'active' ? 'No active sprints' : 'No sprints yet'}
@@ -268,7 +268,7 @@ export function SprintsClient({ sprints }: { sprints: SprintData[] }) {
           </p>
           <Link
             href="/dashboard/sprints/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#004643] hover:bg-[#003533] text-white text-sm font-medium rounded-xl transition-colors"
           >
             <span>+</span> Create your first sprint
           </Link>

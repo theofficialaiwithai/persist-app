@@ -10,7 +10,7 @@ import { SplitHeadline }  from '@/components/ui/split-headline'
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-xs font-bold tracking-widest text-indigo-600 text-center uppercase">
+    <p className="text-xs font-bold tracking-widest text-[#004643] text-center uppercase">
       {children}
     </p>
   )
@@ -46,7 +46,7 @@ function ProgressZoneMockup() {
           <span className="text-[#9CA3AF] font-medium">18%</span>
         </div>
         <div className="h-2.5 bg-[#E8E4DC] rounded-full overflow-hidden">
-          <div className="h-full bg-emerald-400 rounded-full transition-all" style={{ width: '18%' }} />
+          <div className="h-full bg-[#7FB069] rounded-full transition-all" style={{ width: '18%' }} />
         </div>
       </div>
 
@@ -60,7 +60,7 @@ function ProgressZoneMockup() {
           <div className="h-full bg-amber-500 rounded-full" style={{ width: '45%' }} />
         </div>
         <div className="mt-3 flex items-center gap-1.5">
-          <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+          <span className="w-4 h-4 rounded-full bg-[#7FB069] flex items-center justify-center shrink-0">
             <Check className="w-2.5 h-2.5 text-white" />
           </span>
           <p className="text-xs text-amber-700 font-medium">Nudge sent automatically</p>
@@ -74,7 +74,7 @@ function ProgressZoneMockup() {
           <span className="text-[#9CA3AF] font-medium">87%</span>
         </div>
         <div className="h-2.5 bg-[#E8E4DC] rounded-full overflow-hidden">
-          <div className="h-full bg-indigo-500 rounded-full" style={{ width: '87%' }} />
+          <div className="h-full bg-[#004643] rounded-full" style={{ width: '87%' }} />
         </div>
       </div>
     </div>
@@ -89,7 +89,7 @@ function VoiceProfileMockup() {
   return (
     <div className="bg-white rounded-2xl p-8 border border-[#E8E4DC] shadow-sm">
       <div className="flex items-center gap-3 mb-1">
-        <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 font-bold text-sm flex items-center justify-center">
+        <div className="w-9 h-9 rounded-full bg-[#D1EBE5] text-[#004643] font-bold text-sm flex items-center justify-center">
           YO
         </div>
         <div>
@@ -107,7 +107,7 @@ function VoiceProfileMockup() {
         {tags.map((tag) => (
           <span
             key={tag}
-            className="bg-indigo-50 text-indigo-700 border border-indigo-200 px-3 py-1.5 rounded-full text-sm font-medium"
+            className="bg-[#E8F4F0] text-[#003533] border border-[#B8D9CE] px-3 py-1.5 rounded-full text-sm font-medium"
           >
             {tag}
           </span>
@@ -119,7 +119,7 @@ function VoiceProfileMockup() {
         <p className="text-sm text-[#374151] italic leading-relaxed">
           &ldquo;You&apos;ve got this. I&apos;m rooting for you. ✊&rdquo;
         </p>
-        <p className="text-xs text-indigo-600 font-medium mt-2">— written in your voice by Persist</p>
+        <p className="text-xs text-[#004643] font-medium mt-2">— written in your voice by Persist</p>
       </div>
     </div>
   )
@@ -176,7 +176,7 @@ function PricingFeature({
 }) {
   return (
     <li className="flex items-start gap-2.5">
-      <Check className={`w-4 h-4 mt-0.5 shrink-0 ${light ? 'text-emerald-400' : 'text-emerald-500'}`} />
+      <Check className={`w-4 h-4 mt-0.5 shrink-0 ${light ? 'text-[#7FB069]' : 'text-[#7FB069]'}`} />
       <span className={`text-sm ${light ? 'text-white/80' : 'text-[#374151]'}`}>{children}</span>
     </li>
   )
@@ -232,7 +232,7 @@ export default function LandingPage() {
             {[
               { value: '58M', unit: '+', color: 'text-red-500',     label: 'online course creators worldwide, all facing the same completion crisis'       },
               { value: '3',   unit: '–15%', color: 'text-amber-500',   label: 'average completion rate for online courses — the industry-wide dirty secret' },
-              { value: '2',   unit: '×', color: 'text-emerald-500', label: 'higher completion with timely, personal nudges — proven across cohorts'         },
+              { value: '2',   unit: '×', color: 'text-[#7FB069]', label: 'higher completion with timely, personal nudges — proven across cohorts'         },
             ].map(({ value, unit, color, label }, i) => (
               <motion.div
                 key={value}
@@ -339,24 +339,24 @@ export default function LandingPage() {
               {
                 num: '01',
                 Icon: Zap,
-                color: 'text-indigo-600',
-                bg: 'bg-indigo-50',
+                color: 'text-[#004643]',
+                bg: 'bg-[#E8F4F0]',
                 title: 'Connect your platform',
                 text: "Paste one webhook URL into Teachable, Kajabi, Thinkific, or Zapier. Done. Persist starts watching every student's progress in real time.",
               },
               {
                 num: '02',
                 Icon: Brain,
-                color: 'text-emerald-600',
-                bg: 'bg-emerald-50',
+                color: 'text-[#6A9A55]',
+                bg: 'bg-[#F0F7EE]',
                 title: 'AI learns your voice',
                 text: 'Set your sender name and tone. Persist uses Claude AI to write emails that sound like you — your warmth, your encouragement, your sign-off style.',
               },
               {
                 num: '03',
                 Icon: Mail,
-                color: 'text-indigo-600',
-                bg: 'bg-indigo-50',
+                color: 'text-[#004643]',
+                bg: 'bg-[#E8F4F0]',
                 title: 'Nudges go out automatically',
                 text: "When a student goes quiet in a high-risk zone, a personalized email lands in their inbox. You didn't lift a finger.",
               },
@@ -365,7 +365,7 @@ export default function LandingPage() {
                 key={num}
                 className="bg-white rounded-2xl p-8 shadow-sm border border-[#E8E4DC] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
               >
-                <p className="text-3xl font-bold text-indigo-100 mb-4">{num}</p>
+                <p className="text-3xl font-bold text-[#D1EBE5] mb-4">{num}</p>
                 <div className={`w-11 h-11 rounded-xl ${bg} flex items-center justify-center mb-5`}>
                   <Icon className={`w-5 h-5 ${color}`} />
                 </div>
@@ -384,7 +384,7 @@ export default function LandingPage() {
           {/* Row 1 — text left, mockup right */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <div>
-              <p className="text-xs font-bold tracking-widest text-indigo-600 uppercase mb-3">
+              <p className="text-xs font-bold tracking-widest text-[#004643] uppercase mb-3">
                 Smart detection
               </p>
               <h3 className="text-3xl font-bold text-[#111827] leading-tight">
@@ -401,7 +401,7 @@ export default function LandingPage() {
                   'Never sends two nudges too close together',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm text-[#374151]">
-                    <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                    <Check className="w-4 h-4 text-[#7FB069] mt-0.5 shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -414,7 +414,7 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
             <VoiceProfileMockup />
             <div>
-              <p className="text-xs font-bold tracking-widest text-indigo-600 uppercase mb-3">
+              <p className="text-xs font-bold tracking-widest text-[#004643] uppercase mb-3">
                 Voice matching
               </p>
               <h3 className="text-3xl font-bold text-[#111827] leading-tight">
@@ -432,7 +432,7 @@ export default function LandingPage() {
                   'Your sign-off style, preserved faithfully',
                 ].map((item) => (
                   <li key={item} className="flex items-start gap-2.5 text-sm text-[#374151]">
-                    <Check className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />
+                    <Check className="w-4 h-4 text-[#7FB069] mt-0.5 shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -577,7 +577,7 @@ export default function LandingPage() {
                 <span className="text-5xl font-bold text-[#111827]">$29</span>
                 <span className="text-[#6B7280] mb-2">/month</span>
               </div>
-              <p className="text-xs text-emerald-600 font-medium mt-1">Less than one hour of agency time</p>
+              <p className="text-xs text-[#6A9A55] font-medium mt-1">Less than one hour of agency time</p>
               <p className="text-sm text-[#6B7280] mt-2 mb-8">
                 Up to 50 students · Perfect for solo creators
               </p>
@@ -600,17 +600,17 @@ export default function LandingPage() {
             <div className="bg-[#111827] rounded-2xl p-8 relative">
               {/* Popular badge */}
               <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                <span className="bg-indigo-600 text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
+                <span className="bg-[#004643] text-white text-xs font-bold px-4 py-1.5 rounded-full shadow-lg">
                   MOST POPULAR
                 </span>
               </div>
 
-              <p className="text-sm font-semibold text-indigo-400 uppercase tracking-wide">Pro</p>
+              <p className="text-sm font-semibold text-[#004643] uppercase tracking-wide">Pro</p>
               <div className="mt-4 flex items-end gap-1.5">
                 <span className="text-5xl font-bold text-white">$59</span>
                 <span className="text-white/50 mb-2">/month</span>
               </div>
-              <p className="text-xs text-emerald-400 font-medium mt-1">Less than one copywriter day</p>
+              <p className="text-xs text-[#7FB069] font-medium mt-1">Less than one copywriter day</p>
               <p className="text-sm text-white/50 mt-2 mb-8">
                 Up to 500 students · For growing creators
               </p>

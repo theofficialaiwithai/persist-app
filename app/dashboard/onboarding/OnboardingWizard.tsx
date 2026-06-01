@@ -233,7 +233,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
                   onChange={e => setPhotoUrl(e.target.value)}
                   placeholder="https://..."
                   autoFocus
-                  className="w-full h-10 rounded-lg border border-[#E5E7EB] px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full h-10 rounded-lg border border-[#E5E7EB] px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#004643]"
                 />
 
                 <div className="flex gap-3 justify-end pt-1">
@@ -246,7 +246,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
                   <button
                     onClick={handlePhotoUpload}
                     disabled={!photoUrl.trim() || photoSaving}
-                    className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-50 transition-colors"
+                    className="px-4 py-2 text-sm font-semibold text-white bg-[#E4572E] hover:bg-[#CC4A23] rounded-lg disabled:opacity-50 transition-colors"
                   >
                     {photoSaving ? 'Saving...' : 'Save photo'}
                   </button>
@@ -304,7 +304,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
               exit={{ opacity: 0 }}
             >
               <div className="flex flex-col items-center gap-3">
-                <Loader2 className="w-7 h-7 text-indigo-600 animate-spin" />
+                <Loader2 className="w-7 h-7 text-[#E4572E] animate-spin" />
                 <p className="text-sm text-[#6B7280] font-medium">Setting up your account…</p>
               </div>
             </motion.div>
@@ -330,7 +330,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
     <div className="min-h-screen bg-white flex flex-col">
       {/* Progress bar — 100% */}
       <div className="w-full h-1.5 bg-[#F3F4F6]">
-        <div className="h-full bg-indigo-600 rounded-full w-full" />
+        <div className="h-full bg-[#E4572E] rounded-full w-full" />
       </div>
 
       {/* Scrollable content */}
@@ -338,8 +338,8 @@ export function OnboardingWizard({ existingName = '' }: Props) {
         <div className="max-w-xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center space-y-2">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-emerald-50 mb-2">
-              <CheckCircle2 className="w-7 h-7 text-emerald-500" />
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#F0F7EE] mb-2">
+              <CheckCircle2 className="w-7 h-7 text-[#7FB069]" />
             </div>
             <h1 className="text-2xl font-bold text-[#111827]">You&apos;re almost in!</h1>
             <p className="text-[#6B7280] text-sm max-w-sm mx-auto">
@@ -413,7 +413,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
             <p className="text-sm text-[#6B7280]">Ready to test your integration?</p>
             <button
               onClick={() => { setTestOpen(true); setTestResult(null) }}
-              className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+              className="inline-flex items-center gap-2 text-sm font-medium text-[#004643] hover:text-[#003533] transition-colors"
             >
               <FlaskConical className="w-4 h-4" />
               Test your webhook →
@@ -432,7 +432,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
         <span className="text-sm text-[#9CA3AF] hidden sm:block">or press Enter</span>
         <button
           onClick={handleContinue}
-          className="px-6 py-3 rounded-xl font-semibold text-sm bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-600/25 transition-all"
+          className="px-6 py-3 rounded-xl font-semibold text-sm bg-[#E4572E] text-white hover:bg-[#CC4A23] shadow-lg shadow-[#E4572E]/25 transition-all"
         >
           Go to dashboard →
         </button>
@@ -480,7 +480,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
                   className={cn(
                     'rounded-lg px-4 py-3 text-sm',
                     testResult.success
-                      ? 'bg-emerald-50 text-emerald-700'
+                      ? 'bg-[#F0F7EE] text-[#5A8F47]'
                       : 'bg-red-50 text-red-700',
                   )}
                 >
@@ -498,7 +498,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
                 <button
                   onClick={runTest}
                   disabled={testLoading}
-                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors disabled:opacity-60"
+                  className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#E4572E] hover:bg-[#CC4A23] rounded-lg transition-colors disabled:opacity-60"
                 >
                   {testLoading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   Send test event

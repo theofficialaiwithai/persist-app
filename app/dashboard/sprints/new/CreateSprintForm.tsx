@@ -15,7 +15,7 @@ interface Props {
 
 const inputCls =
   'w-full h-10 rounded-xl border border-[#E5E7EB] px-3 text-sm text-[#111827] ' +
-  'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ' +
+  'focus:outline-none focus:ring-2 focus:ring-[#004643] focus:border-transparent ' +
   'placeholder:text-[#9CA3AF] bg-white'
 
 const labelCls = 'block text-sm font-medium text-[#111827] mb-1.5'
@@ -126,8 +126,8 @@ export function CreateSprintForm({ courses, creatorName }: Props) {
               className={cn(
                 'flex-1 flex items-center gap-2 justify-center py-2.5 rounded-xl border text-sm font-medium transition-colors',
                 sprintType === 'course'
-                  ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
-                  : 'border-[#E5E7EB] text-[#6B7280] hover:border-indigo-200',
+                  ? 'bg-[#E8F4F0] border-[#004643] text-[#003533]'
+                  : 'border-[#E5E7EB] text-[#6B7280] hover:border-[#B8D9CE]',
               )}
             >
               <BookOpen className="w-4 h-4" /> Course Sprint
@@ -138,8 +138,8 @@ export function CreateSprintForm({ courses, creatorName }: Props) {
               className={cn(
                 'flex-1 flex items-center gap-2 justify-center py-2.5 rounded-xl border text-sm font-medium transition-colors',
                 sprintType === 'skill'
-                  ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
-                  : 'border-[#E5E7EB] text-[#6B7280] hover:border-indigo-200',
+                  ? 'bg-[#E8F4F0] border-[#004643] text-[#003533]'
+                  : 'border-[#E5E7EB] text-[#6B7280] hover:border-[#B8D9CE]',
               )}
             >
               <Zap className="w-4 h-4" /> Skill Sprint
@@ -256,7 +256,7 @@ export function CreateSprintForm({ courses, creatorName }: Props) {
         <button
           type="submit"
           disabled={saving}
-          className="inline-flex items-center gap-2 px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 px-5 py-2 bg-[#004643] hover:bg-[#003533] text-white text-sm font-medium rounded-xl transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {saving && <Loader2 className="w-4 h-4 animate-spin" />}
           {saving ? 'Creating…' : 'Create Sprint'}

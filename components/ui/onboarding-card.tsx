@@ -39,14 +39,14 @@ export const OnboardingCard = React.forwardRef<HTMLDivElement, OnboardingCardPro
           {/* Hero banner — indigo gradient */}
           <motion.div
             {...fadeUp(0)}
-            className="h-48 w-full bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-800 flex flex-col items-center justify-center relative overflow-hidden"
+            className="h-48 w-full bg-gradient-to-br from-[#004643] via-[#003533] to-[#002E2C] flex flex-col items-center justify-center relative overflow-hidden"
           >
             <div className="absolute -top-8 -right-8 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
             <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-white/10 blur-2xl" />
             <div className="relative text-center text-white px-6">
               <div className="text-4xl mb-2">🎓</div>
               <h2 className="text-xl font-bold">Welcome to Persist</h2>
-              <p className="text-indigo-200 text-sm mt-1">Your students are about to get a lot more support</p>
+              <p className="text-[#B8D9CE] text-sm mt-1">Your students are about to get a lot more support</p>
             </div>
           </motion.div>
 
@@ -63,8 +63,8 @@ export const OnboardingCard = React.forwardRef<HTMLDivElement, OnboardingCardPro
               className="flex items-center justify-between gap-4 rounded-xl border border-[#E5E7EB] bg-[#F9FAFB] p-4"
             >
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-indigo-50 flex items-center justify-center">
-                  <UserCircle2 className="w-6 h-6 text-indigo-400" />
+                <div className="w-12 h-12 rounded-full bg-[#E8F4F0] flex items-center justify-center">
+                  <UserCircle2 className="w-6 h-6 text-[#004643]" />
                 </div>
                 <div>
                   <p className="font-medium text-[#111827] text-sm">Profile photo</p>
@@ -96,7 +96,7 @@ export const OnboardingCard = React.forwardRef<HTMLDivElement, OnboardingCardPro
             {/* Continue */}
             <motion.div {...fadeUp(0.4)}>
               <Button
-                className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold"
+                className="w-full h-11 bg-[#E4572E] hover:bg-[#CC4A23] text-white font-semibold"
                 size="lg"
                 onClick={onContinueClick}
                 disabled={isLoading || !displayName.trim()}

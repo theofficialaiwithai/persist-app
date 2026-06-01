@@ -183,7 +183,7 @@ export default function OnboardingForm() {
           <Button
             type="submit"
             disabled={loading || !form.coursePlatform}
-            className="w-full bg-[#4F46E5] hover:bg-indigo-700 text-white font-medium"
+            className="w-full bg-[#4F46E5] hover:bg-[#003533] text-white font-medium"
           >
             {loading ? 'Saving…' : 'Get started →'}
           </Button>

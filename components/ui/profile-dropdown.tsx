@@ -48,7 +48,7 @@ export function ProfileDropdown({ collapsed }: { collapsed?: boolean }) {
         )}
       >
         {/* Avatar */}
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#004643] to-[#003533] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
           {initials}
         </div>
 

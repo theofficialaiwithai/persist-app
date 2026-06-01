@@ -134,32 +134,32 @@ export function CommandPalette({ students = [] }: CommandPaletteProps) {
                   <CommandGroup heading="Navigate">
                     <CommandItem
                       onSelect={() => navigate('/dashboard')}
-                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-[#E8F4F0]! data-selected:text-[#003533]!"
                     >
-                      <LayoutDashboard className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <LayoutDashboard className="w-4 h-4 text-[#004643] flex-shrink-0" />
                       <span className="flex-1">Dashboard</span>
                       <CommandShortcut>⌘D</CommandShortcut>
                     </CommandItem>
                     <CommandItem
                       onSelect={() => navigate('/dashboard/students')}
-                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-[#E8F4F0]! data-selected:text-[#003533]!"
                     >
-                      <Users className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <Users className="w-4 h-4 text-[#004643] flex-shrink-0" />
                       <span className="flex-1">Students</span>
                       <CommandShortcut>⌘S</CommandShortcut>
                     </CommandItem>
                     <CommandItem
                       onSelect={() => navigate('/dashboard/profile')}
-                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-[#E8F4F0]! data-selected:text-[#003533]!"
                     >
-                      <UserCircle className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <UserCircle className="w-4 h-4 text-[#004643] flex-shrink-0" />
                       <span className="flex-1">My Profile</span>
                     </CommandItem>
                     <CommandItem
                       onSelect={() => navigate('/dashboard/settings')}
-                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-[#E8F4F0]! data-selected:text-[#003533]!"
                     >
-                      <Settings className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <Settings className="w-4 h-4 text-[#004643] flex-shrink-0" />
                       <span className="flex-1">Settings</span>
                       <CommandShortcut>⌘,</CommandShortcut>
                     </CommandItem>
@@ -171,9 +171,9 @@ export function CommandPalette({ students = [] }: CommandPaletteProps) {
                   <CommandGroup heading="Quick Actions">
                     <CommandItem
                       onSelect={() => navigate('/dashboard/students')}
-                      className="rounded-lg! px-3! py-2.5! data-selected:bg-emerald-50! data-selected:text-emerald-700!"
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-[#F0F7EE]! data-selected:text-[#5A8F47]!"
                     >
-                      <Send className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                      <Send className="w-4 h-4 text-[#7FB069] flex-shrink-0" />
                       <span className="flex-1">Send a nudge...</span>
                     </CommandItem>
                     <CommandItem
@@ -185,9 +185,9 @@ export function CommandPalette({ students = [] }: CommandPaletteProps) {
                     </CommandItem>
                     <CommandItem
                       onSelect={() => navigate('/dashboard/settings')}
-                      className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-[#E8F4F0]! data-selected:text-[#003533]!"
                     >
-                      <BookOpen className="w-4 h-4 text-indigo-500 flex-shrink-0" />
+                      <BookOpen className="w-4 h-4 text-[#004643] flex-shrink-0" />
                       <span className="flex-1">View webhook setup guide</span>
                     </CommandItem>
                   </CommandGroup>
@@ -209,9 +209,9 @@ export function CommandPalette({ students = [] }: CommandPaletteProps) {
                               key={student.id}
                               onSelect={() => navigate(`/dashboard/students/${student.id}`)}
                               value={`${student.name} ${student.email} ${student.courseName}`}
-                              className="rounded-lg! px-3! py-2.5! data-selected:bg-indigo-50! data-selected:text-indigo-700!"
+                              className="rounded-lg! px-3! py-2.5! data-selected:bg-[#E8F4F0]! data-selected:text-[#003533]!"
                             >
-                              <div className="w-6 h-6 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-semibold flex items-center justify-center flex-shrink-0">
+                              <div className="w-6 h-6 rounded-full bg-[#E8F4F0] text-[#004643] text-[10px] font-semibold flex items-center justify-center flex-shrink-0">
                                 {sts}
                               </div>
                               <div className="flex-1 min-w-0 flex items-baseline gap-2">
@@ -238,7 +238,7 @@ export function CommandPalette({ students = [] }: CommandPaletteProps) {
                   <CommandGroup heading="Account">
                     <CommandItem
                       onSelect={() => signOut({ redirectUrl: '/' })}
-                      className="rounded-lg! px-3! py-2.5! data-selected:bg-red-50! data-selected:text-red-700!"
+                      className="rounded-lg! px-3! py-2.5! data-selected:bg-[#664147]/10! data-selected:text-[#664147]!"
                     >
                       <LogOut className="w-4 h-4 text-red-500 flex-shrink-0" />
                       <span className="flex-1 text-red-600">Sign out</span>
@@ -251,19 +251,19 @@ export function CommandPalette({ students = [] }: CommandPaletteProps) {
               {/* Footer hint bar ─────────────────────────────────────────────── */}
               <div className="border-t border-[#E5E7EB] px-4 py-2.5 flex items-center gap-4 text-xs text-[#9CA3AF] bg-[#FAFAFA]">
                 <span>
-                  <kbd className="bg-[#F3F4F6] px-1.5 py-0.5 rounded text-[10px] font-mono">↑↓</kbd>{' '}
+                  <kbd className="bg-[#F0F7EE] text-[#004643] border border-[#004643]/20 px-1.5 py-0.5 rounded text-[10px] font-mono">↑↓</kbd>{' '}
                   navigate
                 </span>
                 <span>
-                  <kbd className="bg-[#F3F4F6] px-1.5 py-0.5 rounded text-[10px] font-mono">↵</kbd>{' '}
+                  <kbd className="bg-[#F0F7EE] text-[#004643] border border-[#004643]/20 px-1.5 py-0.5 rounded text-[10px] font-mono">↵</kbd>{' '}
                   select
                 </span>
                 <span>
-                  <kbd className="bg-[#F3F4F6] px-1.5 py-0.5 rounded text-[10px] font-mono">esc</kbd>{' '}
+                  <kbd className="bg-[#F0F7EE] text-[#004643] border border-[#004643]/20 px-1.5 py-0.5 rounded text-[10px] font-mono">esc</kbd>{' '}
                   close
                 </span>
                 <span className="ml-auto">
-                  <kbd className="bg-[#F3F4F6] px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>{' '}
+                  <kbd className="bg-[#F0F7EE] text-[#004643] border border-[#004643]/20 px-1.5 py-0.5 rounded text-[10px] font-mono">⌘K</kbd>{' '}
                   open
                 </span>
               </div>

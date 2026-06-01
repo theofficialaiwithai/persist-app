@@ -115,7 +115,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
             >
               {/* Header */}
               <div className="flex items-center justify-between h-16 px-5 border-b border-[#E5E7EB] flex-shrink-0">
-                <span className="font-bold text-indigo-600 text-lg">Persist</span>
+                <span className="font-bold text-[#004643] text-lg">Persist</span>
                 <button
                   onClick={() => setMobileOpen(false)}
                   className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA] transition-colors"
@@ -126,11 +126,11 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
 
               {/* Mini profile card */}
               <div
-                className="mx-2 mt-3 mb-1 p-3 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB] cursor-pointer hover:bg-indigo-50 hover:border-indigo-200 transition-colors"
+                className="mx-2 mt-3 mb-1 p-3 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB] cursor-pointer hover:bg-[#E8F4F0] hover:border-[#B8D9CE] transition-colors"
                 onClick={() => { setMobileOpen(false); router.push('/dashboard/profile') }}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 overflow-hidden">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#004643] to-[#003533] flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 overflow-hidden">
                     {creator.profileImageUrl
                       ? <img src={creator.profileImageUrl} alt={firstName} className="w-full h-full object-cover" />
                       : initials}
@@ -141,7 +141,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
                   </div>
                 </div>
                 <div className="mt-2 flex items-center gap-1.5">
-                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#7FB069]" />
                   <span className="text-xs text-[#6B7280]">
                     {totalStudents} student{totalStudents !== 1 ? 's' : ''} · {activeCourses} course{activeCourses !== 1 ? 's' : ''}
                   </span>
@@ -159,12 +159,12 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
                       onClick={() => setMobileOpen(false)}
                       className={`flex items-center gap-3 px-3 py-3 rounded-lg transition-colors ${
                         isActive
-                          ? 'bg-indigo-50 text-indigo-600'
+                          ? 'bg-[#E8F4F0] text-[#004643]'
                           : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA]'
                       }`}
                     >
-                      <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-indigo-600' : ''}`} />
-                      <span className={`text-sm font-medium ${isActive ? 'text-indigo-600' : ''}`}>{label}</span>
+                      <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-[#004643]' : ''}`} />
+                      <span className={`text-sm font-medium ${isActive ? 'text-[#004643]' : ''}`}>{label}</span>
                     </Link>
                   )
                 })}
@@ -174,7 +174,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
               <div className="mx-2 mb-2">
                 <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-3">
                   <div className="flex items-center gap-1.5 mb-2.5">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#004643]" />
                     <span className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Coming Soon</span>
                   </div>
                   <div className="space-y-1.5">
@@ -182,7 +182,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
                       <div key={item.label} className="flex items-center gap-2">
                         <span className="text-sm">{item.emoji}</span>
                         <span className="text-[11px] text-[#9CA3AF] truncate">{item.label}</span>
-                        <span className="ml-auto shrink-0 text-[9px] font-semibold bg-indigo-50 text-indigo-400 border border-indigo-100 rounded-full px-1.5 py-0.5">
+                        <span className="ml-auto shrink-0 text-[9px] font-semibold bg-[#E8F4F0] text-[#004643] border border-[#D1EBE5] rounded-full px-1.5 py-0.5">
                           Soon
                         </span>
                       </div>
@@ -219,7 +219,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.15 }}
-                className="font-bold text-indigo-600 text-lg"
+                className="font-bold text-[#004643] text-lg"
               >
                 Persist
               </motion.span>
@@ -246,12 +246,12 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
-              className="mx-2 mt-3 mb-1 p-3 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB] cursor-pointer hover:bg-indigo-50 hover:border-indigo-200 transition-colors group"
+              className="mx-2 mt-3 mb-1 p-3 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB] cursor-pointer hover:bg-[#E8F4F0] hover:border-[#B8D9CE] transition-colors group"
               onClick={() => router.push('/dashboard/profile')}
             >
               <div className="flex items-center gap-3">
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#004643] to-[#003533] flex items-center justify-center text-white text-sm font-semibold flex-shrink-0 overflow-hidden">
                   {creator.profileImageUrl
                     ? <img src={creator.profileImageUrl} alt={firstName} className="w-full h-full object-cover" />
                     : initials
@@ -261,11 +261,11 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
                   <p className="text-sm font-semibold text-[#111827] truncate">{firstName}</p>
                   <p className="text-xs text-[#6B7280] truncate">{platformLabel}</p>
                 </div>
-                <ChevronRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-indigo-500 transition-colors flex-shrink-0" />
+                <ChevronRight className="w-3.5 h-3.5 text-[#9CA3AF] group-hover:text-[#004643] transition-colors flex-shrink-0" />
               </div>
               {/* Status indicator */}
               <div className="mt-2 flex items-center gap-1.5">
-                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0" />
+                <div className="w-1.5 h-1.5 rounded-full bg-[#7FB069] flex-shrink-0" />
                 <span className="text-xs text-[#6B7280]">
                   {totalStudents} student{totalStudents !== 1 ? 's' : ''} · {activeCourses} course{activeCourses !== 1 ? 's' : ''}
                 </span>
@@ -280,7 +280,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
               transition={{ duration: 0.15 }}
               onClick={() => router.push('/dashboard/profile')}
               title="Your profile"
-              className="mx-auto mt-3 mb-1 w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-sm font-semibold overflow-hidden hover:ring-2 hover:ring-indigo-300 transition-all"
+              className="mx-auto mt-3 mb-1 w-10 h-10 rounded-full bg-gradient-to-br from-[#004643] to-[#003533] flex items-center justify-center text-white text-sm font-semibold overflow-hidden hover:ring-2 hover:ring-indigo-300 transition-all"
             >
               {creator.profileImageUrl
                 ? <img src={creator.profileImageUrl} alt={firstName} className="w-full h-full object-cover" />
@@ -297,7 +297,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
             title="Search (⌘K)"
             className={cn(
               'flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-[#F7F8FA] text-[#9CA3AF]',
-              'hover:bg-white hover:border-indigo-200 hover:text-[#6B7280] transition-all text-sm',
+              'hover:bg-white hover:border-[#B8D9CE] hover:text-[#6B7280] transition-all text-sm',
               collapsed ? 'w-10 h-10 justify-center p-0' : 'w-full px-3 py-2',
             )}
           >
@@ -326,11 +326,11 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
                   'flex items-center rounded-lg transition-colors group',
                   collapsed ? 'justify-center px-2 py-3' : 'gap-3 px-3 py-3',
                   isActive
-                    ? 'bg-indigo-50 text-indigo-600'
+                    ? 'bg-[#E8F4F0] text-[#004643]'
                     : 'text-[#6B7280] hover:text-[#111827] hover:bg-[#F7F8FA]',
                 )}
               >
-                <Icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-indigo-600')} />
+                <Icon className={cn('w-5 h-5 flex-shrink-0', isActive && 'text-[#004643]')} />
                 <AnimatePresence mode="wait">
                   {!collapsed && (
                     <motion.span
@@ -341,7 +341,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
                       transition={{ duration: 0.15 }}
                       className={cn(
                         'text-sm font-medium whitespace-nowrap overflow-hidden',
-                        isActive ? 'text-indigo-600' : '',
+                        isActive ? 'text-[#004643]' : '',
                       )}
                     >
                       {label}
@@ -366,7 +366,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
             >
               <div className="rounded-xl border border-[#E5E7EB] bg-[#F7F8FA] p-3">
                 <div className="flex items-center gap-1.5 mb-2.5">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#004643]" />
                   <span className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Coming Soon</span>
                 </div>
                 <div className="space-y-1.5">
@@ -374,7 +374,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
                     <div key={item.label} className="flex items-center gap-2">
                       <span className="text-sm leading-none">{item.emoji}</span>
                       <span className="text-[11px] text-[#9CA3AF] truncate">{item.label}</span>
-                      <span className="ml-auto shrink-0 text-[9px] font-semibold bg-indigo-50 text-indigo-400 border border-indigo-100 rounded-full px-1.5 py-0.5">
+                      <span className="ml-auto shrink-0 text-[9px] font-semibold bg-[#E8F4F0] text-[#004643] border border-[#D1EBE5] rounded-full px-1.5 py-0.5">
                         Soon
                       </span>
                     </div>
@@ -395,7 +395,7 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
       <main className="flex-1 min-h-0 flex flex-col overflow-hidden">
         {/* Mobile top bar — hamburger + logo */}
         <div className="flex md:hidden items-center justify-between px-4 py-3 border-b border-[#E5E7EB] bg-white flex-shrink-0">
-          <span className="font-bold text-indigo-600 text-lg">Persist</span>
+          <span className="font-bold text-[#004643] text-lg">Persist</span>
           <button
             onClick={() => setMobileOpen(true)}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-[#6B7280] hover:bg-[#F7F8FA] transition-colors"
@@ -422,15 +422,15 @@ export function LayoutClient({ creator, totalStudents, activeCourses, students, 
             title:       'text-sm font-semibold text-[#111827]',
             description: 'text-xs text-[#6B7280] mt-0.5 leading-relaxed',
             actionButton:
-              'text-xs font-medium text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg mt-2 transition-colors',
+              'text-xs font-medium text-[#004643] hover:text-[#003533] bg-[#E8F4F0] px-3 py-1.5 rounded-lg mt-2 transition-colors',
             cancelButton:
               'text-xs font-medium text-[#6B7280] hover:text-[#111827] transition-colors',
             closeButton:
               'absolute top-3 right-3 w-5 h-5 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#9CA3AF] hover:bg-[#E5E7EB] hover:text-[#6B7280] transition-colors',
-            success: 'border-l-4 border-l-emerald-500',
+            success: 'border-l-4 border-l-[#7FB069]',
             error:   'border-l-4 border-l-red-500',
             warning: 'border-l-4 border-l-amber-500',
-            info:    'border-l-4 border-l-indigo-500',
+            info:    'border-l-4 border-l-[#004643]',
             icon:    'mt-0.5 flex-shrink-0',
           },
           duration: 4000,

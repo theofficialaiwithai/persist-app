@@ -121,14 +121,14 @@ function MiniStat({
 }) {
   return (
     <div className="flex flex-col justify-between h-full p-5 min-h-[130px]">
-      <div className={cn('inline-flex items-center justify-center w-9 h-9 rounded-xl', amber ? 'bg-amber-100' : 'bg-indigo-50')}>
+      <div className={cn('inline-flex items-center justify-center w-9 h-9 rounded-xl', amber ? 'bg-amber-100' : 'bg-[#E8F4F0]')}>
         {icon}
       </div>
       <div>
         <p className="text-2xl font-bold text-[#111827] leading-none">{value}</p>
         <p className="text-xs font-medium text-[#6B7280] uppercase tracking-wide mt-1">{label}</p>
         {trend && (
-          <p className={cn('text-xs font-medium mt-0.5', trendPositive ? 'text-emerald-600' : 'text-red-500')}>
+          <p className={cn('text-xs font-medium mt-0.5', trendPositive ? 'text-[#6A9A55]' : 'text-red-500')}>
             {trend}
           </p>
         )}
@@ -158,7 +158,7 @@ function GettingStartedContent({ data }: { data: GettingStartedData }) {
         </div>
         <div className="h-1.5 w-full bg-[#F3F4F6] rounded-full overflow-hidden mb-3.5">
           <motion.div
-            className="h-full bg-emerald-500 rounded-full"
+            className="h-full bg-[#7FB069] rounded-full"
             initial={{ width: 0 }}
             animate={{ width: `${(done / 5) * 100}%` }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -172,13 +172,13 @@ function GettingStartedContent({ data }: { data: GettingStartedData }) {
               className={cn(
                 'flex items-center gap-2.5 rounded-lg px-2 py-1.5 -mx-2 transition-colors group',
                 item.done
-                  ? 'hover:bg-emerald-50/60 cursor-default'
-                  : 'hover:bg-indigo-50 cursor-pointer',
+                  ? 'hover:bg-[#F0F7EE]/60 cursor-default'
+                  : 'hover:bg-[#E8F4F0] cursor-pointer',
               )}
             >
               <div className={cn(
                 'w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-colors',
-                item.done ? 'bg-emerald-500' : 'border-2 border-[#D1D5DB] group-hover:border-indigo-400',
+                item.done ? 'bg-[#7FB069]' : 'border-2 border-[#D1D5DB] group-hover:border-[#004643]',
               )}>
                 {item.done && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
               </div>
@@ -186,20 +186,20 @@ function GettingStartedContent({ data }: { data: GettingStartedData }) {
                 'text-xs leading-snug flex-1 transition-colors',
                 item.done
                   ? 'text-[#9CA3AF] line-through'
-                  : 'text-[#374151] group-hover:text-indigo-700',
+                  : 'text-[#374151] group-hover:text-[#003533]',
               )}>
                 {item.label}
               </span>
               {!item.done && (
-                <ChevronRight className="w-3 h-3 text-[#D1D5DB] group-hover:text-indigo-400 transition-colors flex-shrink-0" />
+                <ChevronRight className="w-3 h-3 text-[#D1D5DB] group-hover:text-[#004643] transition-colors flex-shrink-0" />
               )}
             </Link>
           ))}
         </div>
         {done === 5 && (
-          <div className="mt-3 flex items-center gap-2 bg-emerald-50 rounded-xl px-3 py-2">
+          <div className="mt-3 flex items-center gap-2 bg-[#F0F7EE] rounded-xl px-3 py-2">
             <span className="text-sm">🎉</span>
-            <p className="text-xs font-medium text-emerald-700">Setup complete!</p>
+            <p className="text-xs font-medium text-[#5A8F47]">Setup complete!</p>
           </div>
         )}
       </div>
@@ -212,7 +212,7 @@ function AddCourseContent() {
     <InnerCard>
       <div className="p-4">
         <div className="flex items-center gap-2 mb-3">
-          <BookPlus className="w-4 h-4 text-indigo-600" />
+          <BookPlus className="w-4 h-4 text-[#004643]" />
           <h3 className="text-sm font-semibold text-[#111827]">Add a Course</h3>
         </div>
         <div className="flex flex-col gap-2">
@@ -230,10 +230,10 @@ function SprintsContent({ sprints }: { sprints: UpcomingSprintData[] }) {
       <div className="p-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-1.5">
-            <Zap className="w-4 h-4 text-indigo-600" />
+            <Zap className="w-4 h-4 text-[#004643]" />
             <h3 className="text-sm font-semibold text-[#111827]">Learning Sprints</h3>
           </div>
-          <Link href="/dashboard/sprints" className="text-xs text-indigo-600 hover:text-indigo-700 transition-colors">
+          <Link href="/dashboard/sprints" className="text-xs text-[#004643] hover:text-[#003533] transition-colors">
             View all
           </Link>
         </div>
@@ -241,7 +241,7 @@ function SprintsContent({ sprints }: { sprints: UpcomingSprintData[] }) {
         {sprints.length === 0 ? (
           <div className="text-center py-2">
             <p className="text-xs text-[#9CA3AF] mb-2">No active sprints</p>
-            <Link href="/dashboard/sprints/new" className="text-xs font-medium text-indigo-600 hover:text-indigo-700">
+            <Link href="/dashboard/sprints/new" className="text-xs font-medium text-[#004643] hover:text-[#003533]">
               + Create your first sprint
             </Link>
           </div>
@@ -250,7 +250,7 @@ function SprintsContent({ sprints }: { sprints: UpcomingSprintData[] }) {
             {sprints.map(s => (
               <Link key={s.id} href={`/dashboard/sprints/${s.id}`} className="flex items-start justify-between gap-2 group">
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-[#111827] truncate group-hover:text-indigo-600 transition-colors">
+                  <p className="text-xs font-medium text-[#111827] truncate group-hover:text-[#004643] transition-colors">
                     {s.title}
                   </p>
                   <p className="text-[10px] text-[#9CA3AF] mt-0.5">
@@ -259,7 +259,7 @@ function SprintsContent({ sprints }: { sprints: UpcomingSprintData[] }) {
                 </div>
                 <span className={cn(
                   'inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-medium shrink-0',
-                  s.status === 'active' ? 'bg-emerald-50 text-emerald-700' : 'bg-indigo-50 text-indigo-600',
+                  s.status === 'active' ? 'bg-[#F0F7EE] text-[#5A8F47]' : 'bg-[#E8F4F0] text-[#004643]',
                 )}>
                   {s.status === 'active' ? 'Live' : 'Open'}
                 </span>
@@ -269,7 +269,7 @@ function SprintsContent({ sprints }: { sprints: UpcomingSprintData[] }) {
         )}
 
         <div className="mt-3 pt-2.5 border-t border-[#F3F4F6]">
-          <Link href="/dashboard/sprints/new" className="w-full flex items-center justify-center text-xs font-medium text-[#6B7280] hover:text-indigo-600 transition-colors py-0.5">
+          <Link href="/dashboard/sprints/new" className="w-full flex items-center justify-center text-xs font-medium text-[#6B7280] hover:text-[#004643] transition-colors py-0.5">
             + New sprint
           </Link>
         </div>
@@ -291,7 +291,7 @@ function StreakLeadersContent({ leaders }: { leaders: StreakLeaderData[] }) {
               <div key={s.id} className="flex items-center gap-2.5">
                 <div className={cn(
                   'w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-semibold shrink-0 select-none',
-                  i === 0 ? 'bg-amber-100 text-amber-700' : 'bg-indigo-50 text-indigo-600',
+                  i === 0 ? 'bg-amber-100 text-amber-700' : 'bg-[#E8F4F0] text-[#004643]',
                 )}>
                   {initials(s.name)}
                 </div>
@@ -327,7 +327,7 @@ function QuickStatsContent({ avgProgressPct, completionPct, mostActiveCourse }: 
               <span className="text-xs font-bold text-[#111827]">{avgProgressPct}%</span>
             </div>
             <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
-              <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${avgProgressPct}%` }} />
+              <div className="h-full bg-[#004643] rounded-full" style={{ width: `${avgProgressPct}%` }} />
             </div>
           </div>
           <div>
@@ -336,7 +336,7 @@ function QuickStatsContent({ avgProgressPct, completionPct, mostActiveCourse }: 
               <span className="text-xs font-bold text-[#111827]">{completionPct}%</span>
             </div>
             <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${completionPct}%` }} />
+              <div className="h-full bg-[#7FB069] rounded-full" style={{ width: `${completionPct}%` }} />
             </div>
           </div>
           {mostActiveCourse && (
@@ -381,12 +381,12 @@ export function BentoGrid({
     >
 
       {/* ── ROW 1: Welcome banner — full width ──────────────────────────────── */}
-      <Card className="col-span-1 sm:col-span-2 lg:col-span-4 bg-indigo-600 border-indigo-500 text-white">
+      <Card className="col-span-1 sm:col-span-2 lg:col-span-4 bg-[#004643] border-[#004643] text-white">
         <div className="flex flex-col justify-between p-6 min-h-[112px]">
           <div>
-            <p className="text-xs font-medium text-indigo-200 uppercase tracking-wide">{todayLabel()}</p>
+            <p className="text-xs font-medium text-[#B8D9CE] uppercase tracking-wide">{todayLabel()}</p>
             <h1 className="mt-1.5 text-xl font-bold leading-snug">Welcome back, {creatorFirstName} 👋</h1>
-            <p className="mt-0.5 text-sm text-indigo-200">Here&apos;s how your students are doing today</p>
+            <p className="mt-0.5 text-sm text-[#B8D9CE]">Here&apos;s how your students are doing today</p>
           </div>
           {atRiskCount > 0 && (
             <div className="mt-3 inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-sm rounded-xl px-3 py-1.5 w-fit">
@@ -403,20 +403,20 @@ export function BentoGrid({
       <Card>
         <MiniStat
           label="Total Students" value={totalStudents}
-          icon={<Users className="w-4 h-4 text-indigo-600" />}
+          icon={<Users className="w-4 h-4 text-[#004643]" />}
           trend={newStudentsThisWeek > 0 ? `+${newStudentsThisWeek} this week` : undefined}
         />
       </Card>
       <Card>
-        <MiniStat label="Active Courses" value={activeCourses} icon={<BookOpen className="w-4 h-4 text-indigo-600" />} />
+        <MiniStat label="Active Courses" value={activeCourses} icon={<BookOpen className="w-4 h-4 text-[#004643]" />} />
       </Card>
       <Card>
-        <MiniStat label="Nudges This Month" value={nudgesThisMonth} icon={<Mail className="w-4 h-4 text-indigo-600" />} />
+        <MiniStat label="Nudges This Month" value={nudgesThisMonth} icon={<Mail className="w-4 h-4 text-[#004643]" />} />
       </Card>
       <Card className={atRiskCount > 0 ? 'bg-amber-50 border-amber-200' : ''}>
         <MiniStat
           label="At Risk Today" value={atRiskCount}
-          icon={<AlertTriangle className={cn('w-4 h-4', atRiskCount > 0 ? 'text-amber-600' : 'text-indigo-600')} />}
+          icon={<AlertTriangle className={cn('w-4 h-4', atRiskCount > 0 ? 'text-amber-600' : 'text-[#004643]')} />}
           amber={atRiskCount > 0}
           trend={atRiskCount > 0 ? 'needs attention' : 'all on track'}
           trendPositive={atRiskCount === 0}
@@ -448,7 +448,7 @@ export function BentoGrid({
             <div className="divide-y divide-[#E5E7EB]">
               {atRiskRows.map(student => (
                 <div key={student.id} className="flex items-center gap-4 px-6 py-3.5 hover:bg-[#F9FAFB] transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-semibold shrink-0 select-none">
+                  <div className="w-8 h-8 rounded-full bg-[#E8F4F0] text-[#004643] flex items-center justify-center text-xs font-semibold shrink-0 select-none">
                     {initials(student.name)}
                   </div>
                   <div className="min-w-0 flex-1">
@@ -458,7 +458,7 @@ export function BentoGrid({
                   <div className="hidden sm:flex flex-col gap-1.5 w-20 shrink-0">
                     <span className="text-xs text-[#6B7280]">{student.progressPct}%</span>
                     <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${student.progressPct}%` }} />
+                      <div className="h-full bg-[#004643] rounded-full" style={{ width: `${student.progressPct}%` }} />
                     </div>
                   </div>
                   <span className={cn(
@@ -493,7 +493,7 @@ export function BentoGrid({
                   const days = daysAgo(s.enrolledAt)
                   return (
                     <div key={s.id} className="min-w-[200px] flex items-center gap-3 bg-[#F7F8FA] rounded-xl p-4 border border-[#E5E7EB] shrink-0">
-                      <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-semibold shrink-0 select-none">
+                      <div className="w-9 h-9 rounded-full bg-[#D1EBE5] text-[#004643] flex items-center justify-center text-xs font-semibold shrink-0 select-none">
                         {initials(s.name)}
                       </div>
                       <div className="min-w-0">
@@ -531,7 +531,7 @@ export function BentoGrid({
                   <span className="hidden sm:block text-xs text-[#9CA3AF] shrink-0 tabular-nums">{relativeTime(nudge.createdAt)}</span>
                   <span className={cn(
                     'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0',
-                    nudge.status === 'sent' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700',
+                    nudge.status === 'sent' ? 'bg-[#F0F7EE] text-[#5A8F47]' : 'bg-red-50 text-red-700',
                   )}>
                     {nudge.status}
                   </span>

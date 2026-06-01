@@ -61,9 +61,9 @@ const STATUS_LABEL: Record<StudentCardStatus, string> = {
 }
 
 const STATUS_BADGE_CLS: Record<StudentCardStatus, string> = {
-  'on-track':  'bg-emerald-50 text-emerald-700 border border-emerald-200',
+  'on-track':  'bg-[#F0F7EE] text-[#5A8F47] border border-[#B8D9CE]',
   'at-risk':   'bg-amber-50 text-amber-700 border border-amber-200',
-  'completed': 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+  'completed': 'bg-[#E8F4F0] text-[#003533] border border-[#B8D9CE]',
   'new':       'bg-gray-50 text-gray-600 border border-gray-200',
 }
 
@@ -104,7 +104,7 @@ export const StudentProfileCard = React.forwardRef<HTMLDivElement, StudentProfil
 
         {/* Avatar — negative margin pulls it up over the banner reliably */}
         <div className="flex justify-center -mt-10 mb-2">
-          <div className="w-20 h-20 rounded-full border-4 border-white shadow-md bg-indigo-50 flex items-center justify-center text-indigo-600 text-lg font-semibold z-10">
+          <div className="w-20 h-20 rounded-full border-4 border-white shadow-md bg-[#E8F4F0] flex items-center justify-center text-[#004643] text-lg font-semibold z-10">
             {initials}
           </div>
         </div>
@@ -124,7 +124,7 @@ export const StudentProfileCard = React.forwardRef<HTMLDivElement, StudentProfil
 
           {/* Course */}
           <motion.p
-            className="text-center text-sm font-medium text-indigo-600 mb-3 truncate"
+            className="text-center text-sm font-medium text-[#004643] mb-3 truncate"
             variants={itemVariants}
           >
             {courseName}

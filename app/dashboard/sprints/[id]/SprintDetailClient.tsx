@@ -78,8 +78,8 @@ function fmtDate(dateStr: string): string {
 
 function statusBadge(status: string) {
   switch (status) {
-    case 'open':      return { label: 'Enrolling',   cls: 'bg-indigo-50 text-indigo-700 border-indigo-200' }
-    case 'active':    return { label: 'In Progress',  cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' }
+    case 'open':      return { label: 'Enrolling',   cls: 'bg-[#E8F4F0] text-[#003533] border-[#B8D9CE]' }
+    case 'active':    return { label: 'In Progress',  cls: 'bg-[#F0F7EE] text-[#5A8F47] border-[#B8D9CE]' }
     case 'completed': return { label: 'Completed',    cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]' }
     case 'cancelled': return { label: 'Cancelled',    cls: 'bg-red-50 text-red-700 border-red-200' }
     default:          return { label: status,          cls: 'bg-[#F3F4F6] text-[#6B7280] border-[#E5E7EB]' }
@@ -171,7 +171,7 @@ function AddMemberModal({
               placeholder="Search students…"
               value={query}
               onChange={e => setQuery(e.target.value)}
-              className="w-full h-9 rounded-lg border border-[#E5E7EB] px-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full h-9 rounded-lg border border-[#E5E7EB] px-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#004643]"
             />
           </div>
           <div className="max-h-64 overflow-y-auto divide-y divide-[#F3F4F6]">
@@ -188,7 +188,7 @@ function AddMemberModal({
                 <button
                   onClick={() => addStudent(s)}
                   disabled={!!adding}
-                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[#004643] hover:bg-[#003533] text-white rounded-lg transition-colors disabled:opacity-50"
                 >
                   {adding === s.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Plus className="w-3 h-3" />}
                   Add
@@ -260,7 +260,7 @@ function ForumPost({
       <div className="flex items-start gap-3 px-4 py-3.5 border-b border-[#F3F4F6]">
         <div className={cn(
           'w-9 h-9 rounded-full text-xs font-bold flex items-center justify-center shrink-0',
-          isCreatorPost ? 'bg-indigo-600 text-white' : 'bg-indigo-100 text-indigo-600',
+          isCreatorPost ? 'bg-[#004643] text-white' : 'bg-[#D1EBE5] text-[#004643]',
         )}>
           {post.authorInitials}
         </div>
@@ -311,7 +311,7 @@ function ForumPost({
                 onChange={e => setReplyText(e.target.value)}
                 placeholder="Write a reply…"
                 rows={2}
-                className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-[#9CA3AF] bg-white"
+                className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#004643] resize-none placeholder:text-[#9CA3AF] bg-white"
               />
             </motion.div>
           )}
@@ -357,7 +357,7 @@ function ForumPost({
               <button
                 onClick={submitReply}
                 disabled={!replyText.trim() || sending}
-                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-[#004643] hover:bg-[#003533] text-white rounded-lg transition-colors disabled:opacity-50"
               >
                 {sending && <Loader2 className="w-3 h-3 animate-spin" />}
                 Reply
@@ -445,7 +445,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
           </span>
         </div>
         <span className="inline-flex items-center gap-1.5 bg-[#F7F8FA] border border-[#E5E7EB] rounded-full px-3 py-1 text-xs text-[#6B7280]">
-          <Zap className="w-3 h-3 text-indigo-500" />{label}
+          <Zap className="w-3 h-3 text-[#004643]" />{label}
         </span>
         <div className="flex items-center gap-3 mt-3 text-xs text-[#9CA3AF] flex-wrap">
           <span><Calendar className="w-3 h-3 inline mr-1" />Joins close {fmtDate(sprint.joinDeadline)}</span>
@@ -454,7 +454,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
           <span>·</span>
           <span>Ends {fmtDate(sprint.endDate)}</span>
           {sprint.status === 'active' && daysToEnd > 0 && (
-            <><span>·</span><span className="text-emerald-600 font-medium">{daysToEnd} days remaining</span></>
+            <><span>·</span><span className="text-[#6A9A55] font-medium">{daysToEnd} days remaining</span></>
           )}
         </div>
       </div>
@@ -469,14 +469,14 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
           <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-semibold text-[#111827] flex items-center gap-2">
-                <Users className="w-4 h-4 text-indigo-500" /> Member Progress
+                <Users className="w-4 h-4 text-[#004643]" /> Member Progress
                 <span className="text-xs font-medium text-[#9CA3AF] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
                   {members.length} / {sprint.maxMembers}
                 </span>
               </h2>
               <button
                 onClick={() => setShowAdd(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-indigo-600 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#004643] border border-[#B8D9CE] bg-[#E8F4F0] hover:bg-[#D1EBE5] rounded-lg transition-colors"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Student
               </button>
@@ -492,7 +492,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
               <div className="space-y-3">
                 {members.map(m => (
                   <div key={m.id} className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-indigo-100 text-indigo-600 text-xs font-semibold flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-full bg-[#D1EBE5] text-[#004643] text-xs font-semibold flex items-center justify-center shrink-0">
                       {m.initials}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -505,7 +505,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
                       </div>
                       <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
                         <motion.div
-                          className="h-full bg-indigo-500 rounded-full"
+                          className="h-full bg-[#004643] rounded-full"
                           initial={{ width: 0 }}
                           animate={{ width: `${m.progressPct}%` }}
                           transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -523,7 +523,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
             {/* Section header */}
             <div className="flex items-center gap-2">
               <h2 className="text-base font-semibold text-[#111827] flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-indigo-500" /> Discussion
+                <MessageSquare className="w-4 h-4 text-[#004643]" /> Discussion
               </h2>
               <span className="text-xs font-medium text-[#9CA3AF] bg-[#F3F4F6] px-2 py-0.5 rounded-full">
                 {posts.length}
@@ -534,7 +534,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
             <div className="rounded-xl border border-[#E5E7EB] bg-white overflow-hidden">
               {/* Composer header */}
               <div className="flex items-center gap-3 px-4 py-3.5 border-b border-[#F3F4F6]">
-                <div className="w-9 h-9 rounded-full bg-indigo-600 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-full bg-[#004643] text-white text-xs font-bold flex items-center justify-center shrink-0">
                   {creatorInitials}
                 </div>
                 <div>
@@ -550,7 +550,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
                   placeholder="Share an update, question, or encouragement…"
                   rows={3}
                   onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) submitPost() }}
-                  className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2.5 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none placeholder:text-[#9CA3AF] bg-[#FAFAFA]"
+                  className="w-full rounded-xl border border-[#E5E7EB] px-3 py-2.5 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#004643] resize-none placeholder:text-[#9CA3AF] bg-[#FAFAFA]"
                 />
               </div>
               {/* Composer footer */}
@@ -572,7 +572,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
                 <button
                   onClick={submitPost}
                   disabled={!newPost.trim() || posting}
-                  className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-colors disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium bg-[#004643] hover:bg-[#003533] text-white rounded-lg transition-colors disabled:opacity-50"
                 >
                   {posting && <Loader2 className="w-3 h-3 animate-spin" />}
                   Post
@@ -658,13 +658,13 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
                 )}
                 {sprint.status === 'active' && (
                   <>
-                    <p className="text-2xl font-bold tabular-nums text-emerald-600">{Math.max(0, daysToEnd)}</p>
+                    <p className="text-2xl font-bold tabular-nums text-[#6A9A55]">{Math.max(0, daysToEnd)}</p>
                     <p className="text-xs text-[#6B7280]">days left</p>
                   </>
                 )}
                 {(sprint.status === 'completed' || sprint.status === 'cancelled') && (
                   <div className="flex items-center gap-1.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500" />
+                    <CheckCircle className="w-4 h-4 text-[#7FB069]" />
                     <p className="text-sm font-medium text-[#6B7280] capitalize">{sprint.status}</p>
                   </div>
                 )}
@@ -678,7 +678,7 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
 
             <button
               onClick={() => setShowAdd(true)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-indigo-600 border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 rounded-xl transition-colors"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-[#004643] border border-[#B8D9CE] bg-[#E8F4F0] hover:bg-[#D1EBE5] rounded-xl transition-colors"
             >
               <Plus className="w-4 h-4" /> Add Student to Sprint
             </button>

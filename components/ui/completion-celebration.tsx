@@ -80,7 +80,7 @@ export function CompletionCelebration({
           </button>
 
           {/* Header — indigo gradient */}
-          <div className="bg-gradient-to-br from-indigo-600 to-indigo-700 px-8 pt-10 pb-8 text-center text-white">
+          <div className="bg-gradient-to-br from-[#004643] to-[#003533] px-8 pt-10 pb-8 text-center text-white">
             {/* Trophy */}
             <motion.div
               initial={{ scale: 0, rotate: -15 }}
@@ -96,19 +96,19 @@ export function CompletionCelebration({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <p className="text-indigo-200 text-xs font-semibold uppercase tracking-widest mb-2">
+              <p className="text-[#B8D9CE] text-xs font-semibold uppercase tracking-widest mb-2">
                 Course Complete
               </p>
               <h2 className="text-3xl font-bold mb-1">{firstName} did it! 🎉</h2>
-              <p className="text-indigo-200 text-sm">{studentName} just finished a course</p>
+              <p className="text-[#B8D9CE] text-sm">{studentName} just finished a course</p>
             </motion.div>
           </div>
 
           {/* Course name pill — overlaps header */}
           <div className="px-8 -mt-4 relative z-10">
             <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm px-5 py-4 flex items-center gap-3">
-              <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center shrink-0">
-                <BookOpen className="w-5 h-5 text-emerald-600" />
+              <div className="w-10 h-10 bg-[#F0F7EE] rounded-xl flex items-center justify-center shrink-0">
+                <BookOpen className="w-5 h-5 text-[#6A9A55]" />
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-xs text-[#9CA3AF] uppercase tracking-wide font-medium">
@@ -116,7 +116,7 @@ export function CompletionCelebration({
                 </p>
                 <p className="font-semibold text-[#111827] text-sm mt-0.5 truncate">{courseName}</p>
               </div>
-              <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-3 py-1 rounded-full shrink-0">
+              <span className="bg-[#F0F7EE] text-[#5A8F47] border border-[#B8D9CE] text-xs font-semibold px-3 py-1 rounded-full shrink-0">
                 100% ✓
               </span>
             </div>
@@ -132,7 +132,7 @@ export function CompletionCelebration({
             <Link
               href={`/dashboard/students/${studentId}`}
               onClick={onDismiss}
-              className="flex items-center justify-center gap-2 w-full bg-indigo-600 text-white py-3 rounded-xl font-semibold hover:bg-indigo-700 transition-colors text-sm"
+              className="flex items-center justify-center gap-2 w-full bg-[#004643] text-white py-3 rounded-xl font-semibold hover:bg-[#003533] transition-colors text-sm"
             >
               View {firstName}&apos;s Profile
               <ArrowRight className="w-4 h-4" />

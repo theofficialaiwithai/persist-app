@@ -52,7 +52,7 @@ export function AddCourseButton() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition-colors">
+      <DialogTrigger className="w-full flex items-center justify-center gap-2 bg-[#004643] text-white px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#003533] transition-colors">
         <Plus className="w-4 h-4" />
         Add a new course
       </DialogTrigger>
@@ -102,7 +102,7 @@ export function AddCourseButton() {
             Cancel
           </Button>
           <Button
-            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+            className="bg-[#004643] hover:bg-[#003533] text-white"
             onClick={handleAddCourse}
             disabled={!courseName.trim() || isLoading}
           >
@@ -125,7 +125,7 @@ export function DiscoverCourseButton() {
         onClick={() => setDiscoverOpen(true)}
         className="w-full flex items-center justify-center gap-2 border border-[#E5E7EB] text-[#111827] px-4 py-2.5 rounded-xl text-sm font-medium hover:bg-[#F7F8FA] transition-colors"
       >
-        <Sparkles className="w-4 h-4 text-indigo-500" />
+        <Sparkles className="w-4 h-4 text-[#004643]" />
         Discover your next course
       </button>
 

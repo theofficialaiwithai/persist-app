@@ -16,7 +16,7 @@ export function UserMenu() {
       {fullName && (
         <span className="hidden sm:block text-sm text-gray-700">{fullName}</span>
       )}
-      <div className="bg-indigo-50 text-indigo-600 text-xs font-medium rounded-full w-8 h-8 flex items-center justify-center shrink-0 select-none">
+      <div className="bg-[#E8F4F0] text-[#004643] text-xs font-medium rounded-full w-8 h-8 flex items-center justify-center shrink-0 select-none">
         {initials}
       </div>
       <SignOutButton>

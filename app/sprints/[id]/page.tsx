@@ -108,7 +108,7 @@ export default async function PublicSprintPage({
       {/* Minimal header */}
       <header className="bg-white border-b border-[#E5E7EB]">
         <div className="max-w-3xl mx-auto px-4 h-14 flex items-center">
-          <span className="font-bold text-indigo-600 text-lg">Persist</span>
+          <span className="font-bold text-[#004643] text-lg">Persist</span>
           <span className="mx-2 text-[#E5E7EB]">·</span>
           <span className="text-sm text-[#6B7280]">Learning Sprint</span>
         </div>

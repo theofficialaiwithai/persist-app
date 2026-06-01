@@ -40,7 +40,7 @@ export function SendNudgeButton({ studentId, studentName, className }: Props) {
       onClick={handleSend}
       disabled={loading}
       className={cn(
-        'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap',
+        'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-[#E4572E] hover:bg-[#CC4A23] rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap',
         className
       )}
     >

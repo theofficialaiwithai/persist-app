@@ -46,8 +46,8 @@ function formatLastActive(isoString: string | null): { text: string; cls: string
 
 const STATUS_CONFIG = {
   'at-risk':   { label: 'At Risk',   cls: 'bg-red-50 text-red-600'         },
-  'on-track':  { label: 'On Track',  cls: 'bg-emerald-50 text-emerald-700' },
-  'completed': { label: 'Completed', cls: 'bg-indigo-50 text-indigo-700'   },
+  'on-track':  { label: 'On Track',  cls: 'bg-[#F0F7EE] text-[#5A8F47]' },
+  'completed': { label: 'Completed', cls: 'bg-[#E8F4F0] text-[#003533]'   },
   'new':       { label: 'New',       cls: 'bg-gray-100 text-gray-600'      },
 } as const
 
@@ -80,7 +80,7 @@ export function StudentsTable({ rows, courses }: Props) {
 
   const inputCls =
     'h-9 rounded-lg border border-[#E5E7EB] bg-white px-3 text-sm text-[#111827] ' +
-    'placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent'
+    'placeholder:text-[#9CA3AF] focus:outline-none focus:ring-2 focus:ring-[#004643] focus:border-transparent'
 
   return (
     <div className="space-y-4">
@@ -128,7 +128,7 @@ export function StudentsTable({ rows, courses }: Props) {
             title="Table view"
             className={cn(
               'p-1.5 rounded-md transition-colors',
-              view === 'table' ? 'bg-indigo-600 text-white' : 'text-[#6B7280] hover:text-[#111827]',
+              view === 'table' ? 'bg-[#004643] text-white' : 'text-[#6B7280] hover:text-[#111827]',
             )}
           >
             <List className="w-4 h-4" />
@@ -138,7 +138,7 @@ export function StudentsTable({ rows, courses }: Props) {
             title="Grid view"
             className={cn(
               'p-1.5 rounded-md transition-colors',
-              view === 'grid' ? 'bg-indigo-600 text-white' : 'text-[#6B7280] hover:text-[#111827]',
+              view === 'grid' ? 'bg-[#004643] text-white' : 'text-[#6B7280] hover:text-[#111827]',
             )}
           >
             <LayoutGrid className="w-4 h-4" />
@@ -230,7 +230,7 @@ export function StudentsTable({ rows, courses }: Props) {
                         {/* Student — avatar + name + email */}
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 text-sm font-medium flex items-center justify-center shrink-0 select-none">
+                            <div className="w-9 h-9 rounded-full bg-[#E8F4F0] text-[#004643] text-sm font-medium flex items-center justify-center shrink-0 select-none">
                               {getInitials(student.name)}
                             </div>
                             <div className="min-w-0">

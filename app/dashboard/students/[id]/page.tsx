@@ -20,9 +20,9 @@ function getStatus(progressPct: number, daysInactive: number) {
 }
 
 const STATUS_CONFIG = {
-  'at-risk':   { label: 'At Risk',   cls: 'bg-red-50 text-red-600'         },
-  'on-track':  { label: 'On Track',  cls: 'bg-emerald-50 text-emerald-700' },
-  'completed': { label: 'Completed', cls: 'bg-indigo-50 text-indigo-700'   },
+  'at-risk':   { label: 'At Risk',   cls: 'bg-[#664147]/10 text-[#664147] border border-[#664147]/30' },
+  'on-track':  { label: 'On Track',  cls: 'bg-[#7FB069]/15 text-[#5A8F47] border border-[#7FB069]/30' },
+  'completed': { label: 'Completed', cls: 'bg-[#E8F4F0] text-[#004643]' },
   'new':       { label: 'New',       cls: 'bg-gray-100 text-gray-600'      },
 } as const
 
@@ -94,7 +94,7 @@ export default async function StudentDetailPage({
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
-    <div className="p-8">
+    <div className="px-4 py-6 sm:px-6 sm:py-8 max-w-7xl mx-auto">
 
       {/* ── Back link ────────────────────────────────────────────────────── */}
       <Link
@@ -254,7 +254,7 @@ export default async function StudentDetailPage({
                 <span className="text-sm text-[#6B7280]">Days Inactive</span>
                 <span className={cn(
                   'text-sm font-semibold',
-                  daysInactive >= 7 ? 'text-red-600' : 'text-[#111827]'
+                  daysInactive >= 7 ? 'text-[#E4572E]' : 'text-[#111827]'
                 )}>
                   {daysInactive === 999 ? '—' : `${daysInactive}d`}
                 </span>

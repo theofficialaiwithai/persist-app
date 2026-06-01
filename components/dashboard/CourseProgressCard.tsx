@@ -22,7 +22,7 @@ export function CourseProgressCard({
       progressSubLabel={enrolledLabel}
       currentValue={progressPct}
       maxValue={100}
-      className="bg-indigo-600 text-white border-indigo-500"
+      className="bg-[#004643] text-white border-[#004643]"
     />
   )
 }

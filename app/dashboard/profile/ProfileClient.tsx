@@ -50,7 +50,7 @@ interface ProfileClientProps {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const BANNER_GRADIENT = 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #2563EB 100%)'
+const BANNER_GRADIENT = 'linear-gradient(135deg, #004643 0%, #003533 70%, #7FB069 100%)'
 
 function initials(name: string) {
   return name.split(' ').map(n => n[0] ?? '').join('').toUpperCase().slice(0, 2)
@@ -97,12 +97,12 @@ function ImageUrlModal({ title, placeholder, onSave, onClose }: ImageUrlModalPro
       >
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
-              <ImageIcon className="w-4 h-4 text-indigo-600" />
+            <div className="w-8 h-8 bg-[#E8F4F0] rounded-lg flex items-center justify-center">
+              <ImageIcon className="w-4 h-4 text-[#004643]" />
             </div>
             <h3 className="text-sm font-semibold text-[#111827]">{title}</h3>
           </div>
-          <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B7280] hover:bg-[#F7F8FA] transition-colors">
+          <button onClick={onClose} className="w-7 h-7 rounded-lg flex items-center justify-center text-[#6B7280] hover:bg-[#004643] hover:text-white hover:border-[#004643] transition-colors">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -115,21 +115,21 @@ function ImageUrlModal({ title, placeholder, onSave, onClose }: ImageUrlModalPro
           placeholder={placeholder}
           autoFocus
           onKeyDown={e => { if (e.key === 'Enter' && url.trim()) onSave(url.trim()) }}
-          className="w-full px-3 py-2.5 text-sm border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent placeholder:text-[#9CA3AF]"
+          className="w-full px-3 py-2.5 text-sm border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004643] focus:border-transparent placeholder:text-[#9CA3AF]"
         />
         <p className="text-xs text-[#9CA3AF] mt-1.5">Paste a direct image URL (https://...)</p>
 
         <div className="flex gap-2 mt-4">
           <button
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl border border-[#E5E7EB] text-sm text-[#6B7280] hover:bg-[#F7F8FA] transition-colors font-medium"
+            className="flex-1 py-2.5 rounded-xl border border-[#E5E7EB] text-sm text-[#6B7280] hover:bg-[#004643] hover:text-white hover:border-[#004643] transition-colors font-medium"
           >
             Cancel
           </button>
           <button
             onClick={() => url.trim() && onSave(url.trim())}
             disabled={!url.trim()}
-            className="flex-1 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex-1 py-2.5 rounded-xl bg-[#004643] text-white text-sm font-semibold hover:bg-[#003533] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             Save
           </button>
@@ -254,7 +254,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
       <div className="flex items-end gap-4 -mt-14 px-2">
         {/* Avatar — overlaps banner */}
         <div
-          className="relative w-24 h-24 rounded-full border-4 border-white shadow-lg flex-shrink-0 overflow-hidden group cursor-pointer bg-gradient-to-br from-indigo-500 to-indigo-700"
+          className="relative w-24 h-24 rounded-full border-4 border-white shadow-lg flex-shrink-0 overflow-hidden group cursor-pointer bg-gradient-to-br from-[#004643] to-[#003533]"
           onClick={() => setShowPhotoDialog(true)}
         >
           {profileImageUrl
@@ -276,9 +276,9 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
                 onChange={e => setNameDraft(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter') handleNameSave(); if (e.key === 'Escape') setEditingName(false) }}
                 autoFocus
-                className="text-2xl font-bold text-[#111827] bg-transparent border-b-2 border-indigo-400 focus:outline-none w-full max-w-xs"
+                className="text-2xl font-bold text-[#111827] bg-transparent border-b-2 border-[#004643] focus:outline-none w-full max-w-xs"
               />
-              <button onClick={handleNameSave} className="text-emerald-600 hover:text-emerald-700"><Check className="w-4 h-4" /></button>
+              <button onClick={handleNameSave} className="text-[#6A9A55] hover:text-[#5A8F47]"><Check className="w-4 h-4" /></button>
               <button onClick={() => setEditingName(false)} className="text-[#6B7280] hover:text-[#111827]"><X className="w-4 h-4" /></button>
             </div>
           ) : (
@@ -286,7 +286,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
               <h1 className="text-2xl font-bold text-[#111827] truncate">{displayName}</h1>
               <button
                 onClick={() => { setNameDraft(displayName); setEditingName(true) }}
-                className="opacity-0 group-hover/name:opacity-100 transition-opacity text-[#9CA3AF] hover:text-indigo-600"
+                className="opacity-0 group-hover/name:opacity-100 transition-opacity text-[#9CA3AF] hover:text-[#004643]"
               >
                 <Pencil className="w-3.5 h-3.5" />
               </button>
@@ -302,7 +302,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
         {/* Edit Profile button (goes to settings) */}
         <Link
           href="/dashboard/settings"
-          className="mb-1 shrink-0 px-4 py-2 rounded-xl border border-[#E5E7EB] text-sm font-medium text-[#111827] hover:bg-[#F7F8FA] transition-colors"
+          className="mb-1 shrink-0 px-4 py-2 rounded-xl border border-[#E5E7EB] text-sm font-medium text-[#111827] hover:bg-[#004643] hover:text-white hover:border-[#004643] transition-colors"
         >
           Edit Settings
         </Link>
@@ -317,7 +317,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
           { label: 'Avg Completion',    value: `${stats.avgCompletion}%` },
         ].map(({ label, value }) => (
           <div key={label} className="bg-white rounded-xl border border-[#E5E7EB] p-4 text-center shadow-sm">
-            <p className="text-2xl font-bold text-indigo-600">{value}</p>
+            <p className="text-2xl font-bold text-[#E4572E]">{value}</p>
             <p className="text-xs text-[#6B7280] mt-1">{label}</p>
           </div>
         ))}
@@ -330,7 +330,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
           {!editingBio && (
             <button
               onClick={() => { setBioDraft(bio); setEditingBio(true) }}
-              className="flex items-center gap-1 text-xs text-[#6B7280] hover:text-indigo-600 transition-colors"
+              className="flex items-center gap-1 text-xs text-[#6B7280] hover:text-[#004643] transition-colors"
             >
               <Pencil className="w-3.5 h-3.5" />
               Edit
@@ -345,18 +345,18 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
               onChange={e => setBioDraft(e.target.value)}
               rows={4}
               autoFocus
-              className="w-full px-3 py-2.5 text-sm border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-[#374151] leading-relaxed"
+              className="w-full px-3 py-2.5 text-sm border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004643] resize-none text-[#374151] leading-relaxed"
             />
             <div className="flex gap-2 justify-end">
               <button
                 onClick={() => setEditingBio(false)}
-                className="px-3 py-1.5 text-xs text-[#6B7280] border border-[#E5E7EB] rounded-lg hover:bg-[#F7F8FA] transition-colors"
+                className="px-3 py-1.5 text-xs text-[#6B7280] border border-[#E5E7EB] rounded-lg hover:bg-[#004643] hover:text-white hover:border-[#004643] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleBioSave}
-                className="px-3 py-1.5 text-xs text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 transition-colors font-medium"
+                className="px-3 py-1.5 text-xs text-white bg-[#004643] rounded-lg hover:bg-[#003533] transition-colors font-medium"
               >
                 Save
               </button>
@@ -380,8 +380,8 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
             {courses.map(course => (
               <div key={course.id} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
                 {/* Course icon */}
-                <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                  <span className="text-indigo-600 text-sm font-bold">
+                <div className="w-10 h-10 bg-[#E8F4F0] rounded-xl flex items-center justify-center flex-shrink-0">
+                  <span className="text-[#004643] text-sm font-bold">
                     {course.name.charAt(0).toUpperCase()}
                   </span>
                 </div>
@@ -398,7 +398,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
                 <div className="hidden sm:block w-24">
                   <div className="h-1.5 w-full bg-[#E5E7EB] rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-indigo-500 rounded-full"
+                      className="h-full bg-[#004643] rounded-full"
                       style={{ width: `${course.avgCompletion}%` }}
                     />
                   </div>
@@ -406,7 +406,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
                 {/* Link */}
                 <Link
                   href={`/dashboard/students?course=${course.id}`}
-                  className="shrink-0 flex items-center gap-1 text-xs font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+                  className="shrink-0 flex items-center gap-1 text-xs font-medium text-[#004643] hover:text-[#003533] transition-colors"
                 >
                   View Students
                   <ArrowRight className="w-3 h-3" />
@@ -439,7 +439,7 @@ export function ProfileClient({ creator, stats, courses, recentNudges }: Profile
                 </span>
                 <span className={cn(
                   'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium shrink-0',
-                  nudge.status === 'sent' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700',
+                  nudge.status === 'sent' ? 'bg-[#F0F7EE] text-[#5A8F47]' : 'bg-red-50 text-red-700',
                 )}>
                   {nudge.status}
                 </span>

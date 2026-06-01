@@ -52,7 +52,7 @@ const EXAMPLE_PAYLOAD = `{
 
 const inputCls =
   'w-full h-10 rounded-lg border border-[#E5E7EB] px-3 text-sm text-[#111827] ' +
-  'focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ' +
+  'focus:outline-none focus:ring-2 focus:ring-[#004643] focus:border-transparent ' +
   'disabled:bg-[#F7F8FA] disabled:text-[#6B7280] disabled:cursor-not-allowed'
 
 const labelCls = 'block text-sm font-medium text-[#111827] mb-1'
@@ -60,7 +60,7 @@ const hintCls  = 'mt-1 text-xs text-[#6B7280]'
 
 const saveBtnCls =
   'inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white ' +
-  'bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors ' +
+  'bg-[#E4572E] hover:bg-[#CC4A23] rounded-lg transition-colors ' +
   'disabled:opacity-60 disabled:cursor-not-allowed'
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -275,7 +275,7 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
             type="checkbox"
             checked={blackoutWeekends}
             onChange={e => setBlackoutWeekends(e.target.checked)}
-            className="mt-0.5 h-4 w-4 rounded border-[#E5E7EB] text-indigo-600 focus:ring-indigo-500 cursor-pointer"
+            className="mt-0.5 h-4 w-4 rounded border-[#E5E7EB] text-[#004643] focus:ring-[#004643] cursor-pointer"
           />
           <label htmlFor="blackout" className="text-sm text-[#111827] cursor-pointer select-none">
             <span className="font-medium">Blackout weekends</span>
@@ -363,7 +363,7 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
           <p className="text-sm text-[#6B7280]">Ready to test your integration?</p>
           <button
             onClick={() => { setTestOpen(true); setTestResult(null) }}
-            className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#004643] hover:text-[#003533] transition-colors"
           >
             <FlaskConical className="w-4 h-4" />
             Test your webhook →
@@ -372,7 +372,7 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
       </div>
 
       {/* ── Section 4: Danger Zone ───────────────────────────────────────── */}
-      <div className="bg-white rounded-xl border border-red-200 shadow-sm p-6 space-y-4">
+      <div className="bg-[#664147]/5 rounded-xl border border-[#664147]/30 shadow-sm p-6 space-y-4">
         <div>
           <h2 className="text-lg font-semibold text-[#111827]">Danger Zone</h2>
           <p className="text-sm text-[#6B7280] mt-0.5">Irreversible actions — proceed with care</p>
@@ -388,7 +388,7 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
           {!resetConfirm ? (
             <button
               onClick={() => setResetConfirm(true)}
-              className="inline-flex items-center px-4 py-2 text-sm font-medium text-red-600 border border-red-200 rounded-lg hover:bg-red-50 transition-colors shrink-0 ml-4"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-[#664147] border border-[#664147]/30 rounded-lg hover:bg-[#664147]/10 transition-colors shrink-0 ml-4"
             >
               Reset to defaults
             </button>
@@ -438,7 +438,7 @@ export function SettingsForm({ initialData, webhookUrl, webhookSecret }: Setting
               <div className={cn(
                 'rounded-lg px-4 py-3 text-sm',
                 testResult.success
-                  ? 'bg-emerald-50 text-emerald-700'
+                  ? 'bg-[#F0F7EE] text-[#5A8F47]'
                   : 'bg-red-50 text-red-700'
               )}>
                 {testResult.message}
