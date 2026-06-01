@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron/process-nudges",
-      "schedule": "0 */4 * * *"
+      "schedule": "0 9 * * *"
     },
     {
       "path": "/api/cron/weekly-digest",
