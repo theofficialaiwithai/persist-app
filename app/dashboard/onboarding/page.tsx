@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation'
 import { db } from '@/db'
 import { creators } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import OnboardingForm from './OnboardingForm'
+import { OnboardingWizard } from './OnboardingWizard'
 
 export default async function OnboardingPage() {
   const { userId } = await auth()
@@ -13,13 +13,12 @@ export default async function OnboardingPage() {
     where: eq(creators.userId, userId),
   })
 
-  if (creator?.senderEmail) {
+  // If onboarding is already complete (new wizard sets coursePlatform; old wizard set senderEmail)
+  if (creator?.coursePlatform || creator?.senderEmail) {
     redirect('/dashboard')
   }
 
   return (
-    <div className="flex items-center justify-center min-h-full p-8">
-      <OnboardingForm />
-    </div>
+    <OnboardingWizard initialSenderName={creator?.senderName ?? ''} />
   )
 }
