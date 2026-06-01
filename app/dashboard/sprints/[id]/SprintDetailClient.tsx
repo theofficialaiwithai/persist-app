@@ -219,6 +219,8 @@ function ForumPost({
   const [replyText, setReplyText] = useState('')
   const [sending,   setSending  ] = useState(false)
   const [replies,   setReplies  ] = useState(post.replies)
+  const isEncouragement = post.content.startsWith('💪')
+  const isCreatorPost   = post.authorName.includes('(Creator)')
 
   async function submitReply() {
     if (!replyText.trim()) return
@@ -247,9 +249,12 @@ function ForumPost({
   }
 
   return (
-    <div className="py-4">
+    <div className={cn('py-4', isEncouragement && 'bg-rose-50/60 -mx-6 px-6 rounded-xl')}>
       <div className="flex gap-3">
-        <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 text-xs font-semibold flex items-center justify-center shrink-0">
+        <div className={cn(
+          'w-8 h-8 rounded-full text-xs font-semibold flex items-center justify-center shrink-0',
+          isCreatorPost ? 'bg-indigo-600 text-white' : isEncouragement ? 'bg-rose-100 text-rose-600' : 'bg-indigo-100 text-indigo-600',
+        )}>
           {post.authorInitials}
         </div>
         <div className="flex-1 min-w-0">
@@ -616,8 +621,9 @@ export function SprintDetailClient({ sprint, members: initialMembers, posts: ini
 
             <button
               onClick={() => {
-                navigator.clipboard.writeText(`${window.location.origin}/sprints/${sprint.id}`)
-                showToast.copied('Sprint link copied')
+                const publicUrl = `${window.location.origin}/sprints/${sprint.id}`
+                navigator.clipboard.writeText(publicUrl)
+                showToast.copied('Sprint link copied — share it with your students')
               }}
               className="w-full flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-[#6B7280] border border-[#E5E7EB] hover:border-[#D1D5DB] hover:text-[#111827] rounded-xl transition-colors"
             >
