@@ -35,7 +35,10 @@ export default async function SettingsPage() {
           nudgeTone:            creator.nudgeTone,
           minDaysBetweenNudges: creator.minDaysBetweenNudges,
           blackoutWeekends:     creator.blackoutWeekends,
+          nudgeTriggerType:     creator.nudgeTriggerType,
+          nudgeMilestones:      creator.nudgeMilestones,
         }}
+        userType={creator.userType ?? 'creator'}
         webhookUrl={webhookUrl}
         webhookSecret={creator.webhookSecret}
       />

@@ -39,6 +39,8 @@ export async function PATCH(request: Request) {
     if (typeof body.nudgeTone             === 'string')  patch.nudgeTone             = body.nudgeTone
     if (typeof body.minDaysBetweenNudges  === 'number')  patch.minDaysBetweenNudges  = body.minDaysBetweenNudges
     if (typeof body.blackoutWeekends      === 'boolean') patch.blackoutWeekends      = body.blackoutWeekends
+    if (typeof body.nudgeTriggerType      === 'string')  patch.nudgeTriggerType      = body.nudgeTriggerType
+    if (typeof body.nudgeMilestones       === 'string')  patch.nudgeMilestones       = body.nudgeMilestones
 
     if (Object.keys(patch).length === 0) {
       return Response.json({ error: 'No valid fields to update' }, { status: 400 })

@@ -21,7 +21,9 @@ export const creators = pgTable('creators', {
   stripeSubscriptionId:  text('stripe_subscription_id'),
   webhookSecret:         text('webhook_secret').notNull(),
   sprintsEnabled:        boolean('sprints_enabled').notNull().default(true),
-  userType:              text('user_type').notNull().default('creator'), // 'creator' | 'learner'
+  userType:              text('user_type').notNull().default('creator'),        // 'creator' | 'learner'
+  nudgeTriggerType:      text('nudge_trigger_type').notNull().default('inactivity'), // 'inactivity' | 'frequency' | 'milestones'
+  nudgeMilestones:       text('nudge_milestones').notNull().default('25,50,75,90'),  // comma-separated pct values
   createdAt:             timestamp('created_at').notNull().defaultNow(),
 })
 
