@@ -3,36 +3,36 @@
 import confetti from 'canvas-confetti'
 import { useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Trophy, X, ArrowRight, BookOpen } from 'lucide-react'
-import Link from 'next/link'
+import { Trophy, X, ArrowRight, BookOpen, Plus } from 'lucide-react'
 
 interface CompletionCelebrationProps {
+  /** Name shown in the header — use the learner's own name for learner mode */
   studentName: string
-  courseName: string
-  studentId: string
+  courseName:  string
+  /** When provided, renders the learner variant (your own completion) */
+  onStartAnotherCourse?: () => void
   onDismiss: () => void
 }
 
 const COLORS = {
-  primary: ['#4F46E5', '#10B981', '#F59E0B', '#EC4899', '#8B5CF6'],
-  left:    ['#4F46E5', '#10B981', '#F59E0B'],
-  right:   ['#EC4899', '#8B5CF6', '#4F46E5'],
+  primary: ['#004643', '#7FB069', '#E4572E', '#F59E0B', '#8B5CF6'],
+  left:    ['#004643', '#7FB069', '#F59E0B'],
+  right:   ['#E4572E', '#8B5CF6', '#004643'],
 }
 
 export function CompletionCelebration({
   studentName,
   courseName,
-  studentId,
+  onStartAnotherCourse,
   onDismiss,
 }: CompletionCelebrationProps) {
-  const firstName = studentName.split(' ')[0]
+  const firstName   = studentName.split(' ')[0]
+  const learnerMode = !!onStartAnotherCourse
 
-  // Fires two bursts when the canvas element mounts
   const canvasRef = useCallback((canvas: HTMLCanvasElement | null) => {
     if (!canvas) return
     const fire = confetti.create(canvas, { resize: true, useWorker: true })
 
-    // First burst — centre
     fire({
       particleCount: 120,
       spread: 80,
@@ -40,7 +40,6 @@ export function CompletionCelebration({
       colors: COLORS.primary,
     })
 
-    // Second burst — left + right sides
     setTimeout(() => {
       fire({ particleCount: 80, spread: 100, origin: { y: 0.4, x: 0.2 }, colors: COLORS.left  })
       fire({ particleCount: 80, spread: 100, origin: { y: 0.4, x: 0.8 }, colors: COLORS.right })
@@ -56,7 +55,7 @@ export function CompletionCelebration({
         className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
         onClick={e => { if (e.target === e.currentTarget) onDismiss() }}
       >
-        {/* Confetti canvas — full screen, non-interactive */}
+        {/* Confetti canvas */}
         <canvas
           ref={canvasRef}
           className="pointer-events-none fixed inset-0 w-full h-full"
@@ -79,9 +78,8 @@ export function CompletionCelebration({
             <X className="w-4 h-4" />
           </button>
 
-          {/* Header — indigo gradient */}
+          {/* Header */}
           <div className="bg-gradient-to-br from-[#004643] to-[#003533] px-8 pt-10 pb-8 text-center text-white">
-            {/* Trophy */}
             <motion.div
               initial={{ scale: 0, rotate: -15 }}
               animate={{ scale: 1, rotate: 0 }}
@@ -99,12 +97,21 @@ export function CompletionCelebration({
               <p className="text-[#B8D9CE] text-xs font-semibold uppercase tracking-widest mb-2">
                 Course Complete
               </p>
-              <h2 className="text-3xl font-bold mb-1">{firstName} did it! 🎉</h2>
-              <p className="text-[#B8D9CE] text-sm">{studentName} just finished a course</p>
+              {learnerMode ? (
+                <>
+                  <h2 className="text-3xl font-bold mb-1">You did it, {firstName}! 🎉</h2>
+                  <p className="text-[#B8D9CE] text-sm">You finished every lesson. That&apos;s huge.</p>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-3xl font-bold mb-1">{firstName} did it! 🎉</h2>
+                  <p className="text-[#B8D9CE] text-sm">{studentName} just finished a course</p>
+                </>
+              )}
             </motion.div>
           </div>
 
-          {/* Course name pill — overlaps header */}
+          {/* Course name pill */}
           <div className="px-8 -mt-4 relative z-10">
             <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm px-5 py-4 flex items-center gap-3">
               <div className="w-10 h-10 bg-[#F0F7EE] rounded-xl flex items-center justify-center shrink-0">
@@ -124,26 +131,45 @@ export function CompletionCelebration({
 
           {/* Body */}
           <div className="px-8 py-6 space-y-3">
-            <p className="text-center text-[#6B7280] text-sm leading-relaxed">
-              This is a big deal. {firstName} stayed consistent and crossed the finish line.
-              Consider sending a personal note to celebrate.
-            </p>
+            {learnerMode ? (
+              <>
+                <p className="text-center text-[#6B7280] text-sm leading-relaxed">
+                  You stayed consistent and crossed the finish line. That's what separates
+                  people who learn from people who finish. What&apos;s next?
+                </p>
 
-            <Link
-              href={`/dashboard/students/${studentId}`}
-              onClick={onDismiss}
-              className="flex items-center justify-center gap-2 w-full bg-[#004643] text-white py-3 rounded-xl font-semibold hover:bg-[#003533] transition-colors text-sm"
-            >
-              View {firstName}&apos;s Profile
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+                <button
+                  onClick={() => { onDismiss(); onStartAnotherCourse() }}
+                  className="flex items-center justify-center gap-2 w-full bg-[#004643] text-white py-3 rounded-xl font-semibold hover:bg-[#003533] transition-colors text-sm"
+                >
+                  <Plus className="w-4 h-4" />
+                  Start another course
+                  <ArrowRight className="w-4 h-4" />
+                </button>
 
-            <button
-              onClick={onDismiss}
-              className="w-full border border-[#E5E7EB] text-[#6B7280] py-3 rounded-xl font-medium hover:bg-[#F7F8FA] transition-colors text-sm"
-            >
-              Dismiss
-            </button>
+                <button
+                  onClick={onDismiss}
+                  className="w-full border border-[#E5E7EB] text-[#6B7280] py-3 rounded-xl font-medium hover:bg-[#F7F8FA] transition-colors text-sm"
+                >
+                  I&apos;m done for now
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-center text-[#6B7280] text-sm leading-relaxed">
+                  This is a big deal. {firstName} stayed consistent and crossed the finish line.
+                  Consider sending a personal note to celebrate.
+                </p>
+
+                <button
+                  onClick={onDismiss}
+                  className="flex items-center justify-center gap-2 w-full bg-[#004643] text-white py-3 rounded-xl font-semibold hover:bg-[#003533] transition-colors text-sm"
+                >
+                  Awesome — dismiss
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </>
+            )}
           </div>
         </motion.div>
       </motion.div>

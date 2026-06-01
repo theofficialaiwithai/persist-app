@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { AddCourseModal } from '@/app/dashboard/learn/AddCourseModal'
 import { LessonChecklist, type LessonRow } from '@/app/dashboard/learn/LessonChecklist'
+import { CompletionCelebration } from '@/components/ui/completion-celebration'
 
 export interface CourseWithLessons {
   id:       string
@@ -13,11 +14,13 @@ export interface CourseWithLessons {
 }
 
 interface Props {
-  courses: CourseWithLessons[]
+  courses:     CourseWithLessons[]
+  learnerName: string
 }
 
-export function LearnerCoursesPanel({ courses }: Props) {
-  const [showModal, setShowModal] = useState(false)
+export function LearnerCoursesPanel({ courses, learnerName }: Props) {
+  const [showModal,        setShowModal       ] = useState(false)
+  const [celebrationCourse, setCelebrationCourse] = useState<string | null>(null)
 
   return (
     <>
@@ -63,12 +66,25 @@ export function LearnerCoursesPanel({ courses }: Props) {
               courseName={course.name}
               lessons={course.lessons}
               initialPct={course.progress}
+              onCourseCompleted={name => setCelebrationCourse(name)}
             />
           ))}
         </div>
       )}
 
       {showModal && <AddCourseModal onClose={() => setShowModal(false)} />}
+
+      {celebrationCourse && (
+        <CompletionCelebration
+          studentName={learnerName}
+          courseName={celebrationCourse}
+          onStartAnotherCourse={() => {
+            setCelebrationCourse(null)
+            setShowModal(true)
+          }}
+          onDismiss={() => setCelebrationCourse(null)}
+        />
+      )}
     </>
   )
 }

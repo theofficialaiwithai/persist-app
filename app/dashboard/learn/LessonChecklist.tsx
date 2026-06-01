@@ -12,13 +12,14 @@ export interface LessonRow {
 }
 
 interface Props {
-  courseId:    string
-  courseName:  string
-  lessons:     LessonRow[]
-  initialPct:  number
+  courseId:           string
+  courseName:         string
+  lessons:            LessonRow[]
+  initialPct:         number
+  onCourseCompleted?: (courseName: string) => void
 }
 
-export function LessonChecklist({ courseId, courseName, lessons: initialLessons, initialPct }: Props) {
+export function LessonChecklist({ courseId, courseName, lessons: initialLessons, initialPct, onCourseCompleted }: Props) {
   const [lessons,   setLessons  ] = useState(initialLessons)
   const [expanded,  setExpanded ] = useState(false)
   const [toggling,  setToggling ] = useState<Set<string>>(new Set())
@@ -39,8 +40,12 @@ export function LessonChecklist({ courseId, courseName, lessons: initialLessons,
     try {
       const res = await fetch(`/api/lessons/${lessonId}/toggle`, { method: 'POST' })
       if (res.ok) {
-        const data = await res.json() as { progressPct: number }
+        const data = await res.json() as { progressPct: number; completedCount: number; totalCount: number }
         setPct(data.progressPct)
+        // Fire celebration only when the learner checks off the very last lesson
+        if (!wasCompleted && data.completedCount === data.totalCount && data.totalCount > 0) {
+          onCourseCompleted?.(courseName)
+        }
       } else {
         // Revert on error
         setLessons(prev => prev.map(l => l.id === lessonId ? { ...l, completed: wasCompleted } : l))

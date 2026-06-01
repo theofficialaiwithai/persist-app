@@ -197,7 +197,7 @@ export default async function LearnPage() {
 
       {/* ── Course progress + lesson checklists ─────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
-        <LearnerCoursesPanel courses={coursesWithLessons} />
+        <LearnerCoursesPanel courses={coursesWithLessons} learnerName={creator.senderName || creator.name} />
       </div>
 
       {/* ── Active Sprints ───────────────────────────────────────────────────── */}
