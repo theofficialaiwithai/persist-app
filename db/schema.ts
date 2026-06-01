@@ -2,6 +2,7 @@ import {
   pgTable, text, integer, boolean, timestamp, jsonb, uuid, numeric, date, uniqueIndex
 } from 'drizzle-orm/pg-core'
 
+
 export const creators = pgTable('creators', {
   id:                    uuid('id').primaryKey().defaultRandom(),
   userId:                text('user_id').notNull().unique(),
@@ -19,6 +20,7 @@ export const creators = pgTable('creators', {
   stripeCustomerId:      text('stripe_customer_id'),
   stripeSubscriptionId:  text('stripe_subscription_id'),
   webhookSecret:         text('webhook_secret').notNull(),
+  sprintsEnabled:        boolean('sprints_enabled').notNull().default(true),
   createdAt:             timestamp('created_at').notNull().defaultNow(),
 })
 
@@ -82,6 +84,53 @@ export const nudges = pgTable('nudges', {
   resendMessageId: text('resend_message_id'),
   createdAt:       timestamp('created_at').notNull().defaultNow(),
 })
+
+// ── Learning Sprints ──────────────────────────────────────────────────────────
+
+export const learningSprints = pgTable('learning_sprints', {
+  id:           uuid('id').primaryKey().defaultRandom(),
+  creatorId:    uuid('creator_id').notNull().references(() => creators.id, { onDelete: 'cascade' }),
+  courseId:     uuid('course_id').references(() => courses.id, { onDelete: 'set null' }),
+  title:        text('title').notNull(),
+  description:  text('description'),
+  skillFocus:   text('skill_focus'),
+  startDate:    date('start_date').notNull(),
+  endDate:      date('end_date').notNull(),
+  joinDeadline: date('join_deadline').notNull(),
+  maxMembers:   integer('max_members').default(20),
+  status:       text('status').notNull().default('open'),
+  createdAt:    timestamp('created_at').notNull().defaultNow(),
+})
+
+export const sprintMembers = pgTable('sprint_members', {
+  id:          uuid('id').primaryKey().defaultRandom(),
+  sprintId:    uuid('sprint_id').notNull().references(() => learningSprints.id, { onDelete: 'cascade' }),
+  studentId:   uuid('student_id').notNull().references(() => students.id, { onDelete: 'cascade' }),
+  progressPct: integer('progress_pct').notNull().default(0),
+  joinedAt:    timestamp('joined_at').notNull().defaultNow(),
+}, (t) => ({
+  sprintStudentUniq: uniqueIndex('sprint_members_sprint_student_idx').on(t.sprintId, t.studentId),
+}))
+
+export const sprintPosts = pgTable('sprint_posts', {
+  id:             uuid('id').primaryKey().defaultRandom(),
+  sprintId:       uuid('sprint_id').notNull().references(() => learningSprints.id, { onDelete: 'cascade' }),
+  authorName:     text('author_name').notNull(),
+  authorInitials: text('author_initials').notNull(),
+  content:        text('content').notNull(),
+  createdAt:      timestamp('created_at').notNull().defaultNow(),
+})
+
+export const sprintReplies = pgTable('sprint_replies', {
+  id:             uuid('id').primaryKey().defaultRandom(),
+  postId:         uuid('post_id').notNull().references(() => sprintPosts.id, { onDelete: 'cascade' }),
+  authorName:     text('author_name').notNull(),
+  authorInitials: text('author_initials').notNull(),
+  content:        text('content').notNull(),
+  createdAt:      timestamp('created_at').notNull().defaultNow(),
+})
+
+// ── Billing ───────────────────────────────────────────────────────────────────
 
 export const billingSnapshots = pgTable('billing_snapshots', {
   id:                 uuid('id').primaryKey().defaultRandom(),

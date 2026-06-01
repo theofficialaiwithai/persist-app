@@ -427,11 +427,165 @@ async function seed() {
     console.log(`   ${icon}  [${n.status.padEnd(7)}] ${n.subject.slice(0, 60)}`)
   }
 
+  // ── 5. Learning Sprints ───────────────────────────────────────────────────
+  console.log('\n⚡  Seeding learning sprints…')
+
+  function dateStr(offsetDays: number): string {
+    const d = new Date()
+    d.setDate(d.getDate() + offsetDays)
+    return d.toISOString().slice(0, 10)
+  }
+
+  // Clear existing sprint data for this creator
+  const existingSprints = await sql`
+    SELECT id FROM learning_sprints WHERE creator_id = ${creator.id}
+  `
+  for (const s of existingSprints) {
+    await sql`DELETE FROM learning_sprints WHERE id = ${s.id}`
+  }
+
+  // ── Sprint 1: AI Marketing Sprint ─────────────────────────────────────────
+  const [sprint1] = await sql`
+    INSERT INTO learning_sprints (
+      creator_id, course_id, title, description, skill_focus,
+      start_date, end_date, join_deadline, max_members, status
+    ) VALUES (
+      ${creator.id},
+      ${aiCourse.id},
+      'AI Marketing Sprint',
+      'A 14-day intensive where we use AI to transform how you market your course. From automated content to personalised outreach — you''ll come out with a full marketing stack.',
+      null,
+      ${dateStr(7)},
+      ${dateStr(21)},
+      ${dateStr(5)},
+      20,
+      'open'
+    ) RETURNING id
+  `
+  console.log(`   ✓  Sprint 1: AI Marketing Sprint (${sprint1.id})`)
+
+  // Add 4 members to Sprint 1
+  const sprint1Members = [
+    { email: 'mei.chen@example.com',      pct: 15 },
+    { email: 'james.okonkwo@example.com', pct: 32 },
+    { email: 'priya.sharma@example.com',  pct: 48 },
+    { email: 'daniel.martin@example.com', pct: 67 },
+  ]
+  for (const m of sprint1Members) {
+    const sid = studentIds[m.email]
+    if (!sid) continue
+    await sql`
+      INSERT INTO sprint_members (sprint_id, student_id, progress_pct)
+      VALUES (${sprint1.id}, ${sid}, ${m.pct})
+      ON CONFLICT (sprint_id, student_id) DO UPDATE SET progress_pct = EXCLUDED.progress_pct
+    `
+  }
+  console.log(`   ✓  Added ${sprint1Members.length} members to Sprint 1`)
+
+  // Add 3 forum posts to Sprint 1
+  const [post1a] = await sql`
+    INSERT INTO sprint_posts (sprint_id, author_name, author_initials, content)
+    VALUES (
+      ${sprint1.id},
+      'Adamma (Creator)',
+      'AC',
+      E'Welcome to the AI Marketing Sprint! 🚀\n\nOver the next 14 days we''re going to completely reimagine how you market your course using AI.\n\nDay 1 challenge: Use Claude to generate 30 content ideas for your course topic. Post your favourites below!'
+    ) RETURNING id
+  `
+  await sql`
+    INSERT INTO sprint_posts (sprint_id, author_name, author_initials, content)
+    VALUES (
+      ${sprint1.id},
+      'Mei Chen',
+      'MC',
+      E'Just did the Day 1 challenge and I''m blown away 🤯 Claude came up with angles I never would have thought of. My favourite: "What would happen if your students did NOT take your course?" — turning the negative into content gold.\n\nAlso starting to see how I can batch-create a whole month of content in one afternoon!'
+    ) RETURNING id
+  `
+  await sql`
+    INSERT INTO sprint_posts (sprint_id, author_name, author_initials, content)
+    VALUES (
+      ${sprint1.id},
+      'James Okonkwo',
+      'JO',
+      E'Question for the group: has anyone tried using AI for email subject lines? I''ve been A/B testing and the AI-generated ones are consistently outperforming my manual ones.\n\nSharing my prompt below if anyone wants to use it:\n\n"Write 10 email subject lines for a course about [topic]. Target audience: [audience]. Tone: conversational and direct. Avoid clickbait."'
+    ) RETURNING id
+  `
+  // Add a reply to the first post
+  await sql`
+    INSERT INTO sprint_replies (post_id, author_name, author_initials, content)
+    VALUES (
+      ${post1a.id},
+      'Priya Sharma',
+      'PS',
+      'So excited to be here! Already have Claude open in another tab 😄 The 30 ideas challenge is going to be fun — see you all on the other side!'
+    )
+  `
+  console.log(`   ✓  Added 3 posts + 1 reply to Sprint 1`)
+
+  // ── Sprint 2: Freelance OS Bootcamp ──────────────────────────────────────
+  const [sprint2] = await sql`
+    INSERT INTO learning_sprints (
+      creator_id, course_id, title, description, skill_focus,
+      start_date, end_date, join_deadline, max_members, status
+    ) VALUES (
+      ${creator.id},
+      ${freelanceCourse.id},
+      'Freelance OS Bootcamp',
+      'A 3-week sprint to build your complete freelance operating system. By the end you''ll have your pricing, client pipeline, proposals, and delivery workflow all locked in.',
+      null,
+      ${dateStr(14)},
+      ${dateStr(35)},
+      ${dateStr(10)},
+      15,
+      'open'
+    ) RETURNING id
+  `
+  console.log(`   ✓  Sprint 2: Freelance OS Bootcamp (${sprint2.id})`)
+
+  // Add 3 members to Sprint 2
+  const sprint2Members = [
+    { email: 'aisha.johnson@example.com',    pct: 22 },
+    { email: 'tom.nakamura@example.com',     pct: 45 },
+    { email: 'laura.dos-santos@example.com', pct: 71 },
+  ]
+  for (const m of sprint2Members) {
+    const sid = studentIds[m.email]
+    if (!sid) continue
+    await sql`
+      INSERT INTO sprint_members (sprint_id, student_id, progress_pct)
+      VALUES (${sprint2.id}, ${sid}, ${m.pct})
+      ON CONFLICT (sprint_id, student_id) DO UPDATE SET progress_pct = EXCLUDED.progress_pct
+    `
+  }
+  console.log(`   ✓  Added ${sprint2Members.length} members to Sprint 2`)
+
+  // Add 2 forum posts to Sprint 2
+  await sql`
+    INSERT INTO sprint_posts (sprint_id, author_name, author_initials, content)
+    VALUES (
+      ${sprint2.id},
+      'Adamma (Creator)',
+      'AC',
+      E'Welcome to the Freelance OS Bootcamp! 🎯\n\nThis sprint is all about execution. Not just learning — actually building the systems that will run your freelance business.\n\nWeek 1 focus: Your pricing model and first proposal template.\n\nDrop a message below: what''s your #1 challenge with pricing right now?'
+    )
+  `
+  await sql`
+    INSERT INTO sprint_posts (sprint_id, author_name, author_initials, content)
+    VALUES (
+      ${sprint2.id},
+      'Laura Dos Santos',
+      'LD',
+      E'My pricing challenge: I always underprice out of fear, then resent the project halfway through. Looking forward to fixing this properly in week 1.\n\nAlso — for anyone who hasn''t watched the Week 3 pricing module yet, it''s genuinely the best explanation of value-based pricing I''ve seen. Worth watching before the sprint starts!'
+    )
+  `
+  console.log(`   ✓  Added 2 posts to Sprint 2`)
+
   // ── Done ──────────────────────────────────────────────────────────────────
   console.log('\n✅  Seed complete!')
   console.log(`   ${courses.length} courses`)
   console.log(`   ${studentDefs.length} students`)
-  console.log(`   ${nudgeDefs.length} nudges\n`)
+  console.log(`   ${nudgeDefs.length} nudges`)
+  console.log(`   2 learning sprints\n`)
 }
 
 seed().catch((err) => {

@@ -12,6 +12,7 @@ import {
   ChevronRight,
   UserCircle,
   Search,
+  Zap,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ProfileDropdown } from '@/components/ui/profile-dropdown'
@@ -41,6 +42,7 @@ const navItems = [
   { href: '/dashboard/profile',  label: 'Profile',   icon: UserCircle,     exact: true  },
   { href: '/dashboard',          label: 'Dashboard',  icon: LayoutDashboard, exact: true  },
   { href: '/dashboard/students', label: 'Students',   icon: Users,          exact: false },
+  { href: '/dashboard/sprints',  label: 'Sprints',    icon: Zap,            exact: false },
   { href: '/dashboard/settings', label: 'Settings',   icon: Settings,       exact: false },
 ]
 
