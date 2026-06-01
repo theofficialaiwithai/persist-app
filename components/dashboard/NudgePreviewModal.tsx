@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   X, Loader2, Send, Sparkles, AlertCircle, RotateCcw, Mail, MessageSquare,
@@ -16,7 +16,7 @@ interface Props {
 }
 
 type Mode = 'email' | 'message'
-type Step = 'generating' | 'preview' | 'sending' | 'error'
+type Step = 'idle' | 'generating' | 'preview' | 'sending' | 'error'
 
 interface Preview {
   subject?:        string
@@ -27,77 +27,91 @@ interface Preview {
   hasToneExamples: boolean
 }
 
+// Per-mode draft cache so switching tabs doesn't re-call Claude
+type DraftCache = Partial<Record<Mode, Preview>>
+
 const EMOJIS = ['😍', '❤️', '🔥', '⚡', '👍'] as const
 
 export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
   const router = useRouter()
 
   const [mode,     setMode    ] = useState<Mode>('email')
-  const [step,     setStep    ] = useState<Step>('generating')
+  const [step,     setStep    ] = useState<Step>('idle')
   const [preview,  setPreview ] = useState<Preview | null>(null)
   const [subject,  setSubject ] = useState('')
   const [body,     setBody    ] = useState('')
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
+
+  // Refs — don't trigger re-renders
+  const cache    = useRef<DraftCache>({})          // generated drafts per mode
+  const abortRef = useRef<AbortController | null>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
-  const [, startTransition] = useTransition()
 
-  // ── Generate draft whenever mode changes ────────────────────────────────────
-  useEffect(() => {
-    let cancelled = false
-    setStep('generating')
-    setErrorMsg(null)
-
-    async function generate() {
-      try {
-        const res = await fetch('/api/nudge/generate', {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ studentId, mode }),
-        })
-        const data = await res.json()
-        if (cancelled) return
-        if (!res.ok) throw new Error(data.error ?? 'Generation failed')
-        setPreview(data)
-        setSubject(data.subject ?? '')
-        setBody(data.body)
-        setStep('preview')
-      } catch (err) {
-        if (cancelled) return
-        setErrorMsg(err instanceof Error ? err.message : 'Something went wrong generating the preview.')
-        setStep('error')
-      }
+  // ── Core generation function ─────────────────────────────────────────────────
+  const generate = useCallback(async (targetMode: Mode, bust = false) => {
+    // Use cache unless busting (Regenerate button)
+    if (!bust && cache.current[targetMode]) {
+      const cached = cache.current[targetMode]!
+      setPreview(cached)
+      setSubject(cached.subject ?? '')
+      setBody(cached.body)
+      setStep('preview')
+      return
     }
-    generate()
-    return () => { cancelled = true }
-  }, [studentId, mode])
 
-  // ── Mode switch (re-generate) ───────────────────────────────────────────────
-  function switchMode(next: Mode) {
-    if (next === mode) return
-    setMode(next)
-    // useEffect above handles re-generation
-  }
+    // Cancel any in-flight request
+    abortRef.current?.abort()
+    const abort = new AbortController()
+    abortRef.current = abort
 
-  // ── Regenerate ──────────────────────────────────────────────────────────────
-  async function handleRegenerate() {
     setStep('generating')
     setErrorMsg(null)
+
     try {
-      const res = await fetch('/api/nudge/generate', {
+      const res  = await fetch('/api/nudge/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ studentId, mode }),
+        body:    JSON.stringify({ studentId, mode: targetMode }),
+        signal:  abort.signal,
       })
+      if (abort.signal.aborted) return
+
       const data = await res.json()
+      if (abort.signal.aborted) return
+
       if (!res.ok) throw new Error(data.error ?? 'Generation failed')
+
+      cache.current[targetMode] = data
       setPreview(data)
       setSubject(data.subject ?? '')
       setBody(data.body)
       setStep('preview')
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Something went wrong.')
+    } catch (err: unknown) {
+      if (abort.signal.aborted) return
+      const msg = err instanceof Error ? err.message : 'Something went wrong generating the preview.'
+      setErrorMsg(msg)
       setStep('error')
     }
+  }, [studentId])
+
+  // Kick off generation immediately on first render (idle → generating)
+  const didInit = useRef(false)
+  if (!didInit.current) {
+    didInit.current = true
+    // Schedule after mount — avoids calling setState during render
+    setTimeout(() => generate('email'), 0)
+  }
+
+  // ── Mode switch ──────────────────────────────────────────────────────────────
+  function switchMode(next: Mode) {
+    if (next === mode) return
+    setMode(next)
+    generate(next)
+  }
+
+  // ── Regenerate (busts cache for current mode) ────────────────────────────────
+  function handleRegenerate() {
+    generate(mode, true)
   }
 
   // ── Send ─────────────────────────────────────────────────────────────────────
@@ -125,12 +139,16 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
       }
       showToast.nudgeSent(studentName)
       onClose()
-      startTransition(() => router.refresh())
+      router.refresh()
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Network error.')
       setStep('error')
     }
   }
+
+  // Cleanup abort on unmount
+  // (Can't use useEffect for the abort since we're not using useEffect for generation)
+  // Instead, onClose handles the unmount path naturally.
 
   const firstName = studentName.split(' ')[0]
 
@@ -162,7 +180,7 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
               )}
             </div>
             <button
-              onClick={onClose}
+              onClick={() => { abortRef.current?.abort(); onClose() }}
               className="w-7 h-7 rounded-full flex items-center justify-center text-[#9CA3AF] hover:text-[#111827] hover:bg-[#F3F4F6] transition-colors"
             >
               <X className="w-4 h-4" />
@@ -173,9 +191,9 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
           <div className="px-6 pt-4">
             <div className="flex rounded-xl border border-[#E5E7EB] p-1 gap-1 bg-[#F7F8FA]">
               {([
-                { value: 'email',   label: 'Email',   Icon: Mail          },
-                { value: 'message', label: 'Message', Icon: MessageSquare },
-              ] as const).map(({ value, label, Icon }) => (
+                { value: 'email'   as const, label: 'Email',   Icon: Mail          },
+                { value: 'message' as const, label: 'Message', Icon: MessageSquare },
+              ]).map(({ value, label, Icon }) => (
                 <button
                   key={value}
                   onClick={() => switchMode(value)}
@@ -198,16 +216,14 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
           <div className="px-6 py-5">
 
             {/* Generating */}
-            {step === 'generating' && (
+            {(step === 'idle' || step === 'generating') && (
               <div className="flex flex-col items-center justify-center py-10 gap-3">
-                <div className="w-12 h-12 bg-[#E8F4F0] rounded-2xl flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-[#004643] animate-pulse" />
-                </div>
+                <Loader2 className="w-8 h-8 text-[#004643] animate-spin" />
                 <p className="text-sm font-medium text-[#111827]">
                   {mode === 'email' ? 'Drafting email…' : 'Writing message…'}
                 </p>
                 <p className="text-xs text-[#9CA3AF] text-center max-w-xs">
-                  Claude is personalising {mode === 'email' ? 'an email' : 'a message'} based on {firstName}&apos;s progress.
+                  Claude is writing a personalised {mode === 'email' ? 'email' : 'message'} for {firstName}.
                 </p>
               </div>
             )}
@@ -223,7 +239,7 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
                   </div>
                 )}
 
-                {/* Email mode: subject + body */}
+                {/* Email: subject line */}
                 {mode === 'email' && (
                   <div>
                     <label className="text-xs font-semibold text-[#374151] uppercase tracking-wide">Subject line</label>
@@ -236,29 +252,26 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
                   </div>
                 )}
 
-                {/* Message preview header */}
+                {/* Message: student preview chip */}
                 {mode === 'message' && (
                   <div className="flex items-center gap-2 px-3 py-2 bg-[#F7F8FA] rounded-xl border border-[#E5E7EB]">
                     <div className="w-7 h-7 rounded-full bg-[#E8F4F0] text-[#004643] text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                      {studentName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
+                      {studentName.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()}
                     </div>
                     <div>
                       <p className="text-xs font-semibold text-[#111827]">{studentName}</p>
                       <p className="text-[10px] text-[#9CA3AF]">will see this in their messages</p>
                     </div>
-                    {/* Emoji preview row */}
                     <div className="ml-auto flex gap-1">
-                      {EMOJIS.map(e => <span key={e} className="text-sm opacity-30">{e}</span>)}
+                      {EMOJIS.map(e => <span key={e} className="text-sm opacity-25">{e}</span>)}
                     </div>
                   </div>
                 )}
 
-                {/* Body textarea */}
+                {/* Body */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-[#374151] uppercase tracking-wide">
-                      {mode === 'email' ? 'Message' : 'Message'}
-                    </label>
+                    <label className="text-xs font-semibold text-[#374151] uppercase tracking-wide">Message</label>
                     <button
                       onClick={handleRegenerate}
                       className="flex items-center gap-1 text-[10px] font-medium text-[#004643] hover:text-[#003533] transition-colors"
@@ -277,8 +290,8 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
 
                 <p className="text-[11px] text-[#9CA3AF]">
                   {mode === 'email'
-                    ? '✨ AI-generated — edit freely. Changes help train future nudges to your style.'
-                    : '💬 This message will appear in the student\'s in-app messages with emoji reactions.'}
+                    ? '✨ AI-generated — edit freely. Your edits train future nudges to your style.'
+                    : '💬 Appears in the student\'s in-app messages with emoji reactions.'}
                 </p>
               </div>
             )}
@@ -323,7 +336,7 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
           {step === 'preview' && (
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#E5E7EB] bg-[#FAFAFA]">
               <button
-                onClick={onClose}
+                onClick={() => { abortRef.current?.abort(); onClose() }}
                 className="px-4 py-2 text-sm font-medium text-[#6B7280] hover:text-[#111827] transition-colors"
               >
                 Cancel
