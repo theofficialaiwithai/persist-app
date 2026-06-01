@@ -131,6 +131,25 @@ export const sprintReplies = pgTable('sprint_replies', {
   createdAt:      timestamp('created_at').notNull().defaultNow(),
 })
 
+// ── Learner curriculum ────────────────────────────────────────────────────────
+
+export const lessons = pgTable('lessons', {
+  id:        uuid('id').primaryKey().defaultRandom(),
+  courseId:  uuid('course_id').notNull().references(() => courses.id, { onDelete: 'cascade' }),
+  title:     text('title').notNull(),
+  position:  integer('position').notNull().default(0),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+})
+
+export const lessonCompletions = pgTable('lesson_completions', {
+  id:          uuid('id').primaryKey().defaultRandom(),
+  lessonId:    uuid('lesson_id').notNull().references(() => lessons.id, { onDelete: 'cascade' }),
+  learnerId:   uuid('learner_id').notNull().references(() => creators.id, { onDelete: 'cascade' }),
+  completedAt: timestamp('completed_at').notNull().defaultNow(),
+}, (t) => ({
+  lessonLearnerUniq: uniqueIndex('lesson_completions_lesson_learner_idx').on(t.lessonId, t.learnerId),
+}))
+
 // ── Billing ───────────────────────────────────────────────────────────────────
 
 export const billingSnapshots = pgTable('billing_snapshots', {

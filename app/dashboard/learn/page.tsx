@@ -4,12 +4,12 @@ import { db } from '@/db'
 import {
   creators, courses, students,
   learningSprints, sprintMembers, sprintPosts,
+  lessons, lessonCompletions,
 } from '@/db/schema'
 import { eq, inArray, and, or, desc, sql } from 'drizzle-orm'
 import Link from 'next/link'
-import { AnimatedProgressBar } from '@/components/ui/animated-progress-bar'
-import { CopyWebhookButton } from '@/app/dashboard/learn/CopyWebhookButton'
-import { Zap, BookOpen, Flame, ExternalLink } from 'lucide-react'
+import { Zap, BookOpen, Flame } from 'lucide-react'
+import { LearnerCoursesPanel, type CourseWithLessons } from '@/app/dashboard/learn/LearnerCoursesPanel'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -47,9 +47,6 @@ export default async function LearnPage() {
     creator.senderName?.split(' ')[0] ||
     creator.name?.split(' ')[0] ||
     'there'
-
-  const appUrl    = process.env.NEXT_PUBLIC_APP_URL ?? 'https://persist-app.vercel.app'
-  const webhookUrl = `${appUrl}/api/webhook/progress?creatorId=${creator.id}`
 
   // ── Courses ──────────────────────────────────────────────────────────────────
   const myCourses = await db
@@ -131,15 +128,44 @@ export default async function LearnPage() {
 
   const sprintTitleMap = new Map(activeSprints.map(s => [s.id, s.title]))
 
-  // ── Progress per course ──────────────────────────────────────────────────────
-  const progressByCourse = new Map<string, { pct: number; lastActive: Date | null }>()
-  for (const s of studentRows) {
-    const existing = progressByCourse.get(s.courseId)
-    const pct = s.progressPct
-    if (!existing || pct > existing.pct) {
-      progressByCourse.set(s.courseId, { pct, lastActive: s.lastActiveAt })
-    }
+  // ── Lessons + completions for each course ───────────────────────────────────
+  const allLessons = courseIds.length > 0
+    ? await db.select().from(lessons).where(inArray(lessons.courseId, courseIds))
+    : []
+
+  const lessonIds = allLessons.map(l => l.id)
+
+  const completedSet = new Set<string>()
+  if (lessonIds.length > 0) {
+    const completionRows = await db
+      .select({ lessonId: lessonCompletions.lessonId })
+      .from(lessonCompletions)
+      .where(and(
+        inArray(lessonCompletions.lessonId, lessonIds),
+        eq(lessonCompletions.learnerId, creator.id),
+      ))
+    for (const r of completionRows) completedSet.add(r.lessonId)
   }
+
+  // ── Progress per course (from lesson completions, fall back to student rows) ─
+  const progressByCourse = new Map<string, number>()
+  for (const s of studentRows) {
+    if (!progressByCourse.has(s.courseId)) progressByCourse.set(s.courseId, s.progressPct)
+  }
+
+  // Build CourseWithLessons array for the panel
+  const coursesWithLessons: CourseWithLessons[] = myCourses.map(c => {
+    const courseLessons = allLessons
+      .filter(l => l.courseId === c.id)
+      .sort((a, b) => a.position - b.position)
+      .map(l => ({ id: l.id, title: l.title, position: l.position, completed: completedSet.has(l.id) }))
+
+    const done  = courseLessons.filter(l => l.completed).length
+    const total = courseLessons.length
+    const lessonProgress = total > 0 ? Math.round((done / total) * 100) : (progressByCourse.get(c.id) ?? 0)
+
+    return { id: c.id, name: c.name, lessons: courseLessons, progress: lessonProgress }
+  })
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -169,88 +195,9 @@ export default async function LearnPage() {
         ))}
       </div>
 
-      {/* ── Course progress ──────────────────────────────────────────────────── */}
+      {/* ── Course progress + lesson checklists ─────────────────────────────── */}
       <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-base font-semibold text-[#111827]">Your Progress</h2>
-          {myCourses.length > 0 && (
-            <Link href="/dashboard/students" className="text-xs text-[#004643] hover:text-[#003533] transition-colors">
-              Manage courses →
-            </Link>
-          )}
-        </div>
-
-        {myCourses.length === 0 ? (
-          /* ── Empty: no courses yet ─── */
-          <div className="py-8 space-y-6">
-            <div className="text-center">
-              <p className="text-sm font-medium text-[#111827] mb-1">Connect a course to start tracking your progress</p>
-              <p className="text-xs text-[#6B7C7B]">Add it manually, or paste your tracking URL into Zapier.</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Manual add */}
-              <Link
-                href="/dashboard/students"
-                className="flex flex-col items-start gap-2 p-4 rounded-xl border-2 border-[#E5E7EB] hover:border-[#004643] hover:bg-[#F7FFFE] transition-all group"
-              >
-                <BookOpen className="w-5 h-5 text-[#004643]" />
-                <div>
-                  <p className="text-sm font-semibold text-[#111827] group-hover:text-[#004643]">Add a course manually</p>
-                  <p className="text-xs text-[#9CA3AF] mt-0.5">Import students and set up tracking</p>
-                </div>
-              </Link>
-
-              {/* Tracking URL */}
-              <div className="flex flex-col items-start gap-2 p-4 rounded-xl border-2 border-[#E5E7EB]">
-                <ExternalLink className="w-5 h-5 text-[#E4572E]" />
-                <div className="w-full">
-                  <p className="text-sm font-semibold text-[#111827]">Get your tracking URL</p>
-                  <p className="text-xs text-[#9CA3AF] mt-0.5 mb-2">
-                    Paste into Zapier → your course platform → Persist gets notified when you make progress
-                  </p>
-                  <div className="flex items-center gap-2">
-                    <code className="flex-1 text-[10px] font-mono bg-[#F7F8FA] border border-[#E5E7EB] rounded px-2 py-1 truncate text-[#374151]">
-                      {webhookUrl}
-                    </code>
-                    <CopyWebhookButton url={webhookUrl} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* ── Course list ─── */
-          <div className="divide-y divide-[#E5E7EB]">
-            {myCourses.map(course => {
-              const prog      = progressByCourse.get(course.id)
-              const pct       = prog?.pct ?? 0
-              const lastActive = prog?.lastActive
-
-              return (
-                <div key={course.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 bg-[#E8F4F0] rounded-xl flex items-center justify-center flex-shrink-0">
-                        <span className="text-[#004643] text-sm font-bold">
-                          {course.name.charAt(0).toUpperCase()}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-[#111827]">{course.name}</p>
-                        {lastActive && (
-                          <p className="text-xs text-[#9CA3AF]">Last active {fmtDate(lastActive)}</p>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-sm font-bold text-[#004643]">{pct}%</span>
-                  </div>
-                  <AnimatedProgressBar value={pct} />
-                </div>
-              )
-            })}
-          </div>
-        )}
+        <LearnerCoursesPanel courses={coursesWithLessons} />
       </div>
 
       {/* ── Active Sprints ───────────────────────────────────────────────────── */}
