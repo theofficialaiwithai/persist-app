@@ -70,6 +70,7 @@ export default async function DashboardLayout({
         coursePlatform: creator.coursePlatform,
         profileImageUrl: creator.profileImageUrl ?? null,
       }}
+      userType={creator.userType ?? 'creator'}
       totalStudents={totalStudents}
       activeCourses={activeCourses}
       students={paletteStudents}

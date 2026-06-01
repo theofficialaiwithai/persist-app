@@ -15,6 +15,7 @@ import {
   Sparkles,
   Menu,
   X,
+  Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { ProfileDropdown } from '@/components/ui/profile-dropdown'
@@ -32,6 +33,7 @@ export interface SidebarCreator {
 
 interface LayoutClientProps {
   creator: SidebarCreator
+  userType: string
   totalStudents: number
   activeCourses: number
   students: PaletteStudent[]
@@ -40,11 +42,18 @@ interface LayoutClientProps {
 
 // ── Nav items ─────────────────────────────────────────────────────────────────
 
-const navItems = [
+const creatorNavItems = [
   { href: '/dashboard',          label: 'Dashboard', icon: LayoutDashboard, exact: true  },
   { href: '/dashboard/profile',  label: 'Profile',   icon: UserCircle,      exact: true  },
   { href: '/dashboard/students', label: 'Students',  icon: Users,           exact: false },
   { href: '/dashboard/sprints',  label: 'Sprints',   icon: Zap,             exact: false },
+]
+
+const learnerNavItems = [
+  { href: '/dashboard/learn',    label: 'Learn',     icon: LayoutDashboard, exact: true  },
+  { href: '/dashboard/sprints',  label: 'Sprints',   icon: Zap,             exact: false },
+  { href: '/dashboard/profile',  label: 'Profile',   icon: UserCircle,      exact: true  },
+  { href: '/dashboard/settings', label: 'Settings',  icon: Settings,        exact: true  },
 ]
 
 const comingSoonItems = [
@@ -57,9 +66,10 @@ const comingSoonItems = [
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-export function LayoutClient({ creator, totalStudents, activeCourses, students, children }: LayoutClientProps) {
+export function LayoutClient({ creator, userType, totalStudents, activeCourses, students, children }: LayoutClientProps) {
   const pathname = usePathname()
   const router   = useRouter()
+  const navItems = userType === 'learner' ? learnerNavItems : creatorNavItems
   const [collapsed,   setCollapsed  ] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
 

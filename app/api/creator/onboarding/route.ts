@@ -11,7 +11,7 @@ export async function PATCH(req: Request) {
   if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
-  const { senderName, coursePlatform, nudgeTone, minDaysBetweenNudges } = body
+  const { senderName, coursePlatform, nudgeTone, minDaysBetweenNudges, userType } = body
 
   // Pull Clerk identity so we always have a valid email on the record
   const user       = await currentUser()
@@ -30,6 +30,7 @@ export async function PATCH(req: Request) {
       nudgeTone:            nudgeTone           || 'encouraging',
       minDaysBetweenNudges: Number(minDaysBetweenNudges) || 5,
       webhookSecret:        crypto.randomBytes(32).toString('hex'),
+      userType:             userType === 'learner' ? 'learner' : 'creator',
     })
     .onConflictDoUpdate({
       target: creators.userId,
@@ -42,6 +43,7 @@ export async function PATCH(req: Request) {
         coursePlatform:       coursePlatform      || 'other',
         nudgeTone:            nudgeTone           || 'encouraging',
         minDaysBetweenNudges: Number(minDaysBetweenNudges) || 5,
+        userType:             userType === 'learner' ? 'learner' : 'creator',
       },
     })
     .returning()

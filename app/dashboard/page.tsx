@@ -55,6 +55,7 @@ export default async function DashboardPage() {
       where: eq(creators.userId, userId),
     })
     if (!creator) redirect('/dashboard/onboarding')
+    if (creator.userType === 'learner') redirect('/dashboard/learn')
 
     creatorId = creator.id
 

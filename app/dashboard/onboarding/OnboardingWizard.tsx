@@ -53,8 +53,9 @@ interface Props {
 export function OnboardingWizard({ existingName = '' }: Props) {
   const router = useRouter()
 
-  // ── Step state ──────────────────────────────────────────────────────────────
-  const [step, setStep] = useState(1)
+  // ── Step + user type state ─────────────────────────────────────────────────
+  const [step,     setStep    ] = useState(0)
+  const [userType, setUserType] = useState<'creator' | 'learner'>('creator')
 
   // Step 1
   const [displayName,    setDisplayName   ] = useState(existingName)
@@ -62,13 +63,16 @@ export function OnboardingWizard({ existingName = '' }: Props) {
   const [photoUrl,       setPhotoUrl      ] = useState('')
   const [photoSaving,    setPhotoSaving   ] = useState(false)
 
-  // Steps 2-4
+  // Step 2 – learner only
+  const [courseTitle, setCourseTitle] = useState('')
+
+  // Steps 2-4 – creator only
   const [platform,  setPlatform ] = useState('')
   const [tone,      setTone     ] = useState('')
   const [frequency, setFrequency] = useState('')
   const [saving,    setSaving   ] = useState(false)
 
-  // Step 5
+  // Step 5 (creator webhook)
   const [webhookUrl,    setWebhookUrl   ] = useState<string | null>(null)
   const [webhookSecret, setWebhookSecret] = useState<string | null>(null)
   const [showSecret,    setShowSecret   ] = useState(false)
@@ -78,15 +82,42 @@ export function OnboardingWizard({ existingName = '' }: Props) {
 
   // ── canContinue ─────────────────────────────────────────────────────────────
   const canContinue =
-    step === 1 ? !!displayName.trim()           :
-    step === 2 ? !!platform                     :
-    step === 3 ? !!tone                         :
-    step === 4 ? (!!frequency && !saving)       :
+    step === 0 ? false :  // click-through only
+    step === 1 ? !!displayName.trim() :
+    step === 2 ? (userType === 'learner' ? !!courseTitle.trim() : !!platform) :
+    step === 3 ? !!tone :
+    step === 4 ? (!!frequency && !saving) :
     /* step 5 */ true
 
   // ── handleContinue ──────────────────────────────────────────────────────────
   const handleContinue = useCallback(async () => {
     if (!canContinue) return
+
+    // Learner shortcut: after step 2, save + redirect to /dashboard/learn
+    if (userType === 'learner' && step === 2) {
+      setSaving(true)
+      try {
+        const res = await fetch('/api/creator/onboarding', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            senderName:           displayName.trim(),
+            coursePlatform:       'other',
+            nudgeTone:            'encouraging',
+            minDaysBetweenNudges: 7,
+            userType:             'learner',
+          }),
+        })
+        if (!res.ok) throw new Error('Failed to save')
+        router.push('/dashboard/learn')
+        router.refresh()
+      } catch {
+        showToast.error('Failed to save. Please try again.')
+      } finally {
+        setSaving(false)
+      }
+      return
+    }
 
     if (step < 4) {
       setStep(s => s + 1)
@@ -104,6 +135,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
             coursePlatform:       platform,
             nudgeTone:            tone,
             minDaysBetweenNudges: parseInt(frequency),
+            userType:             'creator',
           }),
         })
         if (!res.ok) throw new Error('Failed to save')
@@ -119,10 +151,10 @@ export function OnboardingWizard({ existingName = '' }: Props) {
       return
     }
 
-    // Step 5 → go to dashboard
+    // Step 5 → creator dashboard
     router.push('/dashboard')
     router.refresh()
-  }, [canContinue, step, displayName, platform, tone, frequency, router])
+  }, [canContinue, step, userType, displayName, courseTitle, platform, tone, frequency, router])
 
   // ── Enter key ───────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -182,7 +214,62 @@ export function OnboardingWizard({ existingName = '' }: Props) {
     }
   }
 
-  // ── Step 1: Welcome card ─────────────────────────────────────────────────────
+  // ── Step 0: User type selection ──────────────────────────────────────────────
+  if (step === 0) {
+    return (
+      <div className="min-h-screen bg-[#FBFEF9] flex flex-col items-center justify-center px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
+          className="text-center mb-10"
+        >
+          <div className="text-5xl mb-4">👋</div>
+          <h1 className="text-3xl font-bold text-[#1A2E2D] mb-2">Welcome to Persist</h1>
+          <p className="text-[#6B7C7B]">How are you using Persist?</p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.1, ease: 'easeOut' }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-lg"
+        >
+          {/* Learner */}
+          <button
+            onClick={() => { setUserType('learner'); setStep(1) }}
+            className="group bg-white border-2 border-[#E2EDEC] hover:border-[#7FB069] rounded-2xl p-8 text-left transition-all hover:shadow-md hover:-translate-y-1"
+          >
+            <div className="text-3xl mb-3">🎓</div>
+            <h2 className="text-lg font-bold text-[#1A2E2D] mb-1">I&apos;m a Learner</h2>
+            <p className="text-sm text-[#6B7C7B] leading-relaxed">
+              I want to track my course progress, join learning sprints, and stay accountable with a community.
+            </p>
+            <div className="mt-4 text-xs font-semibold text-[#7FB069] flex items-center gap-1">
+              Community &amp; streaks <span>→</span>
+            </div>
+          </button>
+
+          {/* Creator */}
+          <button
+            onClick={() => { setUserType('creator'); setStep(1) }}
+            className="group bg-white border-2 border-[#E2EDEC] hover:border-[#E4572E] rounded-2xl p-8 text-left transition-all hover:shadow-md hover:-translate-y-1"
+          >
+            <div className="text-3xl mb-3">🚀</div>
+            <h2 className="text-lg font-bold text-[#1A2E2D] mb-1">I&apos;m a Creator</h2>
+            <p className="text-sm text-[#6B7C7B] leading-relaxed">
+              I have students and want Persist to automatically re-engage them with AI nudges in my voice.
+            </p>
+            <div className="mt-4 text-xs font-semibold text-[#E4572E] flex items-center gap-1">
+              Automation &amp; retention <span>→</span>
+            </div>
+          </button>
+        </motion.div>
+      </div>
+    )
+  }
+
+  // ── Step 1: Welcome card (same for both) ────────────────────────────────────
   if (step === 1) {
     return (
       <div className="flex items-center justify-center min-h-full p-8">
@@ -224,9 +311,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-
                 <p className="text-sm text-[#6B7280]">Paste a public image URL (PNG or JPEG).</p>
-
                 <input
                   type="url"
                   value={photoUrl}
@@ -235,7 +320,6 @@ export function OnboardingWizard({ existingName = '' }: Props) {
                   autoFocus
                   className="w-full h-10 rounded-lg border border-[#E5E7EB] px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#004643]"
                 />
-
                 <div className="flex gap-3 justify-end pt-1">
                   <button
                     onClick={() => setPhotoDialogOpen(false)}
@@ -259,8 +343,63 @@ export function OnboardingWizard({ existingName = '' }: Props) {
     )
   }
 
-  // ── Step 2: Platform ─────────────────────────────────────────────────────────
+  // ── Step 2: Platform (creator) or Course title (learner) ─────────────────────
   if (step === 2) {
+    if (userType === 'learner') {
+      return (
+        <div className="min-h-screen bg-white flex flex-col">
+          <div className="w-full h-1.5 bg-[#F3F4F6]">
+            <motion.div
+              className="h-full bg-[#7FB069] rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: '50%' }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
+            />
+          </div>
+          <div className="flex-1 flex flex-col items-center justify-center px-6 py-12">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-full max-w-lg"
+            >
+              <h1 className="text-2xl font-bold text-[#111827] text-center mb-2">
+                What course are you currently taking?
+              </h1>
+              <p className="text-[#6B7280] text-center text-sm mb-8">
+                We&apos;ll help you track your progress and stay on track.
+              </p>
+              <input
+                type="text"
+                value={courseTitle}
+                onChange={e => setCourseTitle(e.target.value)}
+                placeholder="e.g. Build AI with AI, Designing with Figma..."
+                autoFocus
+                className="w-full px-5 py-4 rounded-2xl border-2 border-[#E5E7EB] text-[#111827] text-base focus:outline-none focus:border-[#7FB069] transition-colors"
+              />
+            </motion.div>
+          </div>
+          <div className="flex items-center justify-end px-8 py-6 border-t border-[#F3F4F6]">
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-[#9CA3AF] hidden sm:block">or press Enter</span>
+              <button
+                onClick={handleContinue}
+                disabled={!courseTitle.trim() || saving}
+                className={cn(
+                  'px-6 py-3 rounded-xl font-semibold text-sm transition-all',
+                  courseTitle.trim() && !saving
+                    ? 'bg-[#7FB069] text-white hover:bg-[#6A9A55] shadow-lg shadow-[#7FB069]/25'
+                    : 'bg-[#F3F4F6] text-[#9CA3AF] cursor-not-allowed',
+                )}
+              >
+                {saving ? 'Setting up…' : 'Get started →'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <OnboardingQuestion
         question="What platform are your students on?"
@@ -274,7 +413,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
     )
   }
 
-  // ── Step 3: Tone ─────────────────────────────────────────────────────────────
+  // ── Step 3: Tone (creator only) ───────────────────────────────────────────────
   if (step === 3) {
     return (
       <OnboardingQuestion
@@ -290,11 +429,10 @@ export function OnboardingWizard({ existingName = '' }: Props) {
     )
   }
 
-  // ── Step 4: Frequency ─────────────────────────────────────────────────────────
+  // ── Step 4: Frequency (creator only) ─────────────────────────────────────────
   if (step === 4) {
     return (
       <div className="relative">
-        {/* Saving overlay */}
         <AnimatePresence>
           {saving && (
             <motion.div
@@ -325,18 +463,15 @@ export function OnboardingWizard({ existingName = '' }: Props) {
     )
   }
 
-  // ── Step 5: Webhook setup (full-screen style) ─────────────────────────────────
+  // ── Step 5: Webhook setup (creator only) ──────────────────────────────────────
   return (
     <div className="min-h-screen bg-white flex flex-col">
-      {/* Progress bar — 100% */}
       <div className="w-full h-1.5 bg-[#F3F4F6]">
         <div className="h-full bg-[#E4572E] rounded-full w-full" />
       </div>
 
-      {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto px-6 py-12">
         <div className="max-w-xl mx-auto space-y-8">
-          {/* Header */}
           <div className="text-center space-y-2">
             <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[#F0F7EE] mb-2">
               <CheckCircle2 className="w-7 h-7 text-[#7FB069]" />
@@ -347,7 +482,6 @@ export function OnboardingWizard({ existingName = '' }: Props) {
             </p>
           </div>
 
-          {/* Webhook URL */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-[#111827]">Webhook URL</label>
             <p className="text-xs text-[#6B7280]">
@@ -369,7 +503,6 @@ export function OnboardingWizard({ existingName = '' }: Props) {
             </div>
           </div>
 
-          {/* Signing secret */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-[#111827]">Signing secret</label>
             <div className="flex gap-2">
@@ -400,7 +533,6 @@ export function OnboardingWizard({ existingName = '' }: Props) {
             </p>
           </div>
 
-          {/* Expected payload */}
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-[#111827]">Expected payload shape</label>
             <pre className="text-xs font-mono bg-[#F7F8FA] border border-[#E5E7EB] rounded-xl p-4 overflow-x-auto text-[#374151] leading-relaxed">
@@ -408,7 +540,6 @@ export function OnboardingWizard({ existingName = '' }: Props) {
             </pre>
           </div>
 
-          {/* Test webhook */}
           <div className="flex items-center justify-between py-2">
             <p className="text-sm text-[#6B7280]">Ready to test your integration?</p>
             <button
@@ -420,14 +551,12 @@ export function OnboardingWizard({ existingName = '' }: Props) {
             </button>
           </div>
 
-          {/* Skip hint */}
           <p className="text-xs text-center text-[#9CA3AF]">
             You can always set this up later in <strong className="font-medium">Settings → Webhook Setup</strong>
           </p>
         </div>
       </div>
 
-      {/* Bottom action bar */}
       <div className="border-t border-[#F3F4F6] px-8 py-6 flex items-center justify-end gap-4">
         <span className="text-sm text-[#9CA3AF] hidden sm:block">or press Enter</span>
         <button
@@ -438,7 +567,6 @@ export function OnboardingWizard({ existingName = '' }: Props) {
         </button>
       </div>
 
-      {/* Test Webhook Modal */}
       <AnimatePresence>
         {testOpen && (
           <motion.div
@@ -479,9 +607,7 @@ export function OnboardingWizard({ existingName = '' }: Props) {
                 <div
                   className={cn(
                     'rounded-lg px-4 py-3 text-sm',
-                    testResult.success
-                      ? 'bg-[#F0F7EE] text-[#5A8F47]'
-                      : 'bg-red-50 text-red-700',
+                    testResult.success ? 'bg-[#F0F7EE] text-[#5A8F47]' : 'bg-red-50 text-red-700',
                   )}
                 >
                   {testResult.message}

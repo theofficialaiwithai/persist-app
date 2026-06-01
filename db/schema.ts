@@ -21,6 +21,7 @@ export const creators = pgTable('creators', {
   stripeSubscriptionId:  text('stripe_subscription_id'),
   webhookSecret:         text('webhook_secret').notNull(),
   sprintsEnabled:        boolean('sprints_enabled').notNull().default(true),
+  userType:              text('user_type').notNull().default('creator'), // 'creator' | 'learner'
   createdAt:             timestamp('created_at').notNull().defaultNow(),
 })
 
