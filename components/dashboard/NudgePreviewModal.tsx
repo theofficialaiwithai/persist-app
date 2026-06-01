@@ -1,10 +1,13 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { X, Loader2, Send, Sparkles, AlertCircle, RotateCcw } from 'lucide-react'
+import {
+  X, Loader2, Send, Sparkles, AlertCircle, RotateCcw, Mail, MessageSquare,
+} from 'lucide-react'
 import { showToast } from '@/lib/toast'
 import { motion, AnimatePresence } from 'framer-motion'
+import { cn } from '@/lib/utils'
 
 interface Props {
   studentId:   string
@@ -12,10 +15,11 @@ interface Props {
   onClose:     () => void
 }
 
+type Mode = 'email' | 'message'
 type Step = 'generating' | 'preview' | 'sending' | 'error'
 
 interface Preview {
-  subject:         string
+  subject?:        string
   body:            string
   studentName:     string
   courseName:      string
@@ -23,32 +27,38 @@ interface Preview {
   hasToneExamples: boolean
 }
 
+const EMOJIS = ['😍', '❤️', '🔥', '⚡', '👍'] as const
+
 export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
   const router = useRouter()
 
-  const [step,      setStep     ] = useState<Step>('generating')
-  const [preview,   setPreview  ] = useState<Preview | null>(null)
-  const [subject,   setSubject  ] = useState('')
-  const [body,      setBody     ] = useState('')
-  const [errorMsg,  setErrorMsg ] = useState<string | null>(null)
+  const [mode,     setMode    ] = useState<Mode>('email')
+  const [step,     setStep    ] = useState<Step>('generating')
+  const [preview,  setPreview ] = useState<Preview | null>(null)
+  const [subject,  setSubject ] = useState('')
+  const [body,     setBody    ] = useState('')
+  const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
+  const [, startTransition] = useTransition()
 
-  // ── Generate preview on mount ─────────────────────────────────────────────
+  // ── Generate draft whenever mode changes ────────────────────────────────────
   useEffect(() => {
     let cancelled = false
+    setStep('generating')
+    setErrorMsg(null)
+
     async function generate() {
       try {
         const res = await fetch('/api/nudge/generate', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ studentId }),
+          body:    JSON.stringify({ studentId, mode }),
         })
         const data = await res.json()
         if (cancelled) return
         if (!res.ok) throw new Error(data.error ?? 'Generation failed')
-
         setPreview(data)
-        setSubject(data.subject)
+        setSubject(data.subject ?? '')
         setBody(data.body)
         setStep('preview')
       } catch (err) {
@@ -59,34 +69,16 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
     }
     generate()
     return () => { cancelled = true }
-  }, [studentId])
+  }, [studentId, mode])
 
-  // ── Send handler ──────────────────────────────────────────────────────────
-  async function handleSend() {
-    if (!subject.trim() || !body.trim()) return
-    setStep('sending')
-    try {
-      const res = await fetch('/api/nudge/send', {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ studentId, subject: subject.trim(), body: body.trim() }),
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setErrorMsg(data.error ?? 'Email delivery failed — check your Resend API key in Settings.')
-        setStep('error')
-        return
-      }
-      showToast.nudgeSent(studentName)
-      onClose()
-      router.refresh()
-    } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Network error — could not reach the server.')
-      setStep('error')
-    }
+  // ── Mode switch (re-generate) ───────────────────────────────────────────────
+  function switchMode(next: Mode) {
+    if (next === mode) return
+    setMode(next)
+    // useEffect above handles re-generation
   }
 
-  // ── Retry: re-generate ────────────────────────────────────────────────────
+  // ── Regenerate ──────────────────────────────────────────────────────────────
   async function handleRegenerate() {
     setStep('generating')
     setErrorMsg(null)
@@ -94,12 +86,12 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
       const res = await fetch('/api/nudge/generate', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ studentId }),
+        body:    JSON.stringify({ studentId, mode }),
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Generation failed')
       setPreview(data)
-      setSubject(data.subject)
+      setSubject(data.subject ?? '')
       setBody(data.body)
       setStep('preview')
     } catch (err) {
@@ -107,6 +99,40 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
       setStep('error')
     }
   }
+
+  // ── Send ─────────────────────────────────────────────────────────────────────
+  async function handleSend() {
+    if (!body.trim()) return
+    setStep('sending')
+    try {
+      const res = await fetch('/api/nudge/send', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          studentId,
+          subject: mode === 'email' ? subject.trim() : 'Message',
+          body:    body.trim(),
+          mode,
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setErrorMsg(data.error ?? (mode === 'email'
+          ? 'Email delivery failed — check your Resend API key in Settings.'
+          : 'Failed to send message.'))
+        setStep('error')
+        return
+      }
+      showToast.nudgeSent(studentName)
+      onClose()
+      startTransition(() => router.refresh())
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Network error.')
+      setStep('error')
+    }
+  }
+
+  const firstName = studentName.split(' ')[0]
 
   return (
     <AnimatePresence>
@@ -125,10 +151,10 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
           transition={{ type: 'spring', stiffness: 320, damping: 28 }}
           className="relative w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden"
         >
-          {/* Header */}
+          {/* ── Header ── */}
           <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
             <div>
-              <h2 className="text-base font-semibold text-[#111827]">Preview nudge</h2>
+              <h2 className="text-base font-semibold text-[#111827]">Send nudge</h2>
               {preview && (
                 <p className="text-xs text-[#9CA3AF] mt-0.5">
                   To: {preview.studentName} · {preview.courseName} · {preview.progressPct}%
@@ -143,22 +169,50 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
             </button>
           </div>
 
-          {/* Body */}
+          {/* ── Mode toggle ── */}
+          <div className="px-6 pt-4">
+            <div className="flex rounded-xl border border-[#E5E7EB] p-1 gap-1 bg-[#F7F8FA]">
+              {([
+                { value: 'email',   label: 'Email',   Icon: Mail          },
+                { value: 'message', label: 'Message', Icon: MessageSquare },
+              ] as const).map(({ value, label, Icon }) => (
+                <button
+                  key={value}
+                  onClick={() => switchMode(value)}
+                  disabled={step === 'sending'}
+                  className={cn(
+                    'flex-1 flex items-center justify-center gap-2 text-sm py-2 rounded-lg font-medium transition-all',
+                    mode === value
+                      ? 'bg-white shadow-sm text-[#111827]'
+                      : 'text-[#6B7280] hover:text-[#111827]',
+                  )}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Body ── */}
           <div className="px-6 py-5">
-            {/* ── Generating state ── */}
+
+            {/* Generating */}
             {step === 'generating' && (
-              <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="flex flex-col items-center justify-center py-10 gap-3">
                 <div className="w-12 h-12 bg-[#E8F4F0] rounded-2xl flex items-center justify-center">
                   <Sparkles className="w-6 h-6 text-[#004643] animate-pulse" />
                 </div>
-                <p className="text-sm font-medium text-[#111827]">Drafting your nudge…</p>
+                <p className="text-sm font-medium text-[#111827]">
+                  {mode === 'email' ? 'Drafting email…' : 'Writing message…'}
+                </p>
                 <p className="text-xs text-[#9CA3AF] text-center max-w-xs">
-                  Claude is writing a personalized message based on {studentName}&apos;s progress.
+                  Claude is personalising {mode === 'email' ? 'an email' : 'a message'} based on {firstName}&apos;s progress.
                 </p>
               </div>
             )}
 
-            {/* ── Preview / edit state ── */}
+            {/* Preview / edit */}
             {step === 'preview' && (
               <div className="space-y-4">
                 {/* Tone badge */}
@@ -169,21 +223,42 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
                   </div>
                 )}
 
-                {/* Subject */}
-                <div>
-                  <label className="text-xs font-semibold text-[#374151] uppercase tracking-wide">Subject line</label>
-                  <input
-                    type="text"
-                    value={subject}
-                    onChange={e => setSubject(e.target.value)}
-                    className="mt-1.5 w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004643]/20 focus:border-[#004643] transition-colors text-[#111827]"
-                  />
-                </div>
+                {/* Email mode: subject + body */}
+                {mode === 'email' && (
+                  <div>
+                    <label className="text-xs font-semibold text-[#374151] uppercase tracking-wide">Subject line</label>
+                    <input
+                      type="text"
+                      value={subject}
+                      onChange={e => setSubject(e.target.value)}
+                      className="mt-1.5 w-full px-3 py-2 text-sm border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004643]/20 focus:border-[#004643] transition-colors text-[#111827]"
+                    />
+                  </div>
+                )}
 
-                {/* Body */}
+                {/* Message preview header */}
+                {mode === 'message' && (
+                  <div className="flex items-center gap-2 px-3 py-2 bg-[#F7F8FA] rounded-xl border border-[#E5E7EB]">
+                    <div className="w-7 h-7 rounded-full bg-[#E8F4F0] text-[#004643] text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                      {studentName.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-[#111827]">{studentName}</p>
+                      <p className="text-[10px] text-[#9CA3AF]">will see this in their messages</p>
+                    </div>
+                    {/* Emoji preview row */}
+                    <div className="ml-auto flex gap-1">
+                      {EMOJIS.map(e => <span key={e} className="text-sm opacity-30">{e}</span>)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Body textarea */}
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-xs font-semibold text-[#374151] uppercase tracking-wide">Message</label>
+                    <label className="text-xs font-semibold text-[#374151] uppercase tracking-wide">
+                      {mode === 'email' ? 'Message' : 'Message'}
+                    </label>
                     <button
                       onClick={handleRegenerate}
                       className="flex items-center gap-1 text-[10px] font-medium text-[#004643] hover:text-[#003533] transition-colors"
@@ -195,44 +270,45 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
                   <textarea
                     value={body}
                     onChange={e => setBody(e.target.value)}
-                    rows={9}
+                    rows={mode === 'email' ? 9 : 5}
                     className="w-full px-3 py-2.5 text-sm border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#004643]/20 focus:border-[#004643] transition-colors resize-none text-[#374151] leading-relaxed font-[inherit]"
                   />
                 </div>
 
-                {/* Hint */}
                 <p className="text-[11px] text-[#9CA3AF]">
-                  ✨ AI-generated — edit freely before sending. Changes you make help train future nudges to your style.
+                  {mode === 'email'
+                    ? '✨ AI-generated — edit freely. Changes help train future nudges to your style.'
+                    : '💬 This message will appear in the student\'s in-app messages with emoji reactions.'}
                 </p>
               </div>
             )}
 
-            {/* ── Sending state ── */}
+            {/* Sending */}
             {step === 'sending' && (
-              <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="flex flex-col items-center justify-center py-10 gap-3">
                 <Loader2 className="w-8 h-8 text-[#004643] animate-spin" />
-                <p className="text-sm font-medium text-[#111827]">Sending nudge…</p>
+                <p className="text-sm font-medium text-[#111827]">
+                  {mode === 'email' ? 'Sending email…' : 'Sending message…'}
+                </p>
               </div>
             )}
 
-            {/* ── Error state ── */}
+            {/* Error */}
             {step === 'error' && (
-              <div className="py-6 space-y-4">
+              <div className="py-4 space-y-4">
                 <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-xl">
                   <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
                   <div>
-                    <p className="text-sm font-semibold text-red-700">Send failed</p>
+                    <p className="text-sm font-semibold text-red-700">
+                      {mode === 'email' ? 'Send failed' : 'Message not sent'}
+                    </p>
                     <p className="text-xs text-red-600 mt-0.5 leading-relaxed">{errorMsg}</p>
                   </div>
                 </div>
                 <button
                   onClick={() => {
-                    if (preview) {
-                      setStep('preview')
-                      setErrorMsg(null)
-                    } else {
-                      handleRegenerate()
-                    }
+                    if (preview) { setStep('preview'); setErrorMsg(null) }
+                    else handleRegenerate()
                   }}
                   className="w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-[#004643] border border-[#004643] rounded-xl hover:bg-[#E8F4F0] transition-colors"
                 >
@@ -243,8 +319,8 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
             )}
           </div>
 
-          {/* Footer */}
-          {(step === 'preview') && (
+          {/* ── Footer ── */}
+          {step === 'preview' && (
             <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-[#E5E7EB] bg-[#FAFAFA]">
               <button
                 onClick={onClose}
@@ -254,11 +330,11 @@ export function NudgePreviewModal({ studentId, studentName, onClose }: Props) {
               </button>
               <button
                 onClick={handleSend}
-                disabled={!subject.trim() || !body.trim()}
+                disabled={!body.trim() || (mode === 'email' && !subject.trim())}
                 className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-[#E4572E] hover:bg-[#CC4A23] rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Send className="w-3.5 h-3.5" />
-                Send nudge
+                {mode === 'email' ? 'Send email' : 'Send message'}
               </button>
             </div>
           )}

@@ -8,6 +8,8 @@ import { CourseProgressCard } from '@/components/dashboard/CourseProgressCard'
 import { SendNudgeButton } from '@/components/dashboard/SendNudgeButton'
 import { NudgeAccordion } from '@/components/dashboard/NudgeAccordion'
 import type { NudgeItem } from '@/components/dashboard/NudgeAccordion'
+import { NudgeMessageThread } from '@/components/dashboard/NudgeMessageThread'
+import type { MessageNudge } from '@/components/dashboard/NudgeMessageThread'
 import { cn } from '@/lib/utils'
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -75,14 +77,32 @@ export default async function StudentDetailPage({
     .where(eq(nudges.studentId, student.id))
     .orderBy(desc(nudges.createdAt))
 
-  const nudgeItems: NudgeItem[] = nudgeRows.map(n => ({
-    id:        n.id,
-    subject:   n.subject,
-    body:      n.body,
-    status:    n.status,
-    sentAt:    n.sentAt    ? n.sentAt.toISOString()    : null,
-    createdAt: n.createdAt ? n.createdAt.toISOString() : null,
-  }))
+  // Split nudges: emails go in the accordion, in-app messages in the thread
+  const senderInitials = (creator.senderName || creator.name || 'You')
+    .split(' ').map((n: string) => n[0]).join('').slice(0, 2).toUpperCase()
+
+  const nudgeItems: NudgeItem[] = nudgeRows
+    .filter(n => n.nudgeType !== 'message')
+    .map(n => ({
+      id:        n.id,
+      subject:   n.subject,
+      body:      n.body,
+      status:    n.status,
+      sentAt:    n.sentAt    ? n.sentAt.toISOString()    : null,
+      createdAt: n.createdAt ? n.createdAt.toISOString() : null,
+    }))
+
+  const messageItems: MessageNudge[] = nudgeRows
+    .filter(n => n.nudgeType === 'message')
+    .map(n => ({
+      id:             n.id,
+      body:           n.body,
+      reactions:      n.reactions ?? '{}',
+      sentAt:         n.sentAt    ? n.sentAt.toISOString()    : null,
+      createdAt:      n.createdAt ? n.createdAt.toISOString() : null,
+      senderName:     creator.senderName || creator.name,
+      senderInitials,
+    }))
 
   // ── Derived values ────────────────────────────────────────────────────────
   const daysInactive = student.lastActiveAt
@@ -173,9 +193,22 @@ export default async function StudentDetailPage({
             </div>
           </div>
 
-          {/* ── Card 2: Nudge History ──────────────────────────────────── */}
+          {/* ── Card 2: In-app Messages ─────────────────────────────────── */}
           <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-[#111827] mb-4">Nudge History</h2>
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-lg font-semibold text-[#111827]">Messages</h2>
+              {messageItems.length > 0 && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[#E8F4F0] text-[#004643]">
+                  {messageItems.length}
+                </span>
+              )}
+            </div>
+            <NudgeMessageThread messages={messageItems} currentUserId={creator.id} />
+          </div>
+
+          {/* ── Card 3: Email History ───────────────────────────────────── */}
+          <div className="bg-white rounded-xl border border-[#E5E7EB] shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-[#111827] mb-4">Email History</h2>
             <NudgeAccordion nudges={nudgeItems} />
           </div>
         </div>

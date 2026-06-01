@@ -80,8 +80,9 @@ export const nudges = pgTable('nudges', {
   subject:         text('subject').notNull(),
   body:            text('body').notNull(),
   triggerReason:   text('trigger_reason').notNull(),
-  nudgeType:       text('nudge_type').notNull().default('nudge'),
+  nudgeType:       text('nudge_type').notNull().default('nudge'), // 'nudge' | 'message'
   status:          text('status').notNull().default('pending'),
+  reactions:       text('reactions').notNull().default('{}'),     // JSON: { [emoji]: string[] } creator IDs
   sentAt:          timestamp('sent_at'),
   openedAt:        timestamp('opened_at'),
   clickedAt:       timestamp('clicked_at'),

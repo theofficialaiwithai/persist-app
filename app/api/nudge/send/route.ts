@@ -1,6 +1,6 @@
 import { auth } from '@clerk/nextjs/server'
 import { db } from '@/db'
-import { creators, students, courses } from '@/db/schema'
+import { creators, students, courses, nudges } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { generateNudgeSubject, recordNudge } from '@/lib/nudge-engine'
 import { sendNudgeEmail } from '@/lib/email'
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
     }
 
     const reqBody = await request.json()
-    const { studentId, subject: customSubject, body: customBody } = reqBody
+    const { studentId, subject: customSubject, body: customBody, mode = 'email' } = reqBody
 
     if (!studentId || typeof studentId !== 'string') {
       return Response.json({ error: 'studentId is required' }, { status: 400 })
@@ -53,16 +53,36 @@ export async function POST(request: Request) {
 
     // Use caller-supplied content (from preview modal, possibly edited)
     const emailBody = customBody   || '(no body)'
-    const subject   = customSubject || generateNudgeSubject(student.name ?? student.email, course.name, pct)
+    const subject   = customSubject || (mode === 'message' ? 'Message' : generateNudgeSubject(student.name ?? student.email, course.name, pct))
 
-    // Record the nudge first (status = pending)
+    // Record the nudge (status = pending for email, sent immediately for message)
     const nudge = await recordNudge({
-      studentId: student.id,
+      studentId:     student.id,
       emailBody,
       subject,
+      nudgeType:     mode === 'message' ? 'message' : 'nudge',
+      triggerReason: mode === 'message' ? 'manual:message' : 'manual:email',
     })
 
-    // Attempt email delivery
+    // ── In-app message: skip Resend, mark sent immediately ───────────────────
+    if (mode === 'message') {
+      await db.update(nudges).set({ status: 'sent', sentAt: new Date() }).where(eq(nudges.id, nudge.id))
+
+      // Tone learning — store message body too
+      try {
+        let examples: string[] = []
+        if (creator.nudgeToneExamples) {
+          const parsed = JSON.parse(creator.nudgeToneExamples)
+          if (Array.isArray(parsed)) examples = parsed
+        }
+        examples = [emailBody, ...examples].slice(0, 5)
+        await db.update(creators).set({ nudgeToneExamples: JSON.stringify(examples) }).where(eq(creators.id, creator.id))
+      } catch { /* non-fatal */ }
+
+      return Response.json({ success: true, nudgeId: nudge.id, mode: 'message' })
+    }
+
+    // ── Email: attempt Resend delivery ───────────────────────────────────────
     const result = await sendNudgeEmail({
       toEmail:   student.email,
       toName:    student.name ?? student.email,

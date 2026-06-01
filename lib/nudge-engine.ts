@@ -189,6 +189,53 @@ export async function generateNudgeEmail(params: {
   return block.text
 }
 
+// ── 3b. Short in-app message generator ──────────────────────────────────────
+
+/**
+ * Generates a short, conversational in-app message nudge (under 60 words).
+ * No subject line, no formal opener — reads like a direct message.
+ */
+export async function generateNudgeMessage(params: {
+  student:           Student
+  course:            Course
+  creator:           Creator
+  daysSinceActivity: number
+  toneExamples?:     string[]
+}): Promise<string> {
+  const { student, course, creator, daysSinceActivity, toneExamples } = params
+  const pct       = student.progressPct
+  const firstName = (student.name ?? student.email).split(' ')[0]
+
+  const examplesBlock = toneExamples && toneExamples.length > 0
+    ? '\n\nMatch the creator\'s voice closely. Examples:\n\n' +
+      toneExamples.map((ex, i) => `--- ${i + 1} ---\n${ex}`).join('\n\n')
+    : ''
+
+  const systemPrompt =
+    'You write short, warm in-app messages from course creators to students. ' +
+    'Under 60 words. Conversational tone — like a DM, not an email. ' +
+    'No greeting opener, no subject line. Start with the substance. ' +
+    'Never guilt-trip. End naturally without a formal sign-off.' +
+    examplesBlock
+
+  const userPrompt =
+    `Write an in-app message nudge to ${firstName} about "${course.name}".\n` +
+    `Progress: ${pct}%, inactive for ${daysSinceActivity} days.\n` +
+    `Creator: ${creator.senderName}.\n` +
+    `Keep it under 60 words. Warm and direct.`
+
+  const message = await anthropic.messages.create({
+    model:      'claude-haiku-4-5',
+    max_tokens: 150,
+    messages:   [{ role: 'user', content: userPrompt }],
+    system:     systemPrompt,
+  })
+
+  const block = message.content[0]
+  if (block.type !== 'text') throw new Error('Unexpected Anthropic response')
+  return block.text
+}
+
 // ── 4. Record a nudge in the database ───────────────────────────────────────
 
 export async function recordNudge(params: {

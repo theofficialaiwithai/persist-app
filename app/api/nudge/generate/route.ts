@@ -2,23 +2,24 @@ import { auth } from '@clerk/nextjs/server'
 import { db } from '@/db'
 import { creators, students, courses } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-import { generateNudgeEmail, generateNudgeSubject } from '@/lib/nudge-engine'
+import { generateNudgeEmail, generateNudgeMessage, generateNudgeSubject } from '@/lib/nudge-engine'
 
 /**
  * POST /api/nudge/generate
- * Body: { studentId: string }
+ * Body: { studentId: string; mode?: 'email' | 'message' }
  *
  * Generates an AI-drafted nudge preview for a student.
- * Does NOT write anything to the database — the user reviews/edits
- * the draft in the modal before the actual send.
+ * mode='email'   → formal re-engagement email (subject + body)
+ * mode='message' → short conversational in-app message (body only)
+ * Does NOT write anything to the database.
  */
 export async function POST(request: Request) {
   try {
     const { userId } = await auth()
     if (!userId) return Response.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const body = await request.json()
-    const { studentId } = body
+    const reqBody = await request.json()
+    const { studentId, mode = 'email' } = reqBody
     if (!studentId || typeof studentId !== 'string') {
       return Response.json({ error: 'studentId is required' }, { status: 400 })
     }
@@ -47,15 +48,25 @@ export async function POST(request: Request) {
       try {
         const parsed = JSON.parse(creator.nudgeToneExamples)
         if (Array.isArray(parsed)) toneExamples = parsed
-      } catch {
-        // ignore malformed JSON
-      }
+      } catch { /* ignore */ }
     }
 
     const daysSinceActivity = student.lastActiveAt
       ? Math.floor((Date.now() - new Date(student.lastActiveAt).getTime()) / (1000 * 60 * 60 * 24))
       : 7
 
+    if (mode === 'message') {
+      const body = await generateNudgeMessage({ student, course, creator, daysSinceActivity, toneExamples })
+      return Response.json({
+        body,
+        studentName:     student.name ?? student.email,
+        courseName:      course.name,
+        progressPct:     student.progressPct,
+        hasToneExamples: toneExamples.length > 0,
+      })
+    }
+
+    // Email mode (default)
     const [emailBody, subject] = await Promise.all([
       generateNudgeEmail({ student, course, creator, daysSinceActivity, toneExamples }),
       Promise.resolve(generateNudgeSubject(student.name ?? student.email, course.name, student.progressPct)),
@@ -63,10 +74,10 @@ export async function POST(request: Request) {
 
     return Response.json({
       subject,
-      body:        emailBody,
-      studentName: student.name ?? student.email,
-      courseName:  course.name,
-      progressPct: student.progressPct,
+      body:            emailBody,
+      studentName:     student.name ?? student.email,
+      courseName:      course.name,
+      progressPct:     student.progressPct,
       hasToneExamples: toneExamples.length > 0,
     })
   } catch (err) {
